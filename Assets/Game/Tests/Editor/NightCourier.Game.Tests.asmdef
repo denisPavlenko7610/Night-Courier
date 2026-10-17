@@ -3,6 +3,8 @@
     "rootNamespace": "NightCourier.Tests",
     "references": [
         "NightCourier.Game",
+        "RD.Conditions",
+        "RD.DependencyInjection",
         "RD.Foundation",
         "RD.Localization",
         "RD.Quests",

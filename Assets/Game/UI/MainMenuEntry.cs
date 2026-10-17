@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using NightCourier.App;
+using RD.DependencyInjection;
 using RD.Foundation;
 using RD.Save;
 using UnityEngine;
@@ -21,7 +22,7 @@ namespace NightCourier.UI
 
 		private GameServices _services;
 
-		public void Enter(GameServices services)
+		public void Enter(GameServices services, IObjectResolver scene)
 		{
 			_services = services;
 

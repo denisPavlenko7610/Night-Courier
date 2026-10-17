@@ -11,13 +11,20 @@ namespace NightCourier.Contracts
 
 		private double _transitSeconds;
 		private int _violationCount;
+		private int _packageViolationCount;
+		private int _deathCount;
 
 		public ContractRun(ContractSpec spec, QuestService quests)
 		{
 			Spec = spec ?? throw new ArgumentNullException(nameof(spec));
 			_quests = quests ?? throw new ArgumentNullException(nameof(quests));
-			_deadline = spec.HasTimeLimit ? new CountdownTimer(spec.TimeLimitSeconds) : null;
 			Phase = ContractPhase.Accepted;
+
+			if (spec.HasTimeLimit)
+			{
+				_deadline = new CountdownTimer(spec.TimeLimitSeconds);
+				_deadline.Completed += OnDeadlineCompleted;
+			}
 		}
 
 		public ContractSpec Spec { get; }
@@ -26,9 +33,17 @@ namespace NightCourier.Contracts
 
 		public event Action<ContractPhase> PhaseChanged;
 
+		public event Action DeadlineExpired;
+
+		public event Action<int> PackageViolationRegistered;
+
 		public double TransitSeconds => _transitSeconds;
 
 		public int ViolationCount => _violationCount;
+
+		public int PackageViolationCount => _packageViolationCount;
+
+		public int DeathCount => _deathCount;
 
 		public bool HasDeadline => _deadline != null;
 
@@ -78,6 +93,26 @@ namespace NightCourier.Contracts
 
 		public void RegisterViolation()
 		{
+			if (Phase != ContractPhase.InTransit)
+			{
+				return;
+			}
+
+			_violationCount++;
+			_packageViolationCount++;
+			PackageViolationRegistered?.Invoke(_packageViolationCount);
+		}
+
+		public void RegisterDeath()
+		{
+			if (Phase == ContractPhase.InTransit)
+			{
+				_deathCount++;
+			}
+		}
+
+		public void RegisterPropertyDamage()
+		{
 			if (Phase == ContractPhase.InTransit)
 			{
 				_violationCount++;
@@ -86,7 +121,7 @@ namespace NightCourier.Contracts
 
 		public ContractOutcome CaptureOutcome()
 		{
-			return new ContractOutcome(_violationCount, _transitSeconds, IsOverdue);
+			return new ContractOutcome(_violationCount, _transitSeconds, IsOverdue, _deathCount);
 		}
 
 		public bool Fail()
@@ -125,6 +160,11 @@ namespace NightCourier.Contracts
 
 			SetPhase(next);
 			return true;
+		}
+
+		private void OnDeadlineCompleted()
+		{
+			DeadlineExpired?.Invoke();
 		}
 
 		private void SetPhase(ContractPhase phase)

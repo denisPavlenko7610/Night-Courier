@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NightCourier.App;
 using NightCourier.Contracts;
 using NightCourier.Player;
+using RD.DependencyInjection;
 using RD.Foundation;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,13 +13,16 @@ namespace NightCourier.UI
 	public sealed class DepotEntry : MonoBehaviour, ISceneEntry
 	{
 		private const string AcceptKey = "contract.accept";
-		private const string CollectKey = "contract.collect";
-		private const string DepartKey = "contract.depart";
 
 		[SerializeField] private PlayerSession _player;
 		[SerializeField] private InteractionPromptView _promptView;
+		[SerializeField] private ObjectiveView _objective;
+		[SerializeField] private PlayerVitalsView _vitalsView;
 		[SerializeField] private PauseMenu _pauseMenu;
 		[SerializeField] private Interactable _terminal;
+		[SerializeField] private Interactable _van;
+		[SerializeField] private GameObject _packagePrefab;
+		[SerializeField] private Transform _packageSpawn;
 		[SerializeField] private GameObject _terminalPanel;
 		[SerializeField] private Button _closeButton;
 		[SerializeField] private LocalizedLabel _creditsLabel;
@@ -33,27 +37,42 @@ namespace NightCourier.UI
 
 		private GameServices _services;
 		private CampaignState _campaign;
+		private PlayerCarry _carry;
 		private ContractSpec _selected;
 		private IDisposable _terminalScope;
 
-		public void Enter(GameServices services)
+		public void Enter(GameServices services, IObjectResolver scene)
 		{
 			_campaign = services.Campaign.Current
 				?? throw new InvalidOperationException("The depot requires an active campaign.");
+
+			if (_campaign.Contracts.ActiveRun != null)
+			{
+				throw new InvalidOperationException("The depot cannot start with an unfinished contract.");
+			}
+
 			_services = services;
 
 			LocalizedLabel.BindAll(gameObject, services.Localization);
 
 			_player.Begin(services);
+			_carry = _player.Carry;
+
 			_promptView.Bind(_player.Interactor, services.Localization, services.Input.Actions);
+			_objective.Bind(services.Localization);
+			_vitalsView.Bind(services.Localization, _player.Vitals);
 			_pauseMenu.Bind(services);
 
 			_terminal.Interacted += OpenTerminal;
-			_actionButton.onClick.AddListener(OnAction);
+			_van.Interacted += OnVanUsed;
+			_carry.HeldChanged += RefreshWorld;
+			_actionButton.onClick.AddListener(OnAccept);
 			_closeButton.onClick.AddListener(CloseTerminal);
 
 			_terminalPanel.SetActive(false);
 			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
+
+			RefreshWorld();
 		}
 
 		private void OnDestroy()
@@ -65,7 +84,17 @@ namespace NightCourier.UI
 				_terminal.Interacted -= OpenTerminal;
 			}
 
-			_actionButton.onClick.RemoveListener(OnAction);
+			if (_van != null)
+			{
+				_van.Interacted -= OnVanUsed;
+			}
+
+			if (_carry != null)
+			{
+				_carry.HeldChanged -= RefreshWorld;
+			}
+
+			_actionButton.onClick.RemoveListener(OnAccept);
 			_closeButton.onClick.RemoveListener(CloseTerminal);
 		}
 
@@ -79,7 +108,7 @@ namespace NightCourier.UI
 			_terminalScope = _services.Input.PushMenu(CloseTerminal);
 			_terminalPanel.SetActive(true);
 
-			Refresh();
+			RefreshTerminal();
 		}
 
 		private void CloseTerminal()
@@ -94,7 +123,16 @@ namespace NightCourier.UI
 			_terminalPanel.SetActive(false);
 		}
 
-		private void Refresh()
+		private void RefreshWorld()
+		{
+			ContractRun run = _campaign.Contracts.ActiveRun;
+			bool carrying = _carry.IsCarrying;
+
+			_van.SetAvailable(run != null && run.Phase == ContractPhase.PackageCollected && carrying);
+			_objective.Show(ObjectiveHints.ForDepot(run, carrying));
+		}
+
+		private void RefreshTerminal()
 		{
 			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
 
@@ -102,7 +140,14 @@ namespace NightCourier.UI
 
 			if (run != null)
 			{
-				ShowRun(run);
+				foreach (ContractSlot slot in _slots)
+				{
+					slot.Hide();
+				}
+
+				_emptyNotice.SetActive(false);
+				ShowDetails(run.Spec);
+				ShowAction(false);
 				return;
 			}
 
@@ -132,25 +177,7 @@ namespace NightCourier.UI
 
 			_emptyNotice.SetActive(available.Count == 0);
 			ShowDetails(_selected);
-			ShowAction(_selected != null ? AcceptKey : null);
-		}
-
-		private void ShowRun(ContractRun run)
-		{
-			foreach (ContractSlot slot in _slots)
-			{
-				slot.Hide();
-			}
-
-			_emptyNotice.SetActive(false);
-			ShowDetails(run.Spec);
-
-			ShowAction(run.Phase switch
-			{
-				ContractPhase.Accepted => CollectKey,
-				ContractPhase.PackageCollected => DepartKey,
-				_ => null
-			});
+			ShowAction(_selected != null);
 		}
 
 		private void ShowDetails(ContractSpec spec)
@@ -171,43 +198,30 @@ namespace NightCourier.UI
 				_services.Localization.Get(StateKey(spec.LocationState)));
 		}
 
-		private void ShowAction(string key)
+		private void ShowAction(bool visible)
 		{
-			_actionButton.gameObject.SetActive(key != null);
+			_actionButton.gameObject.SetActive(visible);
 
-			if (key != null)
+			if (visible)
 			{
-				_actionLabel.SetKey(key);
+				_actionLabel.SetKey(AcceptKey);
 			}
 		}
 
 		private void OnSelected(ContractSpec spec)
 		{
 			_selected = spec;
-			Refresh();
+			RefreshTerminal();
 		}
 
-		private void OnAction()
+		private void OnAccept()
 		{
 			try
 			{
-				ContractRun run = _campaign.Contracts.ActiveRun;
-
-				if (run == null)
-				{
-					_campaign.Contracts.Accept(_selected.Id);
-					Refresh();
-				}
-				else if (run.Phase == ContractPhase.Accepted)
-				{
-					run.CollectPackage();
-					Refresh();
-				}
-				else if (run.Phase == ContractPhase.PackageCollected)
-				{
-					run.Depart();
-					Navigate(run.Spec.DestinationSceneId);
-				}
+				_campaign.Contracts.Accept(_selected.Id);
+				SpawnPackage();
+				CloseTerminal();
+				RefreshWorld();
 			}
 			catch (Exception exception)
 			{
@@ -215,18 +229,48 @@ namespace NightCourier.UI
 			}
 		}
 
-		private async void Navigate(string sceneId)
+		private void SpawnPackage()
 		{
-			_actionButton.interactable = false;
+			GameObject instance = Instantiate(_packagePrefab, _packageSpawn.position, _packageSpawn.rotation);
+			CargoPackage package = instance.GetComponent<CargoPackage>();
+
+			package.Bind(_carry);
+			package.PickedUp += OnPackagePickedUp;
+		}
+
+		private void OnPackagePickedUp()
+		{
+			ContractRun run = _campaign.Contracts.ActiveRun;
+
+			if (run != null && run.Phase == ContractPhase.Accepted)
+			{
+				run.CollectPackage();
+			}
+
+			RefreshWorld();
+		}
+
+		private async void OnVanUsed()
+		{
+			ContractRun run = _campaign.Contracts.ActiveRun;
+
+			if (run == null || run.Phase != ContractPhase.PackageCollected || !_carry.IsCarrying)
+			{
+				return;
+			}
+
+			_van.SetAvailable(false);
 
 			try
 			{
-				await _services.Navigator.GoToAsync(sceneId);
+				_carry.ConsumeHeld();
+				run.Depart();
+
+				await _services.Navigator.GoToAsync(run.Spec.DestinationSceneId);
 			}
 			catch (Exception exception)
 			{
 				UnityLogger.LogException(exception, this);
-				_actionButton.interactable = true;
 			}
 		}
 

@@ -63,6 +63,22 @@
       "source": "local",
       "dependencies": {}
     },
+    "com.rd.demosupport": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Examples/Shared/Support",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.dependencyinjection": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/DependencyInjection",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
     "com.rd.equipment": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Equipment",
       "depth": 0,
@@ -815,7 +831,7 @@
     },
     "com.unity.addressables": {
       "version": "4.0.1",
-      "depth": 1,
+      "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.profiling.core": "1.0.2",
@@ -929,6 +945,16 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.localization": {
+      "version": "1.5.13",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.addressables": "1.25.0",
+        "com.unity.nuget.newtonsoft-json": "3.0.2"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.mathematics": {
       "version": "1.4.0",
       "depth": 1,
@@ -965,7 +991,7 @@
     },
     "com.unity.profiling.core": {
       "version": "1.0.3",
-      "depth": 2,
+      "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
@@ -1001,7 +1027,7 @@
     },
     "com.unity.scriptablebuildpipeline": {
       "version": "4.0.0",
-      "depth": 2,
+      "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.test-framework": "1.4.5",

@@ -5,12 +5,15 @@ namespace NightCourier.Contracts
 {
 	public readonly struct ContractOutcome
 	{
-		public ContractOutcome(int violationCount, double transitSeconds, bool wasOverdue)
+		public ContractOutcome(int violationCount, double transitSeconds, bool wasOverdue, int deathCount = 0)
 		{
 			ViolationCount = violationCount;
 			TransitSeconds = transitSeconds;
 			WasOverdue = wasOverdue;
+			DeathCount = deathCount;
 		}
+
+		public int DeathCount { get; }
 
 		public int ViolationCount { get; }
 

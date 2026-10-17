@@ -24,3 +24,5 @@ MonoBehaviour:
   _isRepeatable: 0
   _prerequisites: []
   _objectives: []
+  _packageRules: 
+  _escalation: []

@@ -13,8 +13,12 @@ or assembly references change. Details: [UPM.md](../UnityTemplates/UPM.md).
 The packages include module sources together with their editor tools, and the mechanics' Runtime. Demo scenes, examples,
 and tests of the template stay in UnityTemplates.
 
-The installed set contains 92 RD packages: 31 modules and 61 mechanics/shared-runtime packages. Haptics is intentionally
-excluded for this Windows/Steam project, including when running the installer again. The latest update adds
+The installed set contains 94 RD packages: 32 modules (now including `com.rd.dependencyinjection`), 61
+mechanics/shared-runtime packages, and `com.rd.demosupport`. Module packages are linked at the module root, which also
+holds its `Demo/` folder, so the project needs `com.rd.demosupport`, `com.rd.dependencyinjection`, and the Unity packages
+`com.unity.localization` and `com.unity.addressables` for those demo assemblies to compile; none of them is used by game
+code except the DI module. Haptics is intentionally excluded for this Windows/Steam project, including when running the
+installer again. An earlier update added
 Dash, ResponsiveJump, HoldInteraction, PhysicsButton, PushPullObject, ThrowableObject, GrapplingHook, Ladder,
 LedgeGrabMantle, RopeSwing, WallJump, Zipline, ConveyorBelt, DisappearingPlatform, FallingPlatform, ForceZone, Pendulum,
 and RotatingPlatform. Gameplay integration remains separate from package installation.

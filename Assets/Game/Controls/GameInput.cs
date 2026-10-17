@@ -12,6 +12,7 @@ namespace NightCourier.Controls
 		private readonly InputServices _services;
 
 		private bool _disposed;
+		private int _lockDepth;
 
 		public GameInput(InputActionAsset asset)
 		{
@@ -36,6 +37,13 @@ namespace NightCourier.Controls
 		public IDisposable PushGameplay()
 		{
 			return _services.Contexts.Push(Actions.Gameplay);
+		}
+
+		public IDisposable PushLocked()
+		{
+			_lockDepth++;
+
+			return new LockScope(this, _services.Contexts.Push(Array.Empty<InputActionMap>()));
 		}
 
 		public IDisposable PushMenu(Action onCancel = null)
@@ -81,8 +89,42 @@ namespace NightCourier.Controls
 				}
 			}
 
-			Cursor.lockState = gameplay ? CursorLockMode.Locked : CursorLockMode.None;
-			Cursor.visible = !gameplay;
+			bool locked = gameplay || _lockDepth > 0;
+
+			Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+			Cursor.visible = !locked;
+		}
+
+		private void Unlock()
+		{
+			_lockDepth--;
+			ApplyCursor();
+		}
+
+		private sealed class LockScope : IDisposable
+		{
+			private readonly GameInput _owner;
+			private readonly IDisposable _context;
+
+			private bool _disposed;
+
+			public LockScope(GameInput owner, IDisposable context)
+			{
+				_owner = owner;
+				_context = context;
+			}
+
+			public void Dispose()
+			{
+				if (_disposed)
+				{
+					return;
+				}
+
+				_disposed = true;
+				_context.Dispose();
+				_owner.Unlock();
+			}
 		}
 	}
 }

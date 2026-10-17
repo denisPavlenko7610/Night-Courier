@@ -18,6 +18,13 @@ namespace NightCourier.Contracts
 		Blackout = 1
 	}
 
+	public enum PackageRuleKind
+	{
+		DoNotDrop = 0,
+		KeepInLight = 1,
+		DeliveryDeadline = 2
+	}
+
 	public enum ContractPhase
 	{
 		Accepted = 0,
