@@ -25,3 +25,9 @@ MonoBehaviour:
   _prerequisites:
   - contract.standard-delivery
   _objectives: []
+  _packageRules: 01000000i
+  _escalation:
+  - _atViolation: 1
+    _effect: 0
+  - _atViolation: 4
+    _effect: 1

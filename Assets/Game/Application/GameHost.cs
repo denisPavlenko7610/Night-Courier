@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NightCourier.Contracts;
+using RD.DependencyInjection;
 using RD.Foundation;
 using RD.SceneFlow;
 using RD.Startup;
@@ -20,6 +21,8 @@ namespace NightCourier.App
 
 		private StartupPipeline _pipeline;
 		private ISceneFlow _sceneFlow;
+		private Container _root;
+		private Container _sceneScope;
 		private GameServices _services;
 		private string _currentSceneId;
 		private bool _isNavigating;
@@ -59,6 +62,8 @@ namespace NightCourier.App
 
 		private async void OnDestroy()
 		{
+			DisposeContainers();
+
 			if (_pipeline == null)
 			{
 				return;
@@ -98,8 +103,12 @@ namespace NightCourier.App
 					await _sceneFlow.UnloadAsync(previous, SceneIds.Boot, cancellationToken);
 				}
 
+				_sceneScope?.Dispose();
+				_sceneScope = null;
+
 				await _sceneFlow.LoadAdditiveAsync(sceneId, setActive: true, cancellationToken: cancellationToken);
 				_currentSceneId = sceneId;
+				_sceneScope = _root.CreateScope();
 
 				EnterActiveScene();
 			}
@@ -135,7 +144,8 @@ namespace NightCourier.App
 			await _pipeline.StartAsync(cancellationToken);
 
 			_sceneFlow = builder.SceneFlow;
-			_services = builder.Build(this);
+			_root = GameComposition.Build(builder, this);
+			_services = _root.Resolve<GameServices>();
 
 			await GoToAsync(SceneIds.MainMenu, cancellationToken);
 		}
@@ -155,7 +165,15 @@ namespace NightCourier.App
 					$"Scene '{SceneManager.GetActiveScene().name}' must contain exactly one scene entry, found {entries.Count}.");
 			}
 
-			entries[0].Enter(_services);
+			entries[0].Enter(_services, _sceneScope);
+		}
+
+		private void DisposeContainers()
+		{
+			_sceneScope?.Dispose();
+			_sceneScope = null;
+			_root?.Dispose();
+			_root = null;
 		}
 	}
 }

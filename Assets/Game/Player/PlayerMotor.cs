@@ -14,8 +14,10 @@ namespace NightCourier.Player
 		private const float GroundedStickVelocity = -2f;
 		private const float MouseDegreesPerCount = 0.1f;
 		private const float StickDegreesPerSecond = 180f;
+		private const float MinGroundNormalY = 0.5f;
 
 		[SerializeField] private Transform _cameraPoint;
+		[SerializeField] private PlayerVitals _vitals;
 		[SerializeField, Min(0.1f)] private float _walkSpeed = 4f;
 		[SerializeField, Min(0.1f)] private float _sprintSpeed = 6.5f;
 		[SerializeField, Min(0.1f)] private float _gravity = 20f;
@@ -26,6 +28,8 @@ namespace NightCourier.Player
 		private float _sensitivity = GameSettings.DefaultMouseSensitivity;
 		private float _pitch;
 		private float _verticalVelocity;
+		private Transform _ground;
+		private Vector3 _groundPosition;
 
 		public void Bind(PlayerInputActions actions, ISettingsService settings)
 		{
@@ -41,6 +45,17 @@ namespace NightCourier.Player
 		private void Awake()
 		{
 			_controller = GetComponent<CharacterController>();
+			_vitals.Respawned += OnRespawned;
+		}
+
+		private void OnRespawned()
+		{
+			Physics.SyncTransforms();
+
+			_verticalVelocity = 0f;
+			_pitch = 0f;
+			_ground = null;
+			_cameraPoint.localRotation = Quaternion.identity;
 		}
 
 		private void Update()
@@ -50,12 +65,37 @@ namespace NightCourier.Player
 				return;
 			}
 
+			FollowGround();
 			Look();
 			Move();
 		}
 
+		private void OnControllerColliderHit(ControllerColliderHit hit)
+		{
+			if (hit.normal.y < MinGroundNormalY)
+			{
+				return;
+			}
+
+			Rigidbody body = hit.collider.attachedRigidbody;
+			Transform ground = body != null && body.isKinematic ? body.transform : null;
+
+			if (ground == _ground)
+			{
+				return;
+			}
+
+			_ground = ground;
+			_groundPosition = ground != null ? ground.position : Vector3.zero;
+		}
+
 		private void OnDestroy()
 		{
+			if (_vitals != null)
+			{
+				_vitals.Respawned -= OnRespawned;
+			}
+
 			Unbind();
 		}
 
@@ -72,6 +112,23 @@ namespace NightCourier.Player
 			if (change.Id == GameSettings.MouseSensitivity.Id)
 			{
 				_sensitivity = _settings.Get(GameSettings.MouseSensitivity);
+			}
+		}
+
+		private void FollowGround()
+		{
+			if (_ground == null)
+			{
+				return;
+			}
+
+			Vector3 position = _ground.position;
+			Vector3 delta = position - _groundPosition;
+			_groundPosition = position;
+
+			if (delta != Vector3.zero)
+			{
+				_controller.Move(delta);
 			}
 		}
 

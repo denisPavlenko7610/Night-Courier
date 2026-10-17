@@ -107,13 +107,20 @@ PhysicsButton, Pendulum, RopeSwing.
   library only. The application layer uses `NightCourier.App` (not `NightCourier.Application`, which would shadow
   `UnityEngine.Application`); UI uses `NightCourier.UI`.
 - `Boot` is a persistent base scene that owns `GameHost` (the composition root). Content scenes are swapped additively
-  by `GameHost`, and each content scene has exactly one `ISceneEntry` that receives `GameServices`. Do not call
+  by `GameHost`, and each content scene has exactly one `ISceneEntry` that receives `GameServices` and its scene scope. Do not call
   `SceneFlow.ChangeSceneAsync` (known defect, see [Docs/Production-Plan.md](Docs/Production-Plan.md) Open Decisions).
 - Startup steps live in `Assets/Game/Application/Steps`; add a service by adding a step and a `GameServices` property,
   never a static accessor.
 - Game assemblies reference template assemblies explicitly. Templates never reference game code.
 - **No singletons and no service locator.** The Startup pipeline builds application services; they are passed explicitly
   to scene entry points. Scene-local initialization stays in its scene.
+- **Dependency injection uses the template module `RD.DependencyInjection`, at the composition boundary only.**
+  `GameHost` owns the root `Container` (built by `GameComposition.Build`: Startup-built services as borrowed instances,
+  `GameServices` as a singleton) and creates one child scope per content scene, disposed after the scene unloads. A
+  scene entry receives `GameServices` plus the scene's `IObjectResolver`, resolves its scene-scoped services once in its
+  own composition code, and passes them to components explicitly. Components never see the container, and there is no
+  static or global container. Register new scene-scoped services in `GameComposition` (the module has no child-specific
+  registrations, so they are `Lifetime.Scoped` at the root); keep Unity objects out of the container.
 - Separate stable definitions (data) from runtime state. No MonoBehaviour per contract, no giant universal
   ScriptableObject.
 - A package is never one class holding all rules: one small component per genuinely reusable rule.
@@ -202,8 +209,11 @@ Match the surrounding code and the template library's style:
 - To drive input in that stepped mode, run once from `execute_code`: set the input manager's
   `runPlayerUpdatesInEditMode` to true by reflection on `InputSystem.s_Manager` (the Input System ignores events while the
   editor is paused otherwise), then queue events with `InputSystem.QueueStateEvent(Keyboard.current, state)` /
-  `QueueDeltaStateEvent(Mouse.current.delta, …)` before `EditorApplication.Step()`. A stepped frame has a fixed
-  delta of 0.02 s. Restore any `InputSystem.settings` you changed. The flag resets on the next Play Mode entry.
+  `QueueDeltaStateEvent(Mouse.current.delta, …)` before `EditorApplication.Step()`. When the editor window is not
+  focused, also set `InputSystem.settings.backgroundBehavior = IgnoreFocus` and `editorInputBehaviorInPlayMode =
+  AllDeviceInputAlwaysGoesToGameView`, then call `InputSystem.EnableDevice` on `Keyboard.current` and `Mouse.current`
+  (they are silently disabled on focus loss and ignore events until re-enabled). A stepped frame has a fixed delta of
+  0.02 s. Restore any `InputSystem.settings` you changed. The flag resets on the next Play Mode entry.
 
 ## Git
 

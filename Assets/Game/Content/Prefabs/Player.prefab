@@ -30,7 +30,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 1.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1769626783421992537}
+  - {fileID: 3504311901577153259}
   m_Father: {fileID: 3198662314192400273}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &8719598405706169729
@@ -124,6 +126,68 @@ Transform:
   - {fileID: 6460263493132659369}
   m_Father: {fileID: 3211223652543913204}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4396528367675893710
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3504311901577153259}
+  m_Layer: 0
+  m_Name: HeavyPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3504311901577153259
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4396528367675893710}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.35, z: 1.7}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6460263493132659369}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6298585139522767244
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1769626783421992537}
+  m_Layer: 0
+  m_Name: CargoPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1769626783421992537
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6298585139522767244}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.28, y: -0.32, z: 0.65}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6460263493132659369}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8211461791556453824
 GameObject:
   m_ObjectHideFlags: 0
@@ -137,6 +201,13 @@ GameObject:
   - component: {fileID: 1751402212163917065}
   - component: {fileID: 7456654831229568799}
   - component: {fileID: 3881102220252106503}
+  - component: {fileID: 1550987350009345910}
+  - component: {fileID: 8946412414895468902}
+  - component: {fileID: 391521140316762741}
+  - component: {fileID: 7957260673399685389}
+  - component: {fileID: 2479082968419091932}
+  - component: {fileID: 6777096805492518266}
+  - component: {fileID: 5361718097673614087}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -198,6 +269,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.Player.PlayerMotor
   _cameraPoint: {fileID: 6460263493132659369}
+  _vitals: {fileID: 5361718097673614087}
   _walkSpeed: 4
   _sprintSpeed: 6.5
   _gravity: 20
@@ -217,7 +289,7 @@ MonoBehaviour:
   _reach: 2.5
   _mask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 4294966783
 --- !u!114 &3881102220252106503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -232,3 +304,109 @@ MonoBehaviour:
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.Player.PlayerSession
   _motor: {fileID: 1751402212163917065}
   _interactor: {fileID: 7456654831229568799}
+  _carry: {fileID: 8946412414895468902}
+  _heavy: {fileID: 7957260673399685389}
+  _vitals: {fileID: 5361718097673614087}
+--- !u!114 &1550987350009345910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8211461791556453824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8bd483062efd101af7ecce0eec95c76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RD.Mechanics.PickupDrop::RD.Mechanics.PickupDrop.PickupInteractor
+  _holdPoint: {fileID: 1769626783421992537}
+  _interactRange: 3
+  _dropDistance: 1.2
+--- !u!114 &8946412414895468902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8211461791556453824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8f1ce542afe1894e8bf67ac3d627339, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Player.PlayerCarry
+  _pickup: {fileID: 1550987350009345910}
+  _heavy: {fileID: 7957260673399685389}
+--- !u!114 &391521140316762741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8211461791556453824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55152bf7befbdec61540111ef4d60357, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RD.Mechanics.CarryObject::RD.Mechanics.CarryObject.CarryCarrier
+  _carryPoint: {fileID: 3504311901577153259}
+  _grabRange: 2.4
+  _maxCarrySpeed: 8
+  _breakDistance: 2.5
+--- !u!114 &7957260673399685389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8211461791556453824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e5aa69512cde0949ab35bb77fb0f6ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Player.PlayerHeavyCarry
+  _carrier: {fileID: 391521140316762741}
+  _packages: {fileID: 8946412414895468902}
+--- !u!114 &2479082968419091932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8211461791556453824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20e64440c877cd34483c6a9933413e76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RD.Mechanics.Combat::RD.Mechanics.Combat.HealthCarrier
+  _maximumHealth: 100
+  _damageRules: []
+--- !u!114 &6777096805492518266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8211461791556453824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a11f7b7f3655098e999a2ffd353a0ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RD.Mechanics.Respawn::RD.Mechanics.Respawn.Respawn
+  _carrier: {fileID: 2479082968419091932}
+  _fallbackSpawn: {fileID: 0}
+  _respawnDelaySeconds: 1.5
+--- !u!114 &5361718097673614087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8211461791556453824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb74b0ccafa96ba4094cc5248fdfe380, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Player.PlayerVitals
+  _health: {fileID: 2479082968419091932}
+  _respawn: {fileID: 6777096805492518266}
+  _protectionSeconds: 2

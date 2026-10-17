@@ -16,18 +16,17 @@ change is genuinely required, first identify the minimal reason, then change the
 
 ## Next Up (Recommended Order)
 
-All modules and mechanics except Haptics are installed (92 packages); integration still goes one feature at a time.
+All modules and mechanics except Haptics are installed (94 RD packages); integration still goes one feature at a time.
+The Warehouse map, the package rules and ladder, the Lights Out battery, and player health with respawn and
+checkpoints all work in stepped Play Mode.
 
-1. **Phase 5 + Phase 4, physical part.** Package conveyor in the Depot and the package as a physical object
-   (`PickupDrop` / `CarryObject`) with its hands restriction. Replaces the remaining stub Collect and Depart buttons in
-   the terminal. Needs the player's carry point (`CargoPoint` anchor) and `Health` on the player.
-2. **Phase 7 Warehouse.** Door, ConditionLock, Lever, PressurePlate, MovingPlatform, BreakableObject, Checkpoint, two
-   routes, and the cargo scanner at the delivery point.
-3. **Phase 4 rules + Phase 13 content.** `DoNotDrop`, `KeepInLight`, `DeliveryDeadline`, then per-contract configuration.
-4. **Phase 8–9 Enemies and combat.** Security Drone, Crawler, Stun Pistol, Crowbar, plus player `Health`, `Equipment`,
-   and weapon input.
-5. **Phase 10–11 Upgrades, progression, persistence.** Then the first-milestone definition of done is met.
-6. **Phase 2b, UI modules.** `ScreenNavigation` and `PrefabWindows` replacing the plain uGUI menus, `Audio`, `Tween`.
+1. **Phase 8–9 Enemies and combat.** Security Drone, Crawler, Stun Pistol, Crowbar, plus player `Health`, `Equipment`,
+   and weapon input (with the hands restriction while carrying). This unblocks the rest of Phase 13 (Express enemy
+   route, Restricted Cargo combat) and the ladder steps "spawn an enemy" and "package becomes hazardous".
+2. **Phase 13 remaining content.** Only the enemy-dependent parts of Express and Restricted Cargo are left.
+3. **Phase 10–11 Upgrades, progression, persistence.** Equipment Locker and Upgrade Terminal in the Depot, the death
+   penalty and property damage settlement lines. Then the first-milestone definition of done is met.
+4. **Phase 2b, UI modules.** `ScreenNavigation` and `PrefabWindows` replacing the plain uGUI menus, `Audio`, `Tween`.
    Can be done at any point between the steps above.
 
 ---
@@ -53,8 +52,9 @@ orchestration belongs in `Assets/Game`, not in reusable library code.
 
 Before using a template, read its README, public runtime API, and demo, and keep
 [Template-Mapping.md](Template-Mapping.md) current. Not yet audited at source level: ScreenNavigation, PrefabWindows,
-Audio, Conditions, Progression, Stats, Equipment, Inventory, Health, StatusEffects, Achievements, Analytics, Tutorials,
-Addressables, and every combat, AI, world, and newly installed mechanic except `HoldInteraction`.
+Audio, Progression, Stats, Equipment, Inventory, StatusEffects, Achievements, Analytics, Tutorials, Addressables, and
+every combat, AI, world, and newly installed mechanic except `HoldInteraction`, `Door`, `ConditionLock`, `Lever`,
+`PressurePlate`, `MovingPlatform`, and `BreakableObject` (`Conditions` and `Health` are audited for those uses only).
 
 ### Phase 2b — UI Modules
 
@@ -70,33 +70,84 @@ The smallest composition layer that turns existing world items into cargo. Reuse
 A package is not a giant class containing every rule. Independent rule components exist only where each is a genuinely
 reusable package behavior.
 
-Initial rules: `DoNotDrop`, `KeepInLight`, `DeliveryDeadline`. Outcomes: `RuleSatisfied`, `RuleViolated`,
-`ViolationCount` (the contract run already exposes `RegisterViolation`, `ViolationCount`, and the deadline). One
-violation does not fail a contract.
+Built (EditMode tests pass, 52/52): `DoNotDrop`, `KeepInLight`, `DeliveryDeadline` as `PackageRule` components on the
+package prefab, activated per contract from `ContractSpec.PackageRules` by `PackageRuleSet`; package `Health` through
+`HealthCarrier` with `PackageImpact` (impact damage) and `PackageIntegrity` (HUD value; destroyed fails the contract).
+A release that does not land on a `PackageSafeSurface` (the scanner plate) is a `DoNotDrop` violation, because the
+`PickupDrop` release always happens at hold height; a hit above 8 m/s is a violation anywhere else. `KeepInLight` runs a
+10 s `CountdownTimer` while `WarehouseLighting` reports the package unlit (Blackout lights come on with the breaker
+lever). `DeliveryDeadline` reports when the run's `DeadlineExpired` fires. The five contract assets carry their rules.
+
+Verified in stepped Play Mode (state set up through `GameServices`, real clicks and keys not used): `Fragile` (a floor
+drop is a violation with a HUD notice and about 7% damage, a landing on the scanner plate is not, a clean run pays the
+no-violations bonus), `Lights Out` (Blackout starts dark, the 10 s rule violates once, the breaker lever restores light
+and resets the timer), `Express` (the deadline violates once), integrity falling on hard impacts (a fall from 3.5 m is
+a violation and damage), and a destroyed package showing the failure panel and returning to the Depot. Not covered:
+`Restricted Cargo` (two rules together; only its data was checked) and the Depot-side package behavior.
 
 Each package is modeled as three layers — Rule (what the player is told), Behavior (what the object does), Escalation
-(what happens after violations) — as per-package data over small components ([GDD §7.1](GDD.md)). Hands restriction
-while carrying large cargo is game-side glue between `CarryObject` and weapon input. The Collect and Depart stub
-buttons in the Depot terminal are replaced by the physical package and the van; delivery is already a hold interaction.
+(what happens after violations) — as per-package data over small components ([GDD §7.1](GDD.md)). The physical package
+(a small `PickupDrop` item on the conveyor, carried at the player's `CargoPoint`, loaded into the van, picked up again at
+the Warehouse dock, consumed on delivery) works, and every package rule violation reaches
+`ContractRun.RegisterViolation`.
+
+The violation ladder is per-contract data (`ContractSpec.Escalation`, authored as `EscalationEntry` rows on the
+definition): at violation N the Warehouse applies `PackageUnstable` (the package pulses red and takes double impact
+damage, with a HUD notice) or `FailContract` (the failure panel). The shipped ladders are 1 unstable and 4 fail for
+Fragile and Lights Out, 1 unstable and 3 fail for Restricted Cargo, and none for Standard Delivery and Express.
+Property damage (the barricade) counts toward the no-violations bonus through `RegisterPropertyDamage` but not toward
+the ladder. Verified in stepped Play Mode on Fragile (four floor drops: unstable at the first, failed at the fourth).
+Still to build: the ladder steps "spawn an enemy" and "package becomes hazardous" (they need Phase 8 enemies and damage
+over time), an audible warning (needs `Audio`), per-package Behavior components, and the weapon hands restriction.
+Package `Health` does not carry over from the Depot to the Warehouse yet (the Warehouse spawns a fresh package); revisit
+with the road tier.
 
 ### Phase 5 — MVP Depot (remaining)
 
-The Depot is walkable and the Contract Terminal is a physical interactable that opens the contract UI. Remaining:
-Equipment Locker, Package Conveyor, Upgrade Terminal, Exit/Van, courier rank, equipment UI. Reuse `ScreenNavigation`,
-`PrefabWindows`, `Tween`, `Audio`.
+The Depot is walkable, with a physical Contract Terminal, a belt-fed Package Conveyor, and the van. Remaining: Equipment
+Locker, Upgrade Terminal, courier rank, equipment UI. Reuse `ScreenNavigation`, `PrefabWindows`, `Tween`, `Audio`.
 
 ### Phase 6 — Player (remaining)
 
-Movement, look, sprint, interaction, and the HUD prompt work. Still to add, each with the feature that needs it:
-`Health` (with death and respawn), `Equipment` and weapon input, `Inventory`, carrying packages (`CargoPoint` anchor),
-`Stats` for move speed and upgrades, `Stamina` for sprint (Demo tier). No new character framework. First person; no
-full-body model.
+Movement, look, sprint, interaction, the HUD prompt, and carrying a package work. Player health works: a
+`HealthCarrier` plus the `Respawn` mechanic on the Player prefab, wrapped by `PlayerVitals` (respawn protection through
+a `Health` invulnerability lease and a `CountdownTimer`). On death `PlayerSession` force-drops the package (falling back
+to the pick-up interactor's lifecycle when no free drop spot exists) and any heavy object, and pushes a locked input
+context (`GameInput.PushLocked`: no actions, cursor stays locked);
+`PlayerMotor` re-syncs the `CharacterController` on respawn (`Respawn` only moves the transform). The HUD shows health
+and a fading "Courier recovery team retrieved you." overlay (`PlayerVitalsView`, Tween). Dying while carrying the
+package counts as a drop. Still to add, each with the feature that needs it: `Equipment` and weapon input, `Inventory`,
+`Stats` for max health, move speed and upgrades, `Stamina` for sprint (Demo tier). The death penalty and cargo
+worsening wait for the settlement lines (Phase 10): `ContractRun.DeathCount` is already recorded and passed in the
+outcome. No new character framework. First person; no full-body model.
 
-### Phase 7 — MVP Warehouse
+### Phase 7 — MVP Warehouse (remaining)
 
-One playable Warehouse map containing: Door, ConditionLock, Lever, PressurePlate, MovingPlatform, BreakableObject,
-Checkpoint, PickupDrop, CarryObject. At least two routes: safer/longer and dangerous/shorter. JumpPad and Teleporter are
-optional later. The current Warehouse scene is a walkable blockout with a hold-to-deliver terminal.
+The Warehouse has two routes from the dock bay to the delivery room. After the breaker lever restores power, the safe
+route goes through the maintenance door and the freight lift; the short route goes through the breakable barricade and a
+ramp. In the delivery room the package is set on the cargo scanner, which opens the hatch to the delivery terminal. Both
+doors are `Conditions` rules over `WarehouseFacts`. Verified in stepped Play Mode only (no real keyboard input).
+
+Blackout adds a battery puzzle: the breaker lever is dead until a battery (a `CarryObject` on the loading floor, reachable
+only through the barricade because the maintenance door is unpowered) is carried into the generator in the dock bay.
+Carrying the battery takes both hands (`PlayerHeavyCarry` and `PlayerCarry` refuse each other, with a notice), and a
+carried battery moves to a `Carried` layer that the interaction ray ignores. Verified in stepped Play Mode on Lights Out
+(refused grab with the package in hands, carry through the barricade gap, generator, lever, lights on).
+
+Three Courier Emergency Lockers (dock bay, loading floor, delivery room) are `Checkpoint`s in a `CheckpointSet`,
+activated once each by interaction through `CourierLocker` (the dock locker is the initial checkpoint, the warehouse
+feeds the active checkpoint's pose to `PlayerVitals`), and the electric floor is a `DamageZone` over `PH_DangerStrip`
+(60 damage per second in 0.5 s ticks; it also damages a package lying in it). Verified in stepped Play Mode: dying in
+the zone takes about 2 s (overlay, input lock, 1.5 s delay), the respawn lands at the last activated locker with
+protection and a stable `CharacterController`, locker activation shows its notice and recolors the indicators, and dying
+while carrying the package drops it, counts a `DoNotDrop` violation, and respawns the player. A package dropped inside
+the zone on death is not covered. The held package follows the `CargoPoint` while walking; teleporting the player while
+holding it (a test artifact) leaves the interpolated body behind.
+
+Still to build: explosive barrels and the enemies of Phase 8. Property damage is a stand-in:
+breaking the barricade counts against the no-violations bonus until the settlement has a property damage line (Phase
+10); the hold-to-break interaction is a stand-in until the Crowbar exists (Phase 9). JumpPad and Teleporter are optional
+later.
 
 ### Phase 8 — Enemy MVP
 
@@ -142,15 +193,16 @@ claim coverage if that damages architecture.
 
 ### Phase 13 — MVP Contract Content (remaining)
 
-The five contracts exist as data. What each still needs is its gameplay configuration on the single Warehouse map:
+Rules, ladders, and the Blackout state are configured per contract as data (Phase 4 and Phase 7). What is left, on the
+single Warehouse map:
 
-| #  | Contract          | Needs                                                 |
-|----|-------------------|-------------------------------------------------------|
-| 01 | Standard Delivery | Physical pickup and delivery                          |
-| 02 | Fragile           | `DoNotDrop` rule                                      |
-| 03 | Lights Out        | `KeepInLight` rule + Blackout state power problem     |
-| 04 | Express           | `DeliveryDeadline` rule (300 s) + enemy route         |
-| 05 | Restricted Cargo  | Two rules + combat + environmental puzzle             |
+| #  | Contract          | Done                                                           | Still needs                                  |
+|----|-------------------|----------------------------------------------------------------|----------------------------------------------|
+| 01 | Standard Delivery | Physical pickup and delivery                                   | —                                            |
+| 02 | Fragile           | `DoNotDrop`, ladder 1 / 4                                      | —                                            |
+| 03 | Lights Out        | `KeepInLight`, Blackout, battery and generator, ladder 1 / 4   | Crawler and `Spawner` (Phase 8)              |
+| 04 | Express           | `DeliveryDeadline` (300 s)                                     | Enemy route (Phase 8)                        |
+| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight`, ladder 1 / 3 (data only; not run) | Combat and an environmental puzzle           |
 
 All five use the same Warehouse location with different configuration or state. Do not create five maps.
 

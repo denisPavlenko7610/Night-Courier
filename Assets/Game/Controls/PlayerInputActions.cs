@@ -21,6 +21,7 @@ namespace NightCourier.Controls
 			Move = Gameplay.FindAction("Move", true);
 			Look = Gameplay.FindAction("Look", true);
 			Interact = Gameplay.FindAction("Interact", true);
+			Drop = Gameplay.FindAction("Drop", true);
 			Sprint = Gameplay.FindAction("Sprint", true);
 			Pause = Gameplay.FindAction("Pause", true);
 			Cancel = Ui.FindAction("Cancel", true);
@@ -35,6 +36,8 @@ namespace NightCourier.Controls
 		public InputAction Look { get; }
 
 		public InputAction Interact { get; }
+
+		public InputAction Drop { get; }
 
 		public InputAction Sprint { get; }
 

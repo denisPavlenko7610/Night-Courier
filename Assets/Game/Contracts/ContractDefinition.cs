@@ -19,6 +19,8 @@ namespace NightCourier.Contracts
 		[SerializeField] private bool _isRepeatable;
 		[SerializeField] private string[] _prerequisites = Array.Empty<string>();
 		[SerializeField] private ObjectiveEntry[] _objectives = Array.Empty<ObjectiveEntry>();
+		[SerializeField] private PackageRuleKind[] _packageRules = Array.Empty<PackageRuleKind>();
+		[SerializeField] private EscalationEntry[] _escalation = Array.Empty<EscalationEntry>();
 
 		public string Id => _id;
 
@@ -30,6 +32,13 @@ namespace NightCourier.Contracts
 			{
 				objectives.Add(new ContractObjectiveSpec(
 					entry.Id, entry.LabelKey, entry.Kind, entry.ThresholdSeconds, entry.BonusCredits));
+			}
+
+			List<EscalationStep> escalation = new(_escalation.Length);
+
+			foreach (EscalationEntry entry in _escalation)
+			{
+				escalation.Add(new EscalationStep(entry.AtViolation, entry.Effect));
 			}
 
 			return new ContractSpec(
@@ -44,7 +53,20 @@ namespace NightCourier.Contracts
 				_timeLimitSeconds,
 				_prerequisites,
 				_isRepeatable,
-				objectives);
+				objectives,
+				_packageRules,
+				escalation);
+		}
+
+		[Serializable]
+		private sealed class EscalationEntry
+		{
+			[SerializeField, Min(1)] private int _atViolation = 1;
+			[SerializeField] private EscalationEffect _effect;
+
+			public int AtViolation => _atViolation;
+
+			public EscalationEffect Effect => _effect;
 		}
 
 		[Serializable]

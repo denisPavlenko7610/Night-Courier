@@ -92,6 +92,7 @@ gameplay use not yet implemented.
 |------------------|----------------------------------------------------------------------------------------------------------------------------------------|-------------------|
 | **Foundation**   | `Result<T>`, `CompositeDisposable`, `AsyncGate`, validated ids, `UnityLogger`                                                          | MVP               |
 | **Events**       | A few typed facts: `ContractCompleted`, `PackageViolation`, `PlayerRespawned`. Nothing else goes on the bus                            | MVP               |
+| **DependencyInjection** | In use at the composition boundary: `GameHost`'s root container (`GameComposition.Build`) constructs `GameServices` and owns a child scope per content scene; scene-scoped services (`WarehouseFacts`, `ConditionEngine`) are resolved once by the scene entry and passed on explicitly. Components never resolve from it | MVP               |
 | **StateMachine** | Not used for the contract lifecycle: `Quests` steps plus the run phase cover it. Revisit only for a behavior with real per-state logic | Not needed so far |
 | **Timers**       | `CountdownTimer` for deadlines and rule countdowns; `Cooldown` for grace periods and violation cooldowns                               | MVP               |
 | **Attributes**   | Inspector authoring helpers only: `[Assign]`, `[Button]`, `[Scene]` on game MonoBehaviours                                             | MVP               |
@@ -105,9 +106,9 @@ gameplay use not yet implemented.
 
 | Module            | Role                                                                                                                                                                                                                                                                                                             | Status                               |
 |-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
-| **Health**        | Player and enemy health; package stability; destructible props; armor as damage rules; invulnerability on respawn                                                                                                                                                                                                | MVP                                  |
+| **Health**        | In use: package integrity (`HealthCarrier` on the package, hit by `PackageImpact`; a destroyed package fails the contract) and the Warehouse barricade. Later: player and enemy health; armor as damage rules; invulnerability on respawn                                                                                       | MVP                                  |
 | **Quests**        | Contract lifecycle as three steps (collect, depart, deliver) with prerequisites unlocking the contract chain; a failed run abandons the quest; completed-contract history and snapshots are saved; the different contract types (RECOVER, DISPOSE, MULTI-DROP, …) are different step lists                       | MVP                                  |
-| **Conditions**    | Door gating (security level, power), delivery acceptance (correct package, not destroyed), recipient verification, bonus checks (violation count), world/reputation flag gates                                                                                                                                   | MVP (doors, delivery) / Demo (flags) |
+| **Conditions**    | In use: the Warehouse door rules (`power on`, `cargo scanned`) are `Conditions` rules over `WarehouseFacts`, evaluated by one fact evaluator. Later: security level, delivery acceptance (correct package, not destroyed), recipient verification, bonus checks (violation count), world/reputation flag gates | MVP (doors, delivery) / Demo (flags) |
 | **Rewards**       | Contract payout as a reward bundle with idempotent grant ids. The net amount (base + bonuses − property damage − ammo expense − death penalty, floored at ₡0) is computed by the game settlement calculation and granted through Rewards with a game-side `wallet.credits` handler; grant ids are per completion | MVP                                  |
 | **Wallet**        | Credits balance; atomic spend on upgrades                                                                                                                                                                                                                                                                        | MVP                                  |
 | **Progression**   | Courier Rank track; shift rating feeds experience and unlocks                                                                                                                                                                                                                                                    | MVP                                  |
@@ -135,26 +136,26 @@ gameplay use not yet implemented.
 
 | Mechanic        | Role                                                                                                                      | Status |
 |-----------------|---------------------------------------------------------------------------------------------------------------------------|--------|
-| **PickupDrop**  | Small packages and world props                                                                                            | MVP    |
-| **CarryObject** | Heavy containers, batteries, crates                                                                                       | MVP    |
+| **PickupDrop**  | In use: the small package is a `PickupItem`; the player carries it with a `PickupInteractor` at the `CargoPoint` anchor (`PlayerCarry` wraps pick-up, drop on G, consume on delivery). World props later | MVP    |
+| **CarryObject** | In use: the Lights Out battery (`PlayerHeavyCarry` wraps `CarryCarrier`; it excludes carrying the package at the same time, and the carried object moves to the `Carried` layer so it does not block the interaction ray). Later: heavy containers, crates | MVP    |
 | **Collectible** | Lost parcels, employee badges, black-box logs, Courier Tags (each unlocks an archive entry that helps in later contracts) | Demo   |
 
 ### 3.2 Interaction
 
 | Mechanic          | Role                                                                            | Status |
 |-------------------|---------------------------------------------------------------------------------|--------|
-| **Door**          | Normal, automatic, security, containment doors                                  | MVP    |
-| **ConditionLock** | Keycard, power, quest state, package authorization over a Door                  | MVP    |
-| **Lever**         | Power, freight lift, emergency door                                             | MVP    |
-| **PressurePlate** | Cargo Verification Station (set the package down, then scan) and weight puzzles | MVP    |
+| **Door**          | In use: Warehouse maintenance door and scanner hatch (slide up). Later: automatic, security, containment doors | MVP    |
+| **ConditionLock** | In use: `ConditionDoor` configures one per Warehouse door with a `Conditions` rule. Later: keycard, quest state, package authorization | MVP    |
+| **Lever**         | In use: the breaker panel lever restores Warehouse power (one-way). Later: emergency door | MVP    |
+| **PressurePlate** | In use: the cargo scanner plate (activation mask is the `Cargo` layer; `CargoScanner` runs a 3 s `CountdownTimer` while powered and occupied). Later: weight puzzles | MVP    |
 
 ### 3.3 World and Traversal
 
 | Mechanic                          | Role                                                                                        | Status |
 |-----------------------------------|---------------------------------------------------------------------------------------------|--------|
-| **MovingPlatform** (+ `Elevator`) | Freight platforms and lifts; cargo logistics (send a container up, take another route)      | MVP    |
-| **BreakableObject**               | Barricades, crates, glass, weak doors; shortcuts that cost property damage; crowbar targets | MVP    |
-| **Checkpoint**                    | Physical Courier Emergency Locker, van, delivery terminal                                   | MVP    |
+| **MovingPlatform** (+ `Elevator`) | In use: the Warehouse freight lift (`FreightLift` console, powered). The mechanic carries only non-kinematic rigidbodies, so `PlayerMotor` follows any kinematic-rigidbody ground itself. Later: cargo logistics | MVP    |
+| **BreakableObject**               | In use: the Route B barricade over a `HealthCarrier`; `BreakableBarricade` deals the damage from a 2 s hold until the Crowbar exists, and registers a violation until property damage fines exist. Later: crates, glass, weak doors | MVP    |
+| **Checkpoint**                    | In use: the three Warehouse Courier Emergency Lockers (`CourierLocker` activates its `Checkpoint` once by interaction; the set's active pose feeds `PlayerVitals`). Later: van, delivery terminal | MVP    |
 | **Teleporter**                    | "Impossible architecture" in Spatial Instability states; Hunter Container relocation        | 1.0    |
 | **JumpPad**                       | Pneumatic lift or anomalous pad in 1–2 special locations                                    | 1.0    |
 
@@ -162,7 +163,7 @@ gameplay use not yet implemented.
 
 | Mechanic      | Role                                                                                                                                                                     | Status                                                                                                     |
 |---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| **Respawn**   | Post-death flow ("recovery team retrieved you"); spawn pose supplied by the checkpoint set. Penalties (payment, lost loot, worsened cargo) are game-side, layered on top | MVP                                                                                                        |
+| **Respawn**   | In use: on the Player prefab next to a `HealthCarrier`, wrapped by `PlayerVitals` (the spawn pose comes from the checkpoint set). It only moves the transform, so `PlayerMotor` re-syncs the `CharacterController`. Penalties (payment, lost loot, worsened cargo) are game-side, layered on top | MVP                                                                                                        |
 | **Stamina**   | Sprint and heavy-cargo cost. Sprint is free until this lands                                                                                                                                              | Demo                                                                                                       |
 | **DodgeRoll** | —                                                                                                                                                                        | **Not planned.** First-person horror with no full-body character; defense comes from positioning and light |
 
@@ -186,7 +187,7 @@ gameplay use not yet implemented.
 | **HomingProjectile**  | Wisp orbs; Tracking Beacon (candidate)                                                                                   | 1.0                                                                                                                    |
 | **Grenade**           | Containment Grenade (control zone; EMP variant)                                                                          | 1.0                                                                                                                    |
 | **ExplosiveBarrel**   | Gas cylinders, fuel barrels, power cells; EMP container and pressure tank variants via game-side reactions to its events | Demo                                                                                                                   |
-| **DamageZone**        | Electric floor, fire, toxic puddle, laser, steam                                                                         | MVP                                                                                                                    |
+| **DamageZone**        | In use: the Warehouse electric floor over `PH_DangerStrip`. Later: fire, toxic puddle, laser, steam           | MVP                                                                                                                    |
 | **DamageOverTime**    | Chemical exposure, burn, radiation, contaminated cargo                                                                   | Demo                                                                                                                   |
 | **Block**             | Crowbar brace: directional defense as a damage rule                                                                      | Candidate (1.0)                                                                                                        |
 | **TargetSelection**   | Scanner target cycling                                                                                                   | Candidate (1.0)                                                                                                        |
@@ -232,7 +233,7 @@ from behavior.
 | #  | Mechanic                 | Priority        | Reserved role                                                                                                                                                                                                                                                                                   |
 |----|--------------------------|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 1  | **HoldInteraction**      | **1 (highest)** | **Integrated for the delivery point** (one `HoldInteraction` per hold target, driven by `Interactable`); remaining uses below follow their content. Hold E: repair fuse, scan cargo, force door, stabilize package, install battery, hack terminal, revive containment, neutralize anomaly, complete delivery; secure cargo in the van, repair the van (garage, pre-trip, roadside), install van modules. The player stays vulnerable while holding |
-| 2  | **ConveyorBelt**         | 1               | Depot package conveyor and van-loading cargo platform; warehouse conveyor room; later a sorting-system puzzle (lever routes, plate detects the cargo)                                                                                                                                           |
+| 2  | **ConveyorBelt**         | 1               | **Integrated for the Depot package conveyor** (belt plus `ConveyorPassenger` on the package, end stop at the pick-up point). Remaining: van-loading cargo platform; warehouse conveyor room; later a sorting-system puzzle (lever routes, plate detects the cargo)                                                                                                                                           |
 | 3  | **ThrowableObject**      | 1               | Distraction objects (can, tool, small crate) for AI, plus crates onto plates. Needs a sound-stimulus path in AI only when such a contract is actually built                                                                                                                                     |
 | 4  | **ForceZone**            | 1               | Anomalies: gravity corridor, ventilation shaft, unstable cargo, containment field; roadside anomaly wind and gravity storms that push the van; cargo that pulls out of the player's hands                                                                                                       |
 | 5  | **FallingPlatform**      | 1               | Emergency environment: an old catwalk that holds a few seconds, then breaks                                                                                                                                                                                                                     |
@@ -283,9 +284,15 @@ reusable mechanics.
 | Cargo recoil          | `Recoil` generation                                           | Stability event on the held package                     |
 | Spread penalty        | `StatusEffects` changes, weapon condition                     | Temporary modifier applied to `WeaponSpread` input      |
 | Explosion variants    | `ExplosiveBarrel` / `Grenade` explosion events                | EMP effect, object throw, barricade break, control zone |
-| Death consequences    | `Respawn` / `HealthCarrier` `Died`                            | Payment penalty, lost optional loot, worsened cargo     |
-| Package escalation    | Package violation events                                      | Spawner, damage over time, shove, container failure     |
+| Death consequences    | `Respawn` / `HealthCarrier` `Died` via `PlayerVitals.Died`    | Built: force-drop the package and heavy object (a drop under `DoNotDrop`), lock input, `ContractRun.RegisterDeath`. Later: payment penalty, lost optional loot, worsened cargo |
+| Respawn protection    | `PlayerVitals.Respawned`                                      | A `Health` invulnerability lease held for 2 s by a `CountdownTimer` |
+| Package escalation    | `ContractRun.PackageViolationRegistered`                      | `ContractSpec.Escalation` steps: unstable package (double impact damage, pulse), contract failure. Later: Spawner, damage over time, shove, container failure |
+| Hands restriction     | `PlayerHeavyCarry` / `PlayerCarry` held state                 | A refused pick-up or grab raises an event and a HUD notice. Weapon input will use the same state later |
 | Press and hold interaction | `Interact` input action, `HoldInteraction`               | `Interactable` (prompt key plus an optional `HoldInteraction`) found by the `PlayerInteractor` raycast; scene entries subscribe to `Interacted`. Mechanics such as `Door` and `Lever` stay input-agnostic and are called from these handlers |
+| Package rules         | `PickupItem` `Released`, collisions, `CountdownTimer`, `ContractRun.DeadlineExpired` | `DoNotDrop`, `KeepInLight`, `DeliveryDeadline` components report `Violated`; `PackageRuleSet` relays the kind to `ContractRun.RegisterViolation` and the HUD notice |
+| Warehouse gating      | `WarehouseFacts` changes                                      | `ConditionDoor` re-evaluates its `Conditions` rule through `ConditionLock` and opens its `Door` once |
+| Riding platforms      | Kinematic rigidbody under the `CharacterController`           | `PlayerMotor` applies the ground's position delta each frame |
+| Barricade debris      | `BreakableObject` `Broken`                                    | Debris colliders ignore the player collider so rubble cannot block the shortcut |
 
 If a case turns out to need a change inside a template (for example, a sound stimulus for `DetectionSensor`), raise it
 as a proven-need change in `UnityTemplates` — see [../AGENTS.md](../AGENTS.md).

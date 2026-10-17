@@ -31,3 +31,5 @@ MonoBehaviour:
     _kind: 1
     _thresholdSeconds: 180
     _bonusCredits: 75
+  _packageRules: 02000000i
+  _escalation: []

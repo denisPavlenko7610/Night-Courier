@@ -1,4 +1,3 @@
-using System;
 using NightCourier.Controls;
 using RD.Localization;
 using RD.Pause;
@@ -20,15 +19,5 @@ namespace NightCourier.App
 		public GameInput Input { get; set; }
 
 		public IPauseService Pause { get; set; }
-
-		public GameServices Build(IGameNavigator navigator)
-		{
-			if (SceneFlow == null)
-			{
-				throw new InvalidOperationException("Scene flow has not been started.");
-			}
-
-			return new GameServices(navigator, Settings, Localization, Campaign, Input, Pause);
-		}
 	}
 }

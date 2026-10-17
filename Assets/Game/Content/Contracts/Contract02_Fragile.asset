@@ -30,3 +30,9 @@ MonoBehaviour:
     _kind: 0
     _thresholdSeconds: 0
     _bonusCredits: 100
+  _packageRules: 00000000i
+  _escalation:
+  - _atViolation: 1
+    _effect: 0
+  - _atViolation: 4
+    _effect: 1
