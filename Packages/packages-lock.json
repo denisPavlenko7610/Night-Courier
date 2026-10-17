@@ -17,11 +17,671 @@
       },
       "hash": "aa5fc638d623f56178d50329d9ad8c541a57fe66"
     },
+    "com.rd.achievements": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Achievements",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.addressables": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Addressables",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.addressables": "4.0.1"
+      }
+    },
+    "com.rd.analytics": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Analytics",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.attributes": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/Attributes",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.audio": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Presentation/Audio",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.conditions": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Conditions",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.rd.equipment": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Equipment",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.events": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/Events",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.rd.extensions": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/Extensions",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.rd.foundation": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/Foundation",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.rd.haptics": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Presentation/Haptics",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.rd.health": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Health",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.input": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Input",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.unity.inputsystem": "1.20.1"
+      }
+    },
+    "com.rd.inventory": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Inventory",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.localization": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Localization",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.ammoreload": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/AmmoReload/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.block": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/Block/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.breakableobject": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/BreakableObject/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.carryobject": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Items/CarryObject/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.mechanics.common": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.chargeweapon": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/ChargeWeapon/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.chasetargetmemory": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/AI/ChaseTargetMemory/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.statemachine": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.checkpoint": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/Checkpoint/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.collectible": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Items/Collectible/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.tween": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.combat": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Core/Combat/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.comboattackbuffer": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/ComboAttackBuffer/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.common": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Core/Common/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.conditionlock": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Interaction/ConditionLock/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.conditions": "1.0.0",
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.damageovertime": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/DamageOverTime/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0",
+        "com.rd.statuseffects": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.damagezone": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/DamageZone/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.detectionsensor": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/AI/DetectionSensor/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.mechanics.common": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.dodgeroll": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Character/DodgeRoll/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.door": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Interaction/Door/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.tween": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.explosivebarrel": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/ExplosiveBarrel/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0",
+        "com.rd.mechanics.common": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.grenade": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/Grenade/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0",
+        "com.rd.mechanics.common": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.hitfeedback": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/HitFeedback/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0",
+        "com.rd.pause": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.hitscanweapon": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/HitscanWeapon/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.homingprojectile": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/HomingProjectile/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.jumppad": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/JumpPad/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.knockback": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/Knockback/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.lever": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Interaction/Lever/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.tween": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.lockontargeting": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/LockOnTargeting/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.meleeattack": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/MeleeAttack/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.movingplatform": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/MovingPlatform/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.parry": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/Parry/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.patrol": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/AI/Patrol/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.pickupdrop": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Items/PickupDrop/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.mechanics.common": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.pressureplate": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Interaction/PressurePlate/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.mechanics.common": "1.0.0",
+        "com.rd.tween": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.projectile": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/Projectile/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0",
+        "com.rd.mechanics.common": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.recoil": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/Recoil/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.respawn": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Character/Respawn/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.shotgun": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/Shotgun/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.health": "1.0.0",
+        "com.rd.mechanics.combat": "1.0.0",
+        "com.rd.mechanics.common": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.spawner": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/AI/Spawner/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.stamina": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Character/Stamina/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.targetselection": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/TargetSelection/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.mechanics.common": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.teleporter": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/Teleporter/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.mechanics.common": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.wavespawner": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/AI/WaveSpawner/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.mechanics.spawner": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.weaponspread": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/WeaponSpread/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.mechanics.common": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.weaponswitching": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/WeaponSwitching/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.pause": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Pause",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.prefabwindows": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Presentation/PrefabWindows",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.progression": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Progression",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.quests": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Quests",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.rewards": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Rewards",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.save": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Save",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.sceneflow": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/SceneFlow",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.rd.screennavigation": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Presentation/ScreenNavigation",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.settings": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Settings",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.startup": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Startup",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.statemachine": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/StateMachine",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.stats": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Stats",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.statuseffects": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/StatusEffects",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.timers": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/Timers",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.rd.tutorials": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Tutorials",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.tween": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Presentation/Tween",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.wallet": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Wallet",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 1,
       "source": "builtin",
       "dependencies": {}
+    },
+    "com.unity.addressables": {
+      "version": "4.0.1",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.profiling.core": "1.0.2",
+        "com.unity.test-framework": "1.4.5",
+        "com.unity.modules.assetbundle": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.imageconversion": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.scriptablebuildpipeline": "4.0.0",
+        "com.unity.modules.unitywebrequestassetbundle": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
     },
     "com.unity.ai.assistant": {
       "version": "2.20.0-pre.2",
@@ -108,12 +768,10 @@
       "dependencies": {}
     },
     "com.unity.ide.rider": {
-      "version": "3.0.40",
+      "version": "3.1.0",
       "depth": 0,
       "source": "registry",
-      "dependencies": {
-        "com.unity.ext.nunit": "1.0.6"
-      },
+      "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.inputsystem": {
@@ -194,6 +852,16 @@
       "dependencies": {
         "com.unity.render-pipelines.core": "17.6.0"
       }
+    },
+    "com.unity.scriptablebuildpipeline": {
+      "version": "4.0.0",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.test-framework": "1.4.5",
+        "com.unity.modules.assetbundle": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
     },
     "com.unity.searcher": {
       "version": "4.9.5",
