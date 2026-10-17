@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using NightCourier.App;
 using NightCourier.Contracts;
@@ -35,6 +36,7 @@ namespace NightCourier.UI
 		[SerializeField] private PlayerVitalsView _vitalsView;
 		[SerializeField] private CheckpointSet _checkpoints;
 		[SerializeField] private CourierLocker[] _lockers;
+		[SerializeField] private EncounterGroup[] _encounters;
 		[SerializeField] private WarehouseLighting _lighting;
 		[SerializeField] private PackageHudView _packageHud;
 		[SerializeField] private GameObject _resultPanel;
@@ -194,6 +196,11 @@ namespace NightCourier.UI
 			foreach (CourierLocker locker in _lockers)
 			{
 				locker.Bind(_checkpoints);
+			}
+
+			foreach (EncounterGroup encounter in _encounters)
+			{
+				encounter.gameObject.SetActive(_run.Spec.Encounters.Contains(encounter.Kind));
 			}
 
 			ApplySpawn(_checkpoints.ActiveCheckpoint);

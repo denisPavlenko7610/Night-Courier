@@ -17,13 +17,14 @@ change is genuinely required, first identify the minimal reason, then change the
 ## Next Up (Recommended Order)
 
 All modules and mechanics except Haptics are installed (94 RD packages); integration still goes one feature at a time.
-The Warehouse map, the package rules and ladder, the Lights Out battery, and player health with respawn and
-checkpoints all work in stepped Play Mode.
+The Warehouse map, the package rules and ladder, the Lights Out battery, player health with respawn and checkpoints,
+and the two enemies all work in stepped Play Mode.
 
-1. **Phase 8–9 Enemies and combat.** Security Drone, Crawler, Stun Pistol, Crowbar, plus player `Health`, `Equipment`,
-   and weapon input (with the hands restriction while carrying). This unblocks the rest of Phase 13 (Express enemy
-   route, Restricted Cargo combat) and the ladder steps "spawn an enemy" and "package becomes hazardous".
-2. **Phase 13 remaining content.** Only the enemy-dependent parts of Express and Restricted Cargo are left.
+1. **Phase 9 Player combat.** Stun Pistol, Crowbar, `Equipment` and weapon input (with the hands restriction while
+   carrying). Until then the player cannot fight the Crawlers and the Security Drone that Lights Out, Express, and
+   Restricted Cargo now spawn. It also unblocks the ladder steps "spawn an enemy" (with `Spawner`) and "package becomes
+   hazardous".
+2. **Phase 13 remaining content.** The Restricted Cargo environmental puzzle and the Lights Out `Spawner` waves.
 3. **Phase 10–11 Upgrades, progression, persistence.** Equipment Locker and Upgrade Terminal in the Depot, the death
    penalty and property damage settlement lines. Then the first-milestone definition of done is met.
 4. **Phase 2b, UI modules.** `ScreenNavigation` and `PrefabWindows` replacing the plain uGUI menus, `Audio`, `Tween`.
@@ -149,12 +150,28 @@ breaking the barricade counts against the no-violations bonus until the settleme
 10); the hold-to-break interaction is a stand-in until the Crowbar exists (Phase 9). JumpPad and Teleporter are optional
 later.
 
-### Phase 8 — Enemy MVP
+### Phase 8 — Enemy MVP (done, verified in stepped Play Mode)
 
-- **SecurityDrone:** Patrol, DetectionSensor, ChaseTargetMemory, Projectile or HitscanWeapon, Health, HitFeedback.
-- **Crawler:** DetectionSensor, ChaseTargetMemory, MeleeAttack, Knockback, Health, HitFeedback.
+- **Crawler** (`Crawler.prefab`, `CrawlerBrain`): `DetectionSensor` on its eye, `ChaseTargetMemory`, `MeleeAttack`
+  (10 damage, 1.2 s swing), `Knockback` into a game-side `PlayerKnockbackReceiver`, `HealthCarrier` (40), `HitReaction`.
+  It chases and searches over a baked NavMesh, swings in range, and walks home when the memory expires.
+- **SecurityDrone** (`SecurityDrone.prefab`, `SecurityDroneBrain`): a ground-level root that hovers through a `Visual`
+  child, `Patrol` along its route, `DetectionSensor`, `ChaseTargetMemory`, `Projectile` bolts (8 damage, `Cooldown`
+  1.4 s, only with line of sight), `HealthCarrier` (30), `HitReaction`. On detection it disables `Patrol` and takes over
+  with a `NavMeshAgent` keeping a 6 m standoff; after the memory expires it navigates to the nearest route waypoint and
+  hands control back to `Patrol`.
+- Both die through `EnemyDeath` (stop the behaviours, disable colliders, shrink with Tween, destroy).
 
-Game code composes them. No new hard runtime dependencies between existing mechanics unless genuinely required.
+The game-side brains only route the template events (`TargetDetected` to `ReportTarget`, `StateChanged` to movement)
+and own movement; the AI state logic stays in `ChaseTargetMemory`. The player moved to a new `Player` layer and enemies
+to an `Enemy` layer, so sensors, melee, and the NavMesh bake (Default layer only) target the right things. The Warehouse
+has a baked `NavMeshSurface` (`Scenes/Warehouse/NavMesh-Warehouse.asset`); the barricade and closed doors are baked as
+obstacles, so enemies do not use the shortcut or powered doors. Enemies appear per contract through
+`ContractSpec.Encounters` and `EncounterGroup`: Lights Out has Crawlers, Express a Security Drone, Restricted Cargo both.
+Verified: encounter activation, detection, chase, melee hit with knockback, drone patrol, pursuit, shooting, killing the
+player, searching and returning to route, and enemy death. Not covered: a Spawner-driven wave, enemies hitting a package,
+enemies on the electric floor, and fairness tuning (the player has no weapon until Phase 9, so two Crawlers are
+dangerous but can be outrun while sprinting).
 
 ### Phase 9 — Player Combat
 
@@ -200,9 +217,9 @@ single Warehouse map:
 |----|-------------------|----------------------------------------------------------------|----------------------------------------------|
 | 01 | Standard Delivery | Physical pickup and delivery                                   | —                                            |
 | 02 | Fragile           | `DoNotDrop`, ladder 1 / 4                                      | —                                            |
-| 03 | Lights Out        | `KeepInLight`, Blackout, battery and generator, ladder 1 / 4   | Crawler and `Spawner` (Phase 8)              |
-| 04 | Express           | `DeliveryDeadline` (300 s)                                     | Enemy route (Phase 8)                        |
-| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight`, ladder 1 / 3 (data only; not run) | Combat and an environmental puzzle           |
+| 03 | Lights Out        | `KeepInLight`, Blackout, battery and generator, ladder 1 / 4, Crawlers | `Spawner` waves                      |
+| 04 | Express           | `DeliveryDeadline` (300 s), Security Drone                     | Player combat (Phase 9)                      |
+| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight`, ladder 1 / 3, both enemies (data only; not run) | Player combat and an environmental puzzle |
 
 All five use the same Warehouse location with different configuration or state. Do not create five maps.
 

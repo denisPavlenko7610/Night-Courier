@@ -19,7 +19,8 @@ namespace NightCourier.Contracts
 			bool isRepeatable,
 			IEnumerable<ContractObjectiveSpec> objectives,
 			IEnumerable<PackageRuleKind> packageRules = null,
-			IEnumerable<EscalationStep> escalation = null
+			IEnumerable<EscalationStep> escalation = null,
+			IEnumerable<EncounterKind> encounters = null
 		)
 		{
 			Id = Require(id, nameof(id));
@@ -48,6 +49,7 @@ namespace NightCourier.Contracts
 			Objectives = CopyObjectives(objectives);
 			PackageRules = CopyPackageRules(packageRules);
 			Escalation = CopyEscalation(escalation);
+			Encounters = CopyEncounters(encounters);
 		}
 
 		public string Id { get; }
@@ -79,6 +81,8 @@ namespace NightCourier.Contracts
 		public IReadOnlyList<PackageRuleKind> PackageRules { get; }
 
 		public IReadOnlyList<EscalationStep> Escalation { get; }
+
+		public IReadOnlyList<EncounterKind> Encounters { get; }
 
 		public IReadOnlyList<EscalationEffect> GetEscalation(int packageViolationCount)
 		{
@@ -125,6 +129,23 @@ namespace NightCourier.Contracts
 				}
 
 				result.Add(prerequisite);
+			}
+
+			return result.AsReadOnly();
+		}
+
+		private IReadOnlyList<EncounterKind> CopyEncounters(IEnumerable<EncounterKind> source)
+		{
+			List<EncounterKind> result = new();
+
+			foreach (EncounterKind encounter in source ?? Array.Empty<EncounterKind>())
+			{
+				if (result.Contains(encounter))
+				{
+					throw new ArgumentException($"Contract '{Id}' repeats encounter '{encounter}'.", nameof(source));
+				}
+
+				result.Add(encounter);
 			}
 
 			return result.AsReadOnly();

@@ -33,3 +33,4 @@ MonoBehaviour:
     _bonusCredits: 75
   _packageRules: 02000000i
   _escalation: []
+  _encounters: 01000000i

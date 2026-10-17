@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6460263493132659369}
   - component: {fileID: 8719598405706169729}
   - component: {fileID: 6256494117226593745}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: CameraPoint
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -103,7 +103,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3198662314192400273}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Anchors
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -135,7 +135,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3504311901577153259}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HeavyPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -166,7 +166,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1769626783421992537}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: CargoPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -208,7 +208,8 @@ GameObject:
   - component: {fileID: 2479082968419091932}
   - component: {fileID: 6777096805492518266}
   - component: {fileID: 5361718097673614087}
-  m_Layer: 0
+  - component: {fileID: 6669637129727130011}
+  m_Layer: 10
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -410,3 +411,16 @@ MonoBehaviour:
   _health: {fileID: 2479082968419091932}
   _respawn: {fileID: 6777096805492518266}
   _protectionSeconds: 2
+--- !u!114 &6669637129727130011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8211461791556453824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3df35f88a7dbfc243aa9da4da992784a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Player.PlayerKnockbackReceiver
+  _motor: {fileID: 1751402212163917065}
