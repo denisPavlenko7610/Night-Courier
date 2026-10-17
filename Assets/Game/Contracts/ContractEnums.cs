@@ -25,6 +25,12 @@ namespace NightCourier.Contracts
 		DeliveryDeadline = 2
 	}
 
+	public enum EncounterKind
+	{
+		Crawlers = 0,
+		SecurityDrone = 1
+	}
+
 	public enum ContractPhase
 	{
 		Accepted = 0,

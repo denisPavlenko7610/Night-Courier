@@ -15,6 +15,7 @@ namespace NightCourier.Player
 		private const float MouseDegreesPerCount = 0.1f;
 		private const float StickDegreesPerSecond = 180f;
 		private const float MinGroundNormalY = 0.5f;
+		private const float KnockbackDecayPerSecond = 14f;
 
 		[SerializeField] private Transform _cameraPoint;
 		[SerializeField] private PlayerVitals _vitals;
@@ -30,6 +31,17 @@ namespace NightCourier.Player
 		private float _verticalVelocity;
 		private Transform _ground;
 		private Vector3 _groundPosition;
+		private Vector3 _knockback;
+
+		public void AddKnockback(Vector3 velocity)
+		{
+			_knockback = new Vector3(velocity.x, 0f, velocity.z);
+
+			if (velocity.y > 0f)
+			{
+				_verticalVelocity = Mathf.Max(_verticalVelocity, velocity.y);
+			}
+		}
 
 		public void Bind(PlayerInputActions actions, ISettingsService settings)
 		{
@@ -53,6 +65,7 @@ namespace NightCourier.Player
 			Physics.SyncTransforms();
 
 			_verticalVelocity = 0f;
+			_knockback = Vector3.zero;
 			_pitch = 0f;
 			_ground = null;
 			_cameraPoint.localRotation = Quaternion.identity;
@@ -166,8 +179,10 @@ namespace NightCourier.Player
 				_verticalVelocity -= _gravity * Time.deltaTime;
 			}
 
-			Vector3 velocity = planar + Vector3.up * _verticalVelocity;
+			Vector3 velocity = planar + _knockback + Vector3.up * _verticalVelocity;
 			_controller.Move(velocity * Time.deltaTime);
+
+			_knockback = Vector3.MoveTowards(_knockback, Vector3.zero, KnockbackDecayPerSecond * Time.deltaTime);
 		}
 	}
 }

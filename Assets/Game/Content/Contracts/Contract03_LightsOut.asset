@@ -31,3 +31,4 @@ MonoBehaviour:
     _effect: 0
   - _atViolation: 4
     _effect: 1
+  _encounters: 00000000i

@@ -21,6 +21,7 @@ namespace NightCourier.Contracts
 		[SerializeField] private ObjectiveEntry[] _objectives = Array.Empty<ObjectiveEntry>();
 		[SerializeField] private PackageRuleKind[] _packageRules = Array.Empty<PackageRuleKind>();
 		[SerializeField] private EscalationEntry[] _escalation = Array.Empty<EscalationEntry>();
+		[SerializeField] private EncounterKind[] _encounters = Array.Empty<EncounterKind>();
 
 		public string Id => _id;
 
@@ -55,7 +56,8 @@ namespace NightCourier.Contracts
 				_isRepeatable,
 				objectives,
 				_packageRules,
-				escalation);
+				escalation,
+				_encounters);
 		}
 
 		[Serializable]
