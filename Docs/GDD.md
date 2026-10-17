@@ -36,7 +36,7 @@ Principles:
 3. **Use everything that fits, nothing that does not.** The aim is to use the whole library across the full game, but every use must have a real gameplay or product purpose. A module is never used just to claim coverage if that damages the architecture. Unused items are listed with a reason in [Template-Mapping.md](Template-Mapping.md). A reusable library learns more from finding out that a module is not needed than from forcing it in.
 4. **One contract uses 5–10 mechanics.** The full game uses the whole library; a single contract uses a small combination of it. Variety comes from combinations, not from adding every mechanic everywhere.
 5. **Templates change only for a proven deficiency.** If the game can be built through composition, the templates stay untouched. A real reusable-library deficiency is fixed in `UnityTemplates` with the smallest possible API change, never worked around with a game-side copy. Game-specific reactions are layered on top of existing events instead of extending a reusable mechanic.
-6. **Pending mechanics are expected.** Ten more mechanics will be added to the library later (see section 13.4). The design already reserves their roles; the game must not build local clones of them.
+6. **Newer mechanics are integrated deliberately.** Ten newer mechanics are installed (see section 13.4). The design already reserves their roles; each is integrated only after its README and demo are read and the use is verified in Play Mode, and the game must not build local clones of them.
 
 Not applicable to this game: **Haptics** (Android/iOS only; this project targets Windows/Steam). See [Template-Mapping.md](Template-Mapping.md).
 
@@ -341,7 +341,7 @@ Package Conveyor → Cargo Platform → carry or push → Van
 - Medium and heavy cargo: `CarryObject`.
 - Large crates: `PushPullObject` along flat ground. That mechanic is grounded and explicitly does not handle slopes, so there is no loading ramp; the van is loaded from a flat dock or a tail-lift (`MovingPlatform`) level with the cargo floor.
 - The player opens the rear doors and places the container inside.
-- `ConveyorBelt` (pending) delivers new cargo to the platform.
+- `ConveyorBelt` delivers new cargo to the platform.
 
 This gives the mechanics a purpose before the trip even starts.
 
@@ -370,7 +370,7 @@ Adjacency checks are `Conditions` rules over the placement.
 Cargo Slot → Hold E — Secure Cargo
 ```
 
-An unsecured cargo slides when cornering and loses stability. `HoldInteraction` is pending; until it is installed, securing is an instant interaction.
+An unsecured cargo slides when cornering and loses stability. `HoldInteraction` is installed but not yet integrated; until it is, securing is an instant interaction.
 
 **Weight.** Cargos are Light, Medium, or Heavy. Heavy cargo lowers acceleration and lengthens braking distance. The same cargo that slowed the courier on foot (`CarryObject`) now affects the van.
 
@@ -384,7 +384,7 @@ A very short procedure, not a car simulator. Sometimes before a shift one fault 
 Headlight damaged · Tire pressure low · Battery weak · Cargo door damaged
 ```
 
-The player can **repair now** (money, a repair part, or time; `HoldInteraction` is pending), **replace**, or **ignore** and risk the trip.
+The player can **repair now** (money, a repair part, or time; `HoldInteraction`), **replace**, or **ignore** and risk the trip.
 
 Every fault must be felt, not shown as a percentage:
 
@@ -875,7 +875,7 @@ Existing mechanics apply naturally:
 | Toxic fog, electric road, fire | `DamageZone` |
 | Barrier, wooden gate, road debris | `BreakableObject` |
 | Fuel tanks | `ExplosiveBarrel` |
-| Anomaly wind, gravity field | `ForceZone` (pending) |
+| Anomaly wind, gravity field | `ForceZone` |
 | Spatial road anomaly | `Teleporter` |
 | Vehicle ferry, industrial lift | `MovingPlatform` (the van drives on; carrying a van-sized rigidbody must be checked in the audit) |
 
@@ -887,7 +887,7 @@ Existing mechanics apply naturally:
 | **Road Drone** | `Patrol`, `DetectionSensor`, `ChaseTargetMemory` guarding a checkpoint. Slip past, show authorization, or get out and disable it |
 | **Fallen Cargo** | The road is blocked. Push it (`PushPullObject`) or break it (`BreakableObject`) |
 | **Spatial Loop** | A tunnel returns the player to its start (`Teleporter`). The player must notice the rule to leave |
-| **Gravity Storm** | `ForceZone` (pending) pushes the van sideways |
+| **Gravity Storm** | `ForceZone` pushes the van sideways |
 | **Broken Bridge** | Detour, or a special industrial `MovingPlatform` |
 
 ### 8.8 Stopping and Repairs on the Road
@@ -1009,7 +1009,7 @@ Carrying a large cargo restricts weapons (7.6). The restriction is enforced by g
 Interaction is simple and consistent:
 
 - **Press Interact** — toggle door, flip lever, pick up item, use terminal.
-- **Hold Interact** — timed actions (see 13.4: HoldInteraction is pending). Planned uses: open a heavy hatch, connect a battery, scan a package, repair a terminal, stabilize a package, hack a terminal, force a door, neutralize an anomaly, secure cargo in the van, repair the van, install a van module, complete a delivery.
+- **Hold Interact** — timed actions (`HoldInteraction`, see 13.4). Planned uses: open a heavy hatch, connect a battery, scan a package, repair a terminal, stabilize a package, hack a terminal, force a door, neutralize an anomaly, secure cargo in the van, repair the van, install a van module, complete a delivery.
 
 **Design rule:** while holding, the player is vulnerable. "Hold E — 6 seconds" next to a patrolling enemy creates tension instantly.
 
@@ -1105,7 +1105,7 @@ Existing AI mechanics own their own state logic; the game does not rewrite them 
 
 - **Patrol:** security scanner, robot cleaner, moving spotlight, inspection drone. The player carries a forbidden package and slips between routes. No stealth framework is built.
 - **DetectionSensor:** on the package (nearby humans), or on a surveillance camera (package seen → security alert).
-- **Sound lures:** a thrown object (pending ThrowableObject) can distract AI. If `DetectionSensor` does not support sound stimuli at that point, do not extend it in advance; add the capability only when such a contract is actually being built, through the proven-need route (section 1, principle 5).
+- **Sound lures:** a thrown object (`ThrowableObject`) can distract AI. If `DetectionSensor` does not support sound stimuli at that point, do not extend it in advance; add the capability only when such a contract is actually being built, through the proven-need route (section 1, principle 5).
 
 ---
 
@@ -1142,9 +1142,9 @@ Examples:
 | Chemical exposure, burn, radiation | Damage over time |
 | Poisoned, Electrified, Slowed, Disoriented, Radiated | Status effects |
 
-### 13.4 Pending Mechanics (Not Yet Installed)
+### 13.4 Mechanics Awaiting Integration
 
-Ten mechanics will be added to the library later. Their roles are reserved; **until they are installed, content is designed to work without them and no local clones are created.**
+Ten newer mechanics are installed in the project. Their roles are reserved; **until each one is integrated and verified in Play Mode, content is designed to work without it and no local clones are created.**
 
 Priority 1 (needed for the delivery fantasy):
 
@@ -1166,13 +1166,13 @@ Priority 2:
 | **Pendulum** | A crane hazard: hanging container, industrial hook, broken crane. Wait, stop the crane, or use it against enemies |
 | **RopeSwing** | Lowest priority. A rare emergency: one contract with a collapsed bridge and a hanging service cable |
 
-`PushPullObject` is a different case: it is already in the library (not yet linked into this project) and is used for crates and large cargo (5.4, 8.7).
+`PushPullObject` is installed too and is used for crates and large cargo (5.4, 8.7).
 
-When a pending mechanic arrives: reinstall via *Tools ▸ Unity Templates ▸ Install All Local Packages*, read its README, update [Template-Mapping.md](Template-Mapping.md), then wire it where listed above.
+Before integrating one: read its README, runtime API, and demo, update [Template-Mapping.md](Template-Mapping.md), verify the planned use in Play Mode, then wire it where listed above.
 
 ### 13.5 Traversal Restraint
 
-Traversal mechanics are not used constantly. Ladders, mantling, ziplines, grapples, wall jumps, and dashes in every level would turn Night Courier into an action platformer. The library already contains `Ladder`, `LedgeGrabMantle`, `Zipline`, `GrapplingHook`, `WallJump`, `Dash`, and `ResponsiveJump` (not yet linked into this project). They are properties of specific districts or equipment, if used at all: a maintenance district with ladders and mantling, a construction site with a zipline, an experimental facility with a grappling device and force zones. `WallJump` and `Dash` do not fit the character fantasy and are not forced in. Not every mechanic is required to be used just because it exists. See [Template-Mapping.md](Template-Mapping.md) §3.7.
+Traversal mechanics are not used constantly. Ladders, mantling, ziplines, grapples, wall jumps, and dashes in every level would turn Night Courier into an action platformer. The library already contains `Ladder`, `LedgeGrabMantle`, `Zipline`, `GrapplingHook`, `WallJump`, `Dash`, and `ResponsiveJump` (all installed). They are properties of specific districts or equipment, if used at all: a maintenance district with ladders and mantling, a construction site with a zipline, an experimental facility with a grappling device and force zones. `WallJump` and `Dash` do not fit the character fantasy and are not forced in. Not every mechanic is required to be used just because it exists. See [Template-Mapping.md](Template-Mapping.md) §3.7.
 
 ---
 
@@ -1512,7 +1512,7 @@ Detailed mapping is in [Template-Mapping.md](Template-Mapping.md). Short version
 | Scope creep from "use every mechanic everywhere" or from the system list in this document | Tiers (3.2); each contract uses 5–10 mechanics; the full game uses the library |
 | Package rules becoming a god class | One small component per rule; per-package layer data |
 | Art blocks progress | Primitives and strong lighting first |
-| Pending mechanics delay critical content | Design content to work without them; do not clone them locally |
+| Unintegrated mechanics delay critical content | Design content to work without them until integrated; do not clone them locally |
 | Game starts to feel like walking with a box | Cargo is a participant (7.1); states, complications, and ways-through (6.5–6.8) |
 | Random complications destroy planning | At most one scripted major complication per short contract |
 | The van and the road multiply the project size | Road tier only after the MVP loop is fun; one van, 5–6 short segments, arcade handling, hard limits in section 3 |

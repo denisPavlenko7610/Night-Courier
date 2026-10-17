@@ -89,12 +89,6 @@
       "source": "local",
       "dependencies": {}
     },
-    "com.rd.haptics": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Presentation/Haptics",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {}
-    },
     "com.rd.health": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Health",
       "depth": 0,
@@ -235,6 +229,14 @@
         "com.rd.foundation": "1.0.0"
       }
     },
+    "com.rd.mechanics.conveyorbelt": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/ConveyorBelt/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
     "com.rd.mechanics.damageovertime": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/DamageOverTime/Runtime",
       "depth": 0,
@@ -257,6 +259,15 @@
         "com.rd.mechanics.combat": "1.0.0"
       }
     },
+    "com.rd.mechanics.dash": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Character/Dash/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
     "com.rd.mechanics.detectionsensor": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/AI/DetectionSensor/Runtime",
       "depth": 0,
@@ -264,6 +275,15 @@
       "dependencies": {
         "com.rd.foundation": "1.0.0",
         "com.rd.mechanics.common": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.disappearingplatform": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/DisappearingPlatform/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.timers": "1.0.0"
       }
     },
     "com.rd.mechanics.dodgeroll": {
@@ -295,6 +315,31 @@
         "com.rd.health": "1.0.0",
         "com.rd.mechanics.combat": "1.0.0",
         "com.rd.mechanics.common": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.fallingplatform": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/FallingPlatform/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.forcezone": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/ForceZone/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.grapplinghook": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/GrapplingHook/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
       }
     },
     "com.rd.mechanics.grenade": {
@@ -330,6 +375,15 @@
         "com.rd.timers": "1.0.0"
       }
     },
+    "com.rd.mechanics.holdinteraction": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Interaction/HoldInteraction/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
     "com.rd.mechanics.homingprojectile": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/HomingProjectile/Runtime",
       "depth": 0,
@@ -352,6 +406,23 @@
       "source": "local",
       "dependencies": {
         "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.ladder": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/Ladder/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.ledgegrabmantle": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/LedgeGrabMantle/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.timers": "1.0.0"
       }
     },
     "com.rd.mechanics.lever": {
@@ -408,6 +479,22 @@
         "com.rd.foundation": "1.0.0"
       }
     },
+    "com.rd.mechanics.pendulum": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/Pendulum/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.physicsbutton": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Interaction/PhysicsButton/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
     "com.rd.mechanics.pickupdrop": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Items/PickupDrop/Runtime",
       "depth": 0,
@@ -438,6 +525,14 @@
         "com.rd.mechanics.common": "1.0.0"
       }
     },
+    "com.rd.mechanics.pushpullobject": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Items/PushPullObject/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
     "com.rd.mechanics.recoil": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/Recoil/Runtime",
       "depth": 0,
@@ -454,6 +549,32 @@
         "com.rd.foundation": "1.0.0",
         "com.rd.health": "1.0.0",
         "com.rd.mechanics.combat": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.responsivejump": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Character/ResponsiveJump/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.ropeswing": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/RopeSwing/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.mechanics.common": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.rotatingplatform": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/RotatingPlatform/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
       }
     },
     "com.rd.mechanics.shotgun": {
@@ -504,6 +625,23 @@
         "com.rd.mechanics.common": "1.0.0"
       }
     },
+    "com.rd.mechanics.throwableobject": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Items/ThrowableObject/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.walljump": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/WallJump/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0",
+        "com.rd.timers": "1.0.0"
+      }
+    },
     "com.rd.mechanics.wavespawner": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/AI/WaveSpawner/Runtime",
       "depth": 0,
@@ -523,6 +661,14 @@
     },
     "com.rd.mechanics.weaponswitching": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Combat/WeaponSwitching/Runtime",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
+      }
+    },
+    "com.rd.mechanics.zipline": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/Zipline/Runtime",
       "depth": 0,
       "source": "local",
       "dependencies": {

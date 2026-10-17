@@ -1,0 +1,69 @@
+{
+	"Locale": "en",
+	"Entries": [
+		{ "Key": "menu.title", "Value": "NIGHT COURIER: RULE 13" },
+		{ "Key": "menu.new_game", "Value": "New Game" },
+		{ "Key": "menu.continue", "Value": "Continue" },
+		{ "Key": "menu.settings", "Value": "Settings" },
+		{ "Key": "menu.quit", "Value": "Quit" },
+		{ "Key": "settings.title", "Value": "Settings" },
+		{ "Key": "settings.master_volume", "Value": "Master Volume" },
+		{ "Key": "settings.mouse_sensitivity", "Value": "Mouse Sensitivity" },
+		{ "Key": "common.back", "Value": "Back" },
+		{ "Key": "common.close", "Value": "Close" },
+
+		{ "Key": "prompt.press", "Value": "[{0}] {1}" },
+		{ "Key": "prompt.hold", "Value": "Hold [{0}] {1}" },
+		{ "Key": "interact.use_terminal", "Value": "Use contract terminal" },
+		{ "Key": "interact.deliver_package", "Value": "Deliver package" },
+
+		{ "Key": "pause.title", "Value": "Paused" },
+		{ "Key": "pause.resume", "Value": "Resume" },
+		{ "Key": "pause.settings", "Value": "Settings" },
+		{ "Key": "pause.controls", "Value": "Controls" },
+		{ "Key": "pause.abort_contract", "Value": "Abort Contract" },
+		{ "Key": "pause.main_menu", "Value": "Main Menu" },
+		{ "Key": "controls.title", "Value": "Controls" },
+		{ "Key": "controls.body", "Value": "Move: W A S D\nLook: Mouse\nInteract: E (hold where prompted)\nSprint: Left Shift\nPause: Esc\n\nGamepad: left stick to move, right stick to look, A to interact, left stick click to sprint, Start to pause." },
+
+		{ "Key": "depot.title", "Value": "Courier Depot" },
+		{ "Key": "depot.credits", "Value": "Credits: {0}" },
+		{ "Key": "depot.contracts_header", "Value": "Available Contracts" },
+		{ "Key": "depot.no_contracts", "Value": "No contracts are available right now." },
+
+		{ "Key": "contract.accept", "Value": "Accept Contract" },
+		{ "Key": "contract.collect", "Value": "Collect Package" },
+		{ "Key": "contract.depart", "Value": "Depart" },
+		{ "Key": "contract.info", "Value": "Risk: {0}    Base pay: {1}    Site: {2}" },
+
+		{ "Key": "risk.low", "Value": "LOW" },
+		{ "Key": "risk.medium", "Value": "MEDIUM" },
+		{ "Key": "risk.high", "Value": "HIGH" },
+
+		{ "Key": "location_state.normal", "Value": "Normal" },
+		{ "Key": "location_state.blackout", "Value": "Blackout" },
+
+		{ "Key": "contract.standard_delivery.title", "Value": "Standard Delivery" },
+		{ "Key": "contract.standard_delivery.description", "Value": "A sealed parcel for the Greyline Warehouse. No special handling required. Pick it up, deliver it, and learn how the company likes things done." },
+		{ "Key": "contract.fragile.title", "Value": "Fragile" },
+		{ "Key": "contract.fragile.description", "Value": "A specimen container that does not like to be dropped. Handle with care and deliver it intact." },
+		{ "Key": "contract.lights_out.title", "Value": "Lights Out" },
+		{ "Key": "contract.lights_out.description", "Value": "The warehouse power is down and the cargo needs light. Keep it lit, or find a way to restore the power." },
+		{ "Key": "contract.express.title", "Value": "Express" },
+		{ "Key": "contract.express.description", "Value": "Same address, tight deadline. The short route is faster and a lot less friendly." },
+		{ "Key": "contract.restricted_cargo.title", "Value": "Restricted Cargo" },
+		{ "Key": "contract.restricted_cargo.description", "Value": "Sealed, classified, and picky about everything. Two handling rules and company security on the floor." },
+
+		{ "Key": "objective.no_violations", "Value": "No violations" },
+		{ "Key": "objective.on_time", "Value": "On time" },
+
+		{ "Key": "warehouse.title", "Value": "Greyline Warehouse" },
+		{ "Key": "warehouse.time_left", "Value": "Time left: {0}" },
+
+		{ "Key": "result.title", "Value": "Delivery Complete" },
+		{ "Key": "result.base_pay", "Value": "Base pay" },
+		{ "Key": "result.line", "Value": "{0}: {1}" },
+		{ "Key": "result.total", "Value": "Total: {0}" },
+		{ "Key": "result.return_to_depot", "Value": "Return to Depot" }
+	]
+}

@@ -1,51 +1,60 @@
 # Template Mapping
 
-Maps every game feature to the existing `UnityTemplates` module or mechanic that owns it. This is the Phase 0 audit deliverable and the anti-duplication reference: **if a feature appears here, it is implemented by the listed template, not by new game code.**
+Maps every game feature to the existing `UnityTemplates` module or mechanic that owns it. This is the Phase 0 audit
+deliverable and the anti-duplication reference: **if a feature appears here, it is implemented by the listed template,
+not by new game code.**
 
-> **Audit depth:** this first pass is based on the READMEs and asmdef layout of the packages, not on a full source review. The library keeps growing: eight mechanics present in `../UnityTemplates` are not yet linked into this project (§3.7). Before writing game code for a feature, read the listed template's README, public runtime API, and demo scene, then correct this file if the API differs.
+> **Audit depth:** this first pass is based on the READMEs and asmdef layout of the packages, not on a full source
+> review. All 92 applicable RD packages are linked, including the 18 additional mechanics in §3.7 and §4.
+> Haptics is intentionally excluded for Windows/Steam. Package
+> installation does not mean gameplay integration or behavioral verification. Before writing game code for a feature,
+> read
+> the listed template's README, public runtime API, and demo scene, then correct this file if the API differs.
 
-Legend: **MVP** first playable · **Demo** Steam demo · **1.0** release · **Candidate** fits, not committed · **Not planned** does not fit the design · **N/A** not applicable to the platform · **Pending** mechanic not yet in the library.
+Legend: **MVP** first playable · **Demo** Steam demo · **1.0** release · **Candidate** fits, not committed · **Not
+planned** does not fit the design · **N/A** not applicable to the platform · **Pending integration** package installed,
+gameplay use not yet implemented.
 
 ---
 
 ## 1. Responsibility Ownership
 
-| Responsibility | Owner | Never build |
-|---|---|---|
-| Application startup and shutdown order | `Startup` | A bootstrap manager |
-| Scene loading and transitions | `SceneFlow` | A scene-manager wrapper |
-| Persistence | `Save` | A save manager |
-| User settings | `Settings` | A settings manager |
-| Pause | `Pause` | A global pause flag |
-| Input | `Input` | Direct device polling |
-| Health, damage, death | `Health` (+ `HealthCarrier` bridge) | A second health system |
-| Currency | `Wallet` | Currency math inside contracts |
-| Reward delivery | `Rewards` | A custom payout calculator that mutates the wallet |
-| Goals and steps | `Quests` | A custom quest system |
-| Rules and gating | `Conditions` | Ad-hoc `if` chains for access |
-| Equipment loadout | `Equipment` | A custom loadout class |
-| Small items | `Inventory` | A second inventory |
-| Ranks and XP | `Progression` | A custom rank counter |
-| Numeric stats and modifiers | `Stats` | A parallel stat store |
-| Timed effects | `StatusEffects` | A custom buff system |
-| Deadlines and cooldowns | `Timers` | Ad-hoc float timers |
-| UI navigation | `ScreenNavigation`, `PrefabWindows` | A UI manager |
-| Animation of values/UI/doors | `Tween` | Per-object lerp code |
-| Sound playback | `Audio` | Raw `AudioSource` management |
-| Localization | `Localization` | Hardcoded strings |
-| Telemetry | `Analytics` | A custom event logger |
-| Achievements | `Achievements` | A custom unlock tracker |
-| Tutorial flow | `Tutorials` | Popup spam |
-| Decoupled facts | `Events` | A second event bus |
-| Logging | `Foundation` `UnityLogger` | `Debug.Log` |
-| Van condition, cargo stability, hit zones | `Health` (+ `HealthCarrier`) | A custom durability system |
-| Van slots (cargo module, vehicle modules, emergency) | `Equipment` (a second loadout instance) | A custom module-slot class |
-| Van stats (acceleration, top speed, grip, headlight range, cargo protection) | `Stats` (own collection) | A parallel stat store |
-| Repair parts and kits | `Inventory`, `CarryObject` | A parts manager |
-| Repair, upgrade, and fuel payments | `Wallet` | Inline currency math |
-| Driving versus on-foot controls | `Input` action-map contexts | Direct device polling |
-| Road scene transitions | `SceneFlow`, later `Addressables` | A scene-manager wrapper |
-| **Vehicle driving (arcade controller)** | **No template owns it. Open decision: game-side minimal controller or a new mechanic in `UnityTemplates`** | A realistic car simulation |
+| Responsibility                                                               | Owner                                                                                                      | Never build                                        |
+|------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
+| Application startup and shutdown order                                       | `Startup`                                                                                                  | A bootstrap manager                                |
+| Scene loading and transitions                                                | `SceneFlow`                                                                                                | A scene-manager wrapper                            |
+| Persistence                                                                  | `Save`                                                                                                     | A save manager                                     |
+| User settings                                                                | `Settings`                                                                                                 | A settings manager                                 |
+| Pause                                                                        | `Pause`                                                                                                    | A global pause flag                                |
+| Input                                                                        | `Input`                                                                                                    | Direct device polling                              |
+| Health, damage, death                                                        | `Health` (+ `HealthCarrier` bridge)                                                                        | A second health system                             |
+| Currency                                                                     | `Wallet`                                                                                                   | Currency math inside contracts                     |
+| Reward delivery                                                              | `Rewards`                                                                                                  | A custom payout calculator that mutates the wallet |
+| Goals and steps                                                              | `Quests`                                                                                                   | A custom quest system                              |
+| Rules and gating                                                             | `Conditions`                                                                                               | Ad-hoc `if` chains for access                      |
+| Equipment loadout                                                            | `Equipment`                                                                                                | A custom loadout class                             |
+| Small items                                                                  | `Inventory`                                                                                                | A second inventory                                 |
+| Ranks and XP                                                                 | `Progression`                                                                                              | A custom rank counter                              |
+| Numeric stats and modifiers                                                  | `Stats`                                                                                                    | A parallel stat store                              |
+| Timed effects                                                                | `StatusEffects`                                                                                            | A custom buff system                               |
+| Deadlines and cooldowns                                                      | `Timers`                                                                                                   | Ad-hoc float timers                                |
+| UI navigation                                                                | `ScreenNavigation`, `PrefabWindows`                                                                        | A UI manager                                       |
+| Animation of values/UI/doors                                                 | `Tween`                                                                                                    | Per-object lerp code                               |
+| Sound playback                                                               | `Audio`                                                                                                    | Raw `AudioSource` management                       |
+| Localization                                                                 | `Localization`                                                                                             | Hardcoded strings                                  |
+| Telemetry                                                                    | `Analytics`                                                                                                | A custom event logger                              |
+| Achievements                                                                 | `Achievements`                                                                                             | A custom unlock tracker                            |
+| Tutorial flow                                                                | `Tutorials`                                                                                                | Popup spam                                         |
+| Decoupled facts                                                              | `Events`                                                                                                   | A second event bus                                 |
+| Logging                                                                      | `Foundation` `UnityLogger`                                                                                 | `Debug.Log`                                        |
+| Van condition, cargo stability, hit zones                                    | `Health` (+ `HealthCarrier`)                                                                               | A custom durability system                         |
+| Van slots (cargo module, vehicle modules, emergency)                         | `Equipment` (a second loadout instance)                                                                    | A custom module-slot class                         |
+| Van stats (acceleration, top speed, grip, headlight range, cargo protection) | `Stats` (own collection)                                                                                   | A parallel stat store                              |
+| Repair parts and kits                                                        | `Inventory`, `CarryObject`                                                                                 | A parts manager                                    |
+| Repair, upgrade, and fuel payments                                           | `Wallet`                                                                                                   | Inline currency math                               |
+| Driving versus on-foot controls                                              | `Input` action-map contexts                                                                                | Direct device polling                              |
+| Road scene transitions                                                       | `SceneFlow`, later `Addressables`                                                                          | A scene-manager wrapper                            |
+| **Vehicle driving (arcade controller)**                                      | **No template owns it. Open decision: game-side minimal controller or a new mechanic in `UnityTemplates`** | A realistic car simulation                         |
 
 ### Game-owned code (new code allowed in `Assets/Game`)
 
@@ -64,57 +73,59 @@ Legend: **MVP** first playable · **Demo** Steam demo · **1.0** release · **Ca
 
 ### 2.1 Application
 
-| Module | Role in Night Courier | Status |
-|---|---|---|
-| **Startup** | Dependency-ordered steps that build application services (save, settings, audio, input, localization, progression, analytics) and shut them down in reverse | MVP |
-| **SceneFlow** | Boot → Main Menu → Depot ↔ Location transitions; the van transition; additive HUD/scenes if used | MVP |
-| **Save** | One typed game snapshot per slot: rank, credits, unlocks, upgrades, completed contracts, collectibles, achievements; later archive knowledge and a few world/reputation flags | MVP (core) / Demo (knowledge, flags) |
-| **Settings** | Volume, sensitivity, FOV, graphics, resolution, fullscreen, VSync, language | MVP |
-| **Input** | Action-map contexts (Gameplay / UI / Terminal; Vehicle in the road tier, switched on entering the driver's seat), rebinding with persistence, last-used-device tracking for prompt glyphs | MVP |
-| **Pause** | Pause ownership for the pause menu, terminals, and windows; consumed by hit stop | MVP |
-| **Localization** | Provider-backed keys for contracts, rules, terminals, UI. English source | MVP (keys) / Demo (extra languages) |
-| **Tutorials** | Persistent authored steps for the first delivery, presented as corporate training (no "Press E" popups) | Demo |
-| **Analytics** | Consent-gated telemetry for balancing: abandoned contracts, most-violated rule, chosen route, equipment taken, ammo spent, deaths, completion time | Demo |
-| **Addressables** | Location, enemy, package, and contract-asset loading with leases | Demo (MVP uses direct scene references). Requires `com.unity.addressables` (already resolved in the lock file) |
+| Module           | Role in Night Courier                                                                                                                                                                     | Status                                                                                                         |
+|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| **Startup**      | Dependency-ordered steps that build application services (save, settings, audio, input, localization, progression, analytics) and shut them down in reverse                               | MVP                                                                                                            |
+| **SceneFlow**    | Boot → Main Menu → Depot ↔ Location transitions; the van transition; additive HUD/scenes if used                                                                                          | MVP                                                                                                            |
+| **Save**         | One typed game snapshot per slot: rank, credits, unlocks, upgrades, completed contracts, collectibles, achievements; later archive knowledge and a few world/reputation flags             | MVP (core) / Demo (knowledge, flags)                                                                           |
+| **Settings**     | Volume, sensitivity, FOV, graphics, resolution, fullscreen, VSync, language                                                                                                               | MVP                                                                                                            |
+| **Input**        | In use: an owned clone of `NightCourier.inputactions` with `Gameplay` and `UI` maps switched through `InputMapContexts` (scenes push Gameplay, terminals/pause/result push UI, cursor lock follows the active map), saved binding overrides loaded at startup. Later: rebinding screen, last-used-device glyphs, Vehicle map in the road tier | MVP                                                                                                            |
+| **Pause**        | In use: the pause menu requests a pause handle (time scale 0 through `UnityTimeScalePauseController`). Later: terminals/windows that should freeze the world, hit stop                    | MVP                                                                                                            |
+| **Localization** | Provider-backed keys for contracts, rules, terminals, UI. English source                                                                                                                  | MVP (keys) / Demo (extra languages)                                                                            |
+| **Tutorials**    | Persistent authored steps for the first delivery, presented as corporate training (no "Press E" popups)                                                                                   | Demo                                                                                                           |
+| **Analytics**    | Consent-gated telemetry for balancing: abandoned contracts, most-violated rule, chosen route, equipment taken, ammo spent, deaths, completion time                                        | Demo                                                                                                           |
+| **Addressables** | Location, enemy, package, and contract-asset loading with leases                                                                                                                          | Demo (MVP uses direct scene references). Requires `com.unity.addressables` (already resolved in the lock file) |
 
 ### 2.2 Core
 
-| Module | Role | Status |
-|---|---|---|
-| **Foundation** | `Result<T>`, `CompositeDisposable`, `AsyncGate`, validated ids, `UnityLogger` | MVP |
-| **Events** | A few typed facts: `ContractCompleted`, `PackageViolation`, `PlayerRespawned`. Nothing else goes on the bus | MVP |
-| **StateMachine** | Contract run state (Accepted, PickedUp, InTransit, Delivered, Completed, Failed) where `Quests` cannot express it | MVP (decide in Phase 3 audit) |
-| **Timers** | `CountdownTimer` for deadlines and rule countdowns; `Cooldown` for grace periods and violation cooldowns | MVP |
-| **Attributes** | Inspector authoring helpers only: `[Assign]`, `[Button]`, `[Scene]` on game MonoBehaviours | MVP |
-| **Extensions** | Vector/transform/list helpers where they remove repeated code | As needed |
+| Module           | Role                                                                                                                                   | Status            |
+|------------------|----------------------------------------------------------------------------------------------------------------------------------------|-------------------|
+| **Foundation**   | `Result<T>`, `CompositeDisposable`, `AsyncGate`, validated ids, `UnityLogger`                                                          | MVP               |
+| **Events**       | A few typed facts: `ContractCompleted`, `PackageViolation`, `PlayerRespawned`. Nothing else goes on the bus                            | MVP               |
+| **StateMachine** | Not used for the contract lifecycle: `Quests` steps plus the run phase cover it. Revisit only for a behavior with real per-state logic | Not needed so far |
+| **Timers**       | `CountdownTimer` for deadlines and rule countdowns; `Cooldown` for grace periods and violation cooldowns                               | MVP               |
+| **Attributes**   | Inspector authoring helpers only: `[Assign]`, `[Button]`, `[Scene]` on game MonoBehaviours                                             | MVP               |
+| **Extensions**   | Vector/transform/list helpers where they remove repeated code                                                                          | As needed         |
 
-> **Correction to earlier notes:** `Attributes` is an Inspector-helper module, not a runtime value store. Runtime values map as follows — player health: `Health`; package stability: `Health` on the package; suit protection: `Stats` plus a damage rule.
+> **Correction to earlier notes:** `Attributes` is an Inspector-helper module, not a runtime value store. Runtime values
+> map as follows — player health: `Health`; package stability: `Health` on the package; suit protection: `Stats` plus a
+> damage rule.
 
 ### 2.3 Gameplay
 
-| Module | Role | Status |
-|---|---|---|
-| **Health** | Player and enemy health; package stability; destructible props; armor as damage rules; invulnerability on respawn | MVP |
-| **Quests** | Contract lifecycle: collect, reach, deliver, return; counters for optional objectives; completed-contract history; the different contract types (RECOVER, DISPOSE, MULTI-DROP, …) are different step lists | MVP |
-| **Conditions** | Door gating (security level, power), delivery acceptance (correct package, not destroyed), recipient verification, bonus checks (violation count), world/reputation flag gates | MVP (doors, delivery) / Demo (flags) |
-| **Rewards** | Contract payout as a reward bundle with idempotent grant ids. The net amount (base + bonuses − property damage − ammo expense − death penalty, floored at ₡0) is computed by the game result calculation and granted through Rewards | MVP |
-| **Wallet** | Credits balance; atomic spend on upgrades | MVP |
-| **Progression** | Courier Rank track; shift rating feeds experience and unlocks | MVP |
-| **Stats** | `MaxHealth`, `MoveSpeed`, `CarryMoveSpeed`, `WeaponDamage`, `ReloadSpeed`, `ScannerRange` with upgrade modifiers; temporary modifiers from cargo such as Heavy Mass | MVP |
-| **Equipment** | Personal loadout: primary tool, secondary tool, 2 utility, suit. The equipped set drives weapon switching. Road tier: a second loadout instance for the van (cargo module, 2 vehicle modules, emergency slot) | MVP (personal) / Road Alpha (van) |
-| **Inventory** | Keycards, fuses, batteries, medical supplies, quest items, ammo boxes | MVP |
-| **StatusEffects** | Poisoned, Electrified, Slowed, Disoriented, Radiated; cargo-applied effects (Neural Cargo → Disoriented); also backs `DamageOverTime` | Demo |
-| **Achievements** | Steam-style achievement tracking, hidden entries, snapshots; style-driven goals (see GDD §21.2) | Demo |
+| Module            | Role                                                                                                                                                                                                                                                                                                             | Status                               |
+|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
+| **Health**        | Player and enemy health; package stability; destructible props; armor as damage rules; invulnerability on respawn                                                                                                                                                                                                | MVP                                  |
+| **Quests**        | Contract lifecycle as three steps (collect, depart, deliver) with prerequisites unlocking the contract chain; a failed run abandons the quest; completed-contract history and snapshots are saved; the different contract types (RECOVER, DISPOSE, MULTI-DROP, …) are different step lists                       | MVP                                  |
+| **Conditions**    | Door gating (security level, power), delivery acceptance (correct package, not destroyed), recipient verification, bonus checks (violation count), world/reputation flag gates                                                                                                                                   | MVP (doors, delivery) / Demo (flags) |
+| **Rewards**       | Contract payout as a reward bundle with idempotent grant ids. The net amount (base + bonuses − property damage − ammo expense − death penalty, floored at ₡0) is computed by the game settlement calculation and granted through Rewards with a game-side `wallet.credits` handler; grant ids are per completion | MVP                                  |
+| **Wallet**        | Credits balance; atomic spend on upgrades                                                                                                                                                                                                                                                                        | MVP                                  |
+| **Progression**   | Courier Rank track; shift rating feeds experience and unlocks                                                                                                                                                                                                                                                    | MVP                                  |
+| **Stats**         | `MaxHealth`, `MoveSpeed`, `CarryMoveSpeed`, `WeaponDamage`, `ReloadSpeed`, `ScannerRange` with upgrade modifiers; temporary modifiers from cargo such as Heavy Mass                                                                                                                                              | MVP                                  |
+| **Equipment**     | Personal loadout: primary tool, secondary tool, 2 utility, suit. The equipped set drives weapon switching. Road tier: a second loadout instance for the van (cargo module, 2 vehicle modules, emergency slot)                                                                                                    | MVP (personal) / Road Alpha (van)    |
+| **Inventory**     | Keycards, fuses, batteries, medical supplies, quest items, ammo boxes                                                                                                                                                                                                                                            | MVP                                  |
+| **StatusEffects** | Poisoned, Electrified, Slowed, Disoriented, Radiated; cargo-applied effects (Neural Cargo → Disoriented); also backs `DamageOverTime`                                                                                                                                                                            | Demo                                 |
+| **Achievements**  | Steam-style achievement tracking, hidden entries, snapshots; style-driven goals (see GDD §21.2)                                                                                                                                                                                                                  | Demo                                 |
 
 ### 2.4 Presentation
 
-| Module | Role | Status |
-|---|---|---|
-| **ScreenNavigation** | Persistent screens: Main Menu, Depot HUD, Contract Selection, Results, Pause | MVP |
-| **PrefabWindows** | Popups: Contract Details, Delivery Result, Equipment, Upgrades, Confirmation | MVP |
-| **Tween** | Terminal UI animation, delivery locker, lights, small feedback (Door and Lever already use it) | MVP |
-| **Audio** | Pooled cue playback: ambience, doors, package cues, weapons, enemy cues. Some cues are rules: accelerating ticking = falling stability, whisper = object moved, detector clicks = hazard nearby | MVP |
-| **Haptics** | — | **N/A.** Android/iOS only; this game targets Windows/Steam. Gamepad rumble, if ever wanted, is a separate decision through the Input System directly, not through this module |
+| Module               | Role                                                                                                                                                                                            | Status                                                                                                                                                                        |
+|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **ScreenNavigation** | Persistent screens: Main Menu, Depot HUD, Contract Selection, Results, Pause                                                                                                                    | MVP                                                                                                                                                                           |
+| **PrefabWindows**    | Popups: Contract Details, Delivery Result, Equipment, Upgrades, Confirmation                                                                                                                    | MVP                                                                                                                                                                           |
+| **Tween**            | Terminal UI animation, delivery locker, lights, small feedback (Door and Lever already use it)                                                                                                  | MVP                                                                                                                                                                           |
+| **Audio**            | Pooled cue playback: ambience, doors, package cues, weapons, enemy cues. Some cues are rules: accelerating ticking = falling stability, whisper = object moved, detector clicks = hazard nearby | MVP                                                                                                                                                                           |
+| **Haptics**          | —                                                                                                                                                                                               | **N/A.** Android/iOS only; this game targets Windows/Steam. Gamepad rumble, if ever wanted, is a separate decision through the Input System directly, not through this module |
 
 ---
 
@@ -122,186 +133,199 @@ Legend: **MVP** first playable · **Demo** Steam demo · **1.0** release · **Ca
 
 ### 3.1 Items
 
-| Mechanic | Role | Status |
-|---|---|---|
-| **PickupDrop** | Small packages and world props | MVP |
-| **CarryObject** | Heavy containers, batteries, crates | MVP |
-| **Collectible** | Lost parcels, employee badges, black-box logs, Courier Tags (each unlocks an archive entry that helps in later contracts) | Demo |
+| Mechanic        | Role                                                                                                                      | Status |
+|-----------------|---------------------------------------------------------------------------------------------------------------------------|--------|
+| **PickupDrop**  | Small packages and world props                                                                                            | MVP    |
+| **CarryObject** | Heavy containers, batteries, crates                                                                                       | MVP    |
+| **Collectible** | Lost parcels, employee badges, black-box logs, Courier Tags (each unlocks an archive entry that helps in later contracts) | Demo   |
 
 ### 3.2 Interaction
 
-| Mechanic | Role | Status |
-|---|---|---|
-| **Door** | Normal, automatic, security, containment doors | MVP |
-| **ConditionLock** | Keycard, power, quest state, package authorization over a Door | MVP |
-| **Lever** | Power, freight lift, emergency door | MVP |
-| **PressurePlate** | Cargo Verification Station (set the package down, then scan) and weight puzzles | MVP |
+| Mechanic          | Role                                                                            | Status |
+|-------------------|---------------------------------------------------------------------------------|--------|
+| **Door**          | Normal, automatic, security, containment doors                                  | MVP    |
+| **ConditionLock** | Keycard, power, quest state, package authorization over a Door                  | MVP    |
+| **Lever**         | Power, freight lift, emergency door                                             | MVP    |
+| **PressurePlate** | Cargo Verification Station (set the package down, then scan) and weight puzzles | MVP    |
 
 ### 3.3 World and Traversal
 
-| Mechanic | Role | Status |
-|---|---|---|
-| **MovingPlatform** (+ `Elevator`) | Freight platforms and lifts; cargo logistics (send a container up, take another route) | MVP |
-| **BreakableObject** | Barricades, crates, glass, weak doors; shortcuts that cost property damage; crowbar targets | MVP |
-| **Checkpoint** | Physical Courier Emergency Locker, van, delivery terminal | MVP |
-| **Teleporter** | "Impossible architecture" in Spatial Instability states; Hunter Container relocation | 1.0 |
-| **JumpPad** | Pneumatic lift or anomalous pad in 1–2 special locations | 1.0 |
+| Mechanic                          | Role                                                                                        | Status |
+|-----------------------------------|---------------------------------------------------------------------------------------------|--------|
+| **MovingPlatform** (+ `Elevator`) | Freight platforms and lifts; cargo logistics (send a container up, take another route)      | MVP    |
+| **BreakableObject**               | Barricades, crates, glass, weak doors; shortcuts that cost property damage; crowbar targets | MVP    |
+| **Checkpoint**                    | Physical Courier Emergency Locker, van, delivery terminal                                   | MVP    |
+| **Teleporter**                    | "Impossible architecture" in Spatial Instability states; Hunter Container relocation        | 1.0    |
+| **JumpPad**                       | Pneumatic lift or anomalous pad in 1–2 special locations                                    | 1.0    |
 
 ### 3.4 Character
 
-| Mechanic | Role | Status |
-|---|---|---|
-| **Respawn** | Post-death flow ("recovery team retrieved you"); spawn pose supplied by the checkpoint set. Penalties (payment, lost loot, worsened cargo) are game-side, layered on top | MVP |
-| **Stamina** | Sprint and heavy-cargo cost | Demo |
-| **DodgeRoll** | — | **Not planned.** First-person horror with no full-body character; defense comes from positioning and light |
+| Mechanic      | Role                                                                                                                                                                     | Status                                                                                                     |
+|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| **Respawn**   | Post-death flow ("recovery team retrieved you"); spawn pose supplied by the checkpoint set. Penalties (payment, lost loot, worsened cargo) are game-side, layered on top | MVP                                                                                                        |
+| **Stamina**   | Sprint and heavy-cargo cost. Sprint is free until this lands                                                                                                                                              | Demo                                                                                                       |
+| **DodgeRoll** | —                                                                                                                                                                        | **Not planned.** First-person horror with no full-body character; defense comes from positioning and light |
 
 ### 3.5 Combat (shared bridge + weapons)
 
-| Mechanic | Role | Status |
-|---|---|---|
-| **Combat** (Core) | `HealthCarrier`, `CombatDamage`, `HitscanRay`, `Explosion`. Every damageable object carries a `HealthCarrier` | MVP |
-| **Common** (Core) | Collider queries, direction sampling, owned objects | MVP |
-| **HitscanWeapon** | Stun Pistol | MVP |
-| **AmmoReload** | Pistol and shotgun magazine/reserve | MVP |
-| **Recoil** | Pistol and shotgun camera kick; game-side glue forwards a shot to a held sensitive package as a stability event | MVP |
-| **WeaponSpread** | Pistol accuracy; temporary modifier from a damaged weapon or *Disoriented*, applied by game-side orchestration | MVP |
-| **HitFeedback** | Hit flash on enemies and props; melee hit stop | MVP |
-| **MeleeAttack** | Crowbar (also breaks jammed passages); Crawler attack | MVP |
-| **Knockback** | Crowbar hits; Crawler hits; Repulsor | MVP |
-| **WeaponSwitching** | The two carried items chosen at the locker | MVP |
-| **Shotgun** | Close-range weapon: fast, loud, expensive, bad for property | Demo |
-| **Projectile** | Drone shot; Repulsor shot | MVP (drone) |
-| **ChargeWeapon** | Repulsor charge (the former "Pulse Launcher") | Demo |
-| **HomingProjectile** | Wisp orbs; Tracking Beacon (candidate) | 1.0 |
-| **Grenade** | Containment Grenade (control zone; EMP variant) | 1.0 |
-| **ExplosiveBarrel** | Gas cylinders, fuel barrels, power cells; EMP container and pressure tank variants via game-side reactions to its events | Demo |
-| **DamageZone** | Electric floor, fire, toxic puddle, laser, steam | MVP |
-| **DamageOverTime** | Chemical exposure, burn, radiation, contaminated cargo | Demo |
-| **Block** | Crowbar brace: directional defense as a damage rule | Candidate (1.0) |
-| **TargetSelection** | Scanner target cycling | Candidate (1.0) |
-| **Parry** | — | **Not planned.** Skill-expression combat does not fit survival horror at this scope. Revisit only if melee needs depth |
-| **ComboAttackBuffer** | — | **Not planned.** The crowbar is a single swing |
-| **LockOnTargeting** | — | **Not planned.** First-person free aim |
+| Mechanic              | Role                                                                                                                     | Status                                                                                                                 |
+|-----------------------|--------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| **Combat** (Core)     | `HealthCarrier`, `CombatDamage`, `HitscanRay`, `Explosion`. Every damageable object carries a `HealthCarrier`            | MVP                                                                                                                    |
+| **Common** (Core)     | Collider queries, direction sampling, owned objects                                                                      | MVP                                                                                                                    |
+| **HitscanWeapon**     | Stun Pistol                                                                                                              | MVP                                                                                                                    |
+| **AmmoReload**        | Pistol and shotgun magazine/reserve                                                                                      | MVP                                                                                                                    |
+| **Recoil**            | Pistol and shotgun camera kick; game-side glue forwards a shot to a held sensitive package as a stability event          | MVP                                                                                                                    |
+| **WeaponSpread**      | Pistol accuracy; temporary modifier from a damaged weapon or *Disoriented*, applied by game-side orchestration           | MVP                                                                                                                    |
+| **HitFeedback**       | Hit flash on enemies and props; melee hit stop                                                                           | MVP                                                                                                                    |
+| **MeleeAttack**       | Crowbar (also breaks jammed passages); Crawler attack                                                                    | MVP                                                                                                                    |
+| **Knockback**         | Crowbar hits; Crawler hits; Repulsor                                                                                     | MVP                                                                                                                    |
+| **WeaponSwitching**   | The two carried items chosen at the locker                                                                               | MVP                                                                                                                    |
+| **Shotgun**           | Close-range weapon: fast, loud, expensive, bad for property                                                              | Demo                                                                                                                   |
+| **Projectile**        | Drone shot; Repulsor shot                                                                                                | MVP (drone)                                                                                                            |
+| **ChargeWeapon**      | Repulsor charge (the former "Pulse Launcher")                                                                            | Demo                                                                                                                   |
+| **HomingProjectile**  | Wisp orbs; Tracking Beacon (candidate)                                                                                   | 1.0                                                                                                                    |
+| **Grenade**           | Containment Grenade (control zone; EMP variant)                                                                          | 1.0                                                                                                                    |
+| **ExplosiveBarrel**   | Gas cylinders, fuel barrels, power cells; EMP container and pressure tank variants via game-side reactions to its events | Demo                                                                                                                   |
+| **DamageZone**        | Electric floor, fire, toxic puddle, laser, steam                                                                         | MVP                                                                                                                    |
+| **DamageOverTime**    | Chemical exposure, burn, radiation, contaminated cargo                                                                   | Demo                                                                                                                   |
+| **Block**             | Crowbar brace: directional defense as a damage rule                                                                      | Candidate (1.0)                                                                                                        |
+| **TargetSelection**   | Scanner target cycling                                                                                                   | Candidate (1.0)                                                                                                        |
+| **Parry**             | —                                                                                                                        | **Not planned.** Skill-expression combat does not fit survival horror at this scope. Revisit only if melee needs depth |
+| **ComboAttackBuffer** | —                                                                                                                        | **Not planned.** The crowbar is a single swing                                                                         |
+| **LockOnTargeting**   | —                                                                                                                        | **Not planned.** First-person free aim                                                                                 |
 
 ### 3.6 AI
 
-| Mechanic | Role | Status |
-|---|---|---|
-| **Patrol** | Drone and Watcher routes; also security scanners, cleaner robots, moving spotlights, inspection drones | MVP |
-| **DetectionSensor** | Field of view, distance, line of sight; also on cargo (nearby humans) and surveillance cameras (sees the package). Sound stimuli are **not** added in advance | MVP (enemies) / 1.0 (cargo, cameras) |
-| **ChaseTargetMemory** | Last-known-position search | MVP |
-| **Spawner** | Violation-triggered and alarm-triggered enemies | MVP |
-| **WaveSpawner** | *Emergency Lockdown* contract only | 1.0 |
+| Mechanic              | Role                                                                                                                                                          | Status                               |
+|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
+| **Patrol**            | Drone and Watcher routes; also security scanners, cleaner robots, moving spotlights, inspection drones                                                        | MVP                                  |
+| **DetectionSensor**   | Field of view, distance, line of sight; also on cargo (nearby humans) and surveillance cameras (sees the package). Sound stimuli are **not** added in advance | MVP (enemies) / 1.0 (cargo, cameras) |
+| **ChaseTargetMemory** | Last-known-position search                                                                                                                                    | MVP                                  |
+| **Spawner**           | Violation-triggered and alarm-triggered enemies                                                                                                               | MVP                                  |
+| **WaveSpawner**       | *Emergency Lockdown* contract only                                                                                                                            | 1.0                                  |
 
-### 3.7 In the Library but Not Yet Linked into This Project
+### 3.7 Additional Installed Mechanics
 
-The library gained mechanics after the first audit. They are present in `../UnityTemplates` but are not in `Packages/manifest.json`; link them with *Tools ▸ Unity Templates ▸ Install All Local Packages* when they are first needed.
+These eight mechanics are installed as individual local packages from `../UnityTemplates`. Their planned roles below
+remain unchanged; installation does not promote candidates or unplanned mechanics into the game design.
 
-| Mechanic | Planned role | Status |
-|---|---|---|
-| **PushPullObject** | Grounded crates and large cargo pushed along flat ground (loading, road obstacles, plate puzzles). It does not handle slopes, so no loading ramp | Road Alpha / Demo |
-| **ResponsiveJump** | Jump feel for the first-person controller, if the player can jump | Candidate |
-| **Ladder** | Maintenance district | Candidate (1.0) |
-| **LedgeGrabMantle** | Maintenance district | Candidate (1.0) |
-| **Zipline** | Construction-site district | Candidate (1.0) |
-| **GrapplingHook** | Experimental-facility district | Candidate (1.0) |
-| **WallJump** | — | **Not planned.** Does not fit the character fantasy |
-| **Dash** | — | **Not planned.** Same reasoning as `DodgeRoll` |
+| Mechanic            | Planned role                                                                                                                                     | Status                                              |
+|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|
+| **PushPullObject**  | Grounded crates and large cargo pushed along flat ground (loading, road obstacles, plate puzzles). It does not handle slopes, so no loading ramp | Road Alpha / Demo                                   |
+| **ResponsiveJump**  | Jump feel for the first-person controller, if the player can jump                                                                                | Candidate                                           |
+| **Ladder**          | Maintenance district                                                                                                                             | Candidate (1.0)                                     |
+| **LedgeGrabMantle** | Maintenance district                                                                                                                             | Candidate (1.0)                                     |
+| **Zipline**         | Construction-site district                                                                                                                       | Candidate (1.0)                                     |
+| **GrapplingHook**   | Experimental-facility district                                                                                                                   | Candidate (1.0)                                     |
+| **WallJump**        | —                                                                                                                                                | **Not planned.** Does not fit the character fantasy |
+| **Dash**            | —                                                                                                                                                | **Not planned.** Same reasoning as `DodgeRoll`      |
 
 ---
 
-## 4. Pending Mechanics (Not Yet Installed)
+## 4. Installed Mechanics Awaiting Gameplay Integration
 
-Ten mechanics will be added to `UnityTemplates` later. Their APIs are unknown, so nothing here is wired yet.
+All ten mechanics below are now installed as individual local UPM packages. Their reserved roles remain pending gameplay
+integration. At installation, HoldInteraction and RopeSwing had runtime source and demo scripts but no module README;
+review their completed documentation and demos before gameplay integration. Package compilation is checked separately
+from behavior.
 
-| # | Mechanic | Priority | Reserved role |
-|---|---|---|---|
-| 1 | **HoldInteraction** | **1 (highest)** | Hold E: repair fuse, scan cargo, force door, stabilize package, install battery, hack terminal, revive containment, neutralize anomaly, complete delivery; secure cargo in the van, repair the van (garage, pre-trip, roadside), install van modules. The player stays vulnerable while holding |
-| 2 | **ConveyorBelt** | 1 | Depot package conveyor and van-loading cargo platform; warehouse conveyor room; later a sorting-system puzzle (lever routes, plate detects the cargo) |
-| 3 | **ThrowableObject** | 1 | Distraction objects (can, tool, small crate) for AI, plus crates onto plates. Needs a sound-stimulus path in AI only when such a contract is actually built |
-| 4 | **ForceZone** | 1 | Anomalies: gravity corridor, ventilation shaft, unstable cargo, containment field; roadside anomaly wind and gravity storms that push the van; cargo that pulls out of the player's hands |
-| 5 | **FallingPlatform** | 1 | Emergency environment: an old catwalk that holds a few seconds, then breaks |
-| 6 | **RotatingPlatform** | 2 | Turntables, cargo cranes, rotating maintenance bridges |
-| 7 | **DisappearingPlatform** | 2 | Flickering anomaly walkways |
-| 8 | **PhysicsButton** | 2 | Large emergency button pressed by hand, crate, or thrown object |
-| 9 | **Pendulum** | 2 | Crane hazard: hanging container, hook, broken crane |
-| 10 | **RopeSwing** | 2 (lowest) | One rare contract: collapsed bridge, hanging service cable |
+| #  | Mechanic                 | Priority        | Reserved role                                                                                                                                                                                                                                                                                   |
+|----|--------------------------|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1  | **HoldInteraction**      | **1 (highest)** | **Integrated for the delivery point** (one `HoldInteraction` per hold target, driven by `Interactable`); remaining uses below follow their content. Hold E: repair fuse, scan cargo, force door, stabilize package, install battery, hack terminal, revive containment, neutralize anomaly, complete delivery; secure cargo in the van, repair the van (garage, pre-trip, roadside), install van modules. The player stays vulnerable while holding |
+| 2  | **ConveyorBelt**         | 1               | Depot package conveyor and van-loading cargo platform; warehouse conveyor room; later a sorting-system puzzle (lever routes, plate detects the cargo)                                                                                                                                           |
+| 3  | **ThrowableObject**      | 1               | Distraction objects (can, tool, small crate) for AI, plus crates onto plates. Needs a sound-stimulus path in AI only when such a contract is actually built                                                                                                                                     |
+| 4  | **ForceZone**            | 1               | Anomalies: gravity corridor, ventilation shaft, unstable cargo, containment field; roadside anomaly wind and gravity storms that push the van; cargo that pulls out of the player's hands                                                                                                       |
+| 5  | **FallingPlatform**      | 1               | Emergency environment: an old catwalk that holds a few seconds, then breaks                                                                                                                                                                                                                     |
+| 6  | **RotatingPlatform**     | 2               | Turntables, cargo cranes, rotating maintenance bridges                                                                                                                                                                                                                                          |
+| 7  | **DisappearingPlatform** | 2               | Flickering anomaly walkways                                                                                                                                                                                                                                                                     |
+| 8  | **PhysicsButton**        | 2               | Large emergency button pressed by hand, crate, or thrown object                                                                                                                                                                                                                                 |
+| 9  | **Pendulum**             | 2               | Crane hazard: hanging container, hook, broken crane                                                                                                                                                                                                                                             |
+| 10 | **RopeSwing**            | 2 (lowest)      | One rare contract: collapsed bridge, hanging service cable                                                                                                                                                                                                                                      |
 
-Rules until each arrives:
+Rules before gameplay integration:
 
 1. Do not build a local version of any of these.
-2. Design contracts and maps so they function without them (instant-press interaction through existing mechanics for the HoldInteraction roles).
-3. When the library ships them: run *Tools ▸ Unity Templates ▸ Install All Local Packages*, read the new README and demo scene, update this section, then add the content listed in the reserved role.
+2. Design contracts and maps so they function without them (instant-press interaction through existing mechanics for the
+   HoldInteraction roles).
+3. Read the completed README, runtime API, and demo scene, then add the content listed in the reserved role only at its
+   planned tier and verify it in Play Mode.
 
 ---
 
 ## 5. MVP Contract Matrix
 
-All five contracts are type DELIVER and run on the same Warehouse location with different configuration. Location states: Normal for all except 03, which uses Blackout. No complications in the MVP.
+All five contracts are type DELIVER and run on the same Warehouse location with different configuration. Location
+states: Normal for all except 03, which uses Blackout. No complications in the MVP.
 
-| # | Contract | Rules | Core templates exercised |
-|---|---|---|---|
-| 01 | **Standard Delivery** — learn pickup and delivery | none (tutorial) | `PickupDrop`, `Door`, `ConditionLock`, `Inventory` (keycard), `Checkpoint`, `Quests`, `Rewards`, `Wallet`, `Tween`, `Audio` |
-| 02 | **Fragile** | Do Not Drop | Contract 01 set + package `Health`/`HealthCarrier`, `Timers`, `Events`, `DamageZone`, `HitFeedback` |
-| 03 | **Lights Out** | Keep In Light | `Lever`, `Conditions` (power), `Door`, `CarryObject` (battery), `Timers`, `Spawner`, Crawler (`DetectionSensor`, `ChaseTargetMemory`, `MeleeAttack`, `Knockback`) |
-| 04 | **Express** | Delivery Deadline | `Timers`, route choice (`DamageZone`, `BreakableObject` vs. `MovingPlatform`), Security Drone (`Patrol`, `DetectionSensor`, `ChaseTargetMemory`, `Projectile`), Stun Pistol set |
-| 05 | **Restricted Cargo** | Do Not Drop + Keep In Light | `CarryObject` (heavy cargo), `PressurePlate` (cargo scanner), `Lever`, `MovingPlatform`, `ConditionLock`, both enemies, Crowbar, `Checkpoint`, `Respawn` |
+| #  | Contract                                          | Rules                       | Core templates exercised                                                                                                                                                        |
+|----|---------------------------------------------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 01 | **Standard Delivery** — learn pickup and delivery | none (tutorial)             | `PickupDrop`, `Door`, `ConditionLock`, `Inventory` (keycard), `Checkpoint`, `Quests`, `Rewards`, `Wallet`, `Tween`, `Audio`                                                     |
+| 02 | **Fragile**                                       | Do Not Drop                 | Contract 01 set + package `Health`/`HealthCarrier`, `Timers`, `Events`, `DamageZone`, `HitFeedback`                                                                             |
+| 03 | **Lights Out**                                    | Keep In Light               | `Lever`, `Conditions` (power), `Door`, `CarryObject` (battery), `Timers`, `Spawner`, Crawler (`DetectionSensor`, `ChaseTargetMemory`, `MeleeAttack`, `Knockback`)               |
+| 04 | **Express**                                       | Delivery Deadline           | `Timers`, route choice (`DamageZone`, `BreakableObject` vs. `MovingPlatform`), Security Drone (`Patrol`, `DetectionSensor`, `ChaseTargetMemory`, `Projectile`), Stun Pistol set |
+| 05 | **Restricted Cargo**                              | Do Not Drop + Keep In Light | `CarryObject` (heavy cargo), `PressurePlate` (cargo scanner), `Lever`, `MovingPlatform`, `ConditionLock`, both enemies, Crowbar, `Checkpoint`, `Respawn`                        |
 
-Reward and rank flow for every contract: `Quests` → `Conditions` check → result calculation (game) → `Rewards` bundle → `Wallet` credit → `Progression` (shift rating) → `Save`.
+Reward and rank flow for every contract: `Quests` → `Conditions` check → result calculation (game) → `Rewards` bundle →
+`Wallet` credit → `Progression` (shift rating) → `Save`.
 
 ---
 
 ## 6. Game-Side Orchestration Over Template Events
 
-These behaviors are built by the game listening to existing events. They must **not** be implemented by extending the reusable mechanics.
+These behaviors are built by the game listening to existing events. They must **not** be implemented by extending the
+reusable mechanics.
 
-| Behavior | Listens to | Result |
-|---|---|---|
-| Property damage fines | `BreakableObject` / `HealthCarrier` `Died`, barrel explosions | Deduction line on the result screen |
-| Ammo expense | `AmmoReload` change events | Deduction line on the result screen |
-| Hands restriction | `CarryObject` held state | Blocks the primary weapon input |
-| Cargo recoil | `Recoil` generation | Stability event on the held package |
-| Spread penalty | `StatusEffects` changes, weapon condition | Temporary modifier applied to `WeaponSpread` input |
-| Explosion variants | `ExplosiveBarrel` / `Grenade` explosion events | EMP effect, object throw, barricade break, control zone |
-| Death consequences | `Respawn` / `HealthCarrier` `Died` | Payment penalty, lost optional loot, worsened cargo |
-| Package escalation | Package violation events | Spawner, damage over time, shove, container failure |
+| Behavior              | Listens to                                                    | Result                                                  |
+|-----------------------|---------------------------------------------------------------|---------------------------------------------------------|
+| Property damage fines | `BreakableObject` / `HealthCarrier` `Died`, barrel explosions | Deduction line on the result screen                     |
+| Ammo expense          | `AmmoReload` change events                                    | Deduction line on the result screen                     |
+| Hands restriction     | `CarryObject` held state                                      | Blocks the primary weapon input                         |
+| Cargo recoil          | `Recoil` generation                                           | Stability event on the held package                     |
+| Spread penalty        | `StatusEffects` changes, weapon condition                     | Temporary modifier applied to `WeaponSpread` input      |
+| Explosion variants    | `ExplosiveBarrel` / `Grenade` explosion events                | EMP effect, object throw, barricade break, control zone |
+| Death consequences    | `Respawn` / `HealthCarrier` `Died`                            | Payment penalty, lost optional loot, worsened cargo     |
+| Package escalation    | Package violation events                                      | Spawner, damage over time, shove, container failure     |
+| Press and hold interaction | `Interact` input action, `HoldInteraction`               | `Interactable` (prompt key plus an optional `HoldInteraction`) found by the `PlayerInteractor` raycast; scene entries subscribe to `Interacted`. Mechanics such as `Door` and `Lever` stay input-agnostic and are called from these handlers |
 
-If a case turns out to need a change inside a template (for example, a sound stimulus for `DetectionSensor`), raise it as a proven-need change in `UnityTemplates` — see [../AGENTS.md](../AGENTS.md).
+If a case turns out to need a change inside a template (for example, a sound stimulus for `DetectionSensor`), raise it
+as a proven-need change in `UnityTemplates` — see [../AGENTS.md](../AGENTS.md).
 
 ---
 
 ## 7. Preparation, Van, and Road (Road Tier)
 
-The van and the road come after the MVP loop is fun ([GDD §3.2](GDD.md)). Nothing here is built during the MVP, except that the data model treats a shift as a list of contracts.
+The van and the road come after the MVP loop is fun ([GDD §3.2](GDD.md)). Nothing here is built during the MVP, except
+that the data model treats a shift as a list of contracts.
 
-| Feature | Owner | Notes |
-|---|---|---|
-| Driving the van (arcade) | **No template owner** | Open decision: a minimal controller in `Assets/Game/Vehicle`, or a new mechanic added to `UnityTemplates`. Must stay arcade (GDD §8.9) |
-| Vehicle condition and cargo stability | `Health` / `HealthCarrier` | Hit zones (front, side, rear) are game-side collision classification that sends typed damage; rear multiplies cargo damage ×2 |
-| Van stats and fault effects | `Stats` | Acceleration, top speed, grip, headlight range, cargo protection; upgrade and fault modifiers |
-| Fault states (headlights damaged, weak battery, …) | `StatusEffects` or `Stats` modifiers | Decide in the audit; faults are felt through stat changes, not percentages |
-| Van slots | `Equipment` | A second `EquipmentLoadout` instance |
-| Parts, repair kits | `Inventory` + `CarryObject` | Physical objects for the first install of each upgrade line |
-| Fuel | Audit: `Wallet` currency committed per road segment, a `Stats` value, or `Stamina` | One choice, recorded here after the audit |
-| Repairs, upgrades, refuel payments | `Wallet` | Atomic spends |
-| Upgrade gating | `Progression` + `Conditions` | Real new capabilities, not numbers only |
-| Persistent van condition, installed modules, shift state at the van | `Save` | Shift saved only at the van between deliveries |
-| Cargo placement adjacency (heat, cold, electronics) | `Conditions` | Rules over cargo-point occupancy |
-| Route unlocks (security pass, rank) | `Conditions` | |
-| Cargo loading | `PickupDrop`, `CarryObject`, `PushPullObject`, `MovingPlatform` (tail-lift), `ConveyorBelt` (pending) | Flat dock or tail-lift; no ramp |
-| Cargo securing, roadside and garage repair | `HoldInteraction` (pending) | Instant interaction until it lands |
-| Van doors | `Door` | Slide-only; verify fit for a van door in the audit |
-| Driving versus on-foot input | `Input` contexts | Vehicle context |
-| Road scenes | `SceneFlow`, later `Addressables` | Road + Road State + Cargo + Event |
-| Road hazards | `DamageZone`, `BreakableObject`, `ExplosiveBarrel`, `Teleporter`, `MovingPlatform`, `ForceZone` (pending) | A van-sized rigidbody on `MovingPlatform` must be checked |
-| Road events | `Patrol`, `DetectionSensor`, `ChaseTargetMemory`, `Collectible`, `PickupDrop`, `PushPullObject`, `BreakableObject`, `Teleporter` | See GDD §8.7 |
-| Cargo reactions to driving | Game-side package rules over `Stats` and van events | Magnetic, Gravity Core, Living, Electric, Restless |
-| Vehicle HUD and Garage UI | `ScreenNavigation`, `PrefabWindows`, `Tween` | Game UI |
-| Van audio | `Audio` | Engine, tires, collisions, doors |
-| Van Inspection and shift settlement | `Rewards`, `Wallet`, `Quests`, `Progression` | Net profit per shift |
-| Preparation timer | `Timers` | 2–3 minutes if timed |
+| Feature                                                             | Owner                                                                                                                            | Notes                                                                                                                                  |
+|---------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| Driving the van (arcade)                                            | **No template owner**                                                                                                            | Open decision: a minimal controller in `Assets/Game/Vehicle`, or a new mechanic added to `UnityTemplates`. Must stay arcade (GDD §8.9) |
+| Vehicle condition and cargo stability                               | `Health` / `HealthCarrier`                                                                                                       | Hit zones (front, side, rear) are game-side collision classification that sends typed damage; rear multiplies cargo damage ×2          |
+| Van stats and fault effects                                         | `Stats`                                                                                                                          | Acceleration, top speed, grip, headlight range, cargo protection; upgrade and fault modifiers                                          |
+| Fault states (headlights damaged, weak battery, …)                  | `StatusEffects` or `Stats` modifiers                                                                                             | Decide in the audit; faults are felt through stat changes, not percentages                                                             |
+| Van slots                                                           | `Equipment`                                                                                                                      | A second `EquipmentLoadout` instance                                                                                                   |
+| Parts, repair kits                                                  | `Inventory` + `CarryObject`                                                                                                      | Physical objects for the first install of each upgrade line                                                                            |
+| Fuel                                                                | Audit: `Wallet` currency committed per road segment, a `Stats` value, or `Stamina`                                               | One choice, recorded here after the audit                                                                                              |
+| Repairs, upgrades, refuel payments                                  | `Wallet`                                                                                                                         | Atomic spends                                                                                                                          |
+| Upgrade gating                                                      | `Progression` + `Conditions`                                                                                                     | Real new capabilities, not numbers only                                                                                                |
+| Persistent van condition, installed modules, shift state at the van | `Save`                                                                                                                           | Shift saved only at the van between deliveries                                                                                         |
+| Cargo placement adjacency (heat, cold, electronics)                 | `Conditions`                                                                                                                     | Rules over cargo-point occupancy                                                                                                       |
+| Route unlocks (security pass, rank)                                 | `Conditions`                                                                                                                     |                                                                                                                                        |
+| Cargo loading                                                       | `PickupDrop`, `CarryObject`, `PushPullObject`, `MovingPlatform` (tail-lift), `ConveyorBelt` (pending integration)                | Flat dock or tail-lift; no ramp                                                                                                        |
+| Cargo securing, roadside and garage repair                          | `HoldInteraction` (pending integration)                                                                                          | Instant interaction until its gameplay integration is verified                                                                         |
+| Van doors                                                           | `Door`                                                                                                                           | Slide-only; verify fit for a van door in the audit                                                                                     |
+| Driving versus on-foot input                                        | `Input` contexts                                                                                                                 | Vehicle context                                                                                                                        |
+| Road scenes                                                         | `SceneFlow`, later `Addressables`                                                                                                | Road + Road State + Cargo + Event                                                                                                      |
+| Road hazards                                                        | `DamageZone`, `BreakableObject`, `ExplosiveBarrel`, `Teleporter`, `MovingPlatform`, `ForceZone` (pending integration)            | A van-sized rigidbody on `MovingPlatform` must be checked                                                                              |
+| Road events                                                         | `Patrol`, `DetectionSensor`, `ChaseTargetMemory`, `Collectible`, `PickupDrop`, `PushPullObject`, `BreakableObject`, `Teleporter` | See GDD §8.7                                                                                                                           |
+| Cargo reactions to driving                                          | Game-side package rules over `Stats` and van events                                                                              | Magnetic, Gravity Core, Living, Electric, Restless                                                                                     |
+| Vehicle HUD and Garage UI                                           | `ScreenNavigation`, `PrefabWindows`, `Tween`                                                                                     | Game UI                                                                                                                                |
+| Van audio                                                           | `Audio`                                                                                                                          | Engine, tires, collisions, doors                                                                                                       |
+| Van Inspection and shift settlement                                 | `Rewards`, `Wallet`, `Quests`, `Progression`                                                                                     | Net profit per shift                                                                                                                   |
+| Preparation timer                                                   | `Timers`                                                                                                                         | 2–3 minutes if timed                                                                                                                   |
 
-**Library gaps to settle with the user:** the vehicle controller (above), the fuel representation, and whether a hinged van door is needed (`Door` only slides).
+**Library gaps to settle with the user:** the vehicle controller (above), the fuel representation, and whether a hinged
+van door is needed (`Door` only slides).
 
 ---
 

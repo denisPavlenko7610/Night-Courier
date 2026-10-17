@@ -1,0 +1,31 @@
+{
+    "name": "NightCourier.Game",
+    "rootNamespace": "NightCourier",
+    "references": [
+        "RD.Attributes",
+        "RD.Foundation",
+        "RD.Startup",
+        "RD.SceneFlow",
+        "RD.Save",
+        "RD.Settings",
+        "RD.Localization",
+        "RD.Quests",
+        "RD.Rewards",
+        "RD.Wallet",
+        "RD.Timers",
+        "RD.Input",
+        "RD.Pause",
+        "RD.Mechanics.HoldInteraction",
+        "Unity.InputSystem",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,30 @@
+{
+    "name": "NightCourier.Game.Tests",
+    "rootNamespace": "NightCourier.Tests",
+    "references": [
+        "NightCourier.Game",
+        "RD.Foundation",
+        "RD.Localization",
+        "RD.Quests",
+        "RD.Rewards",
+        "RD.Save",
+        "RD.Wallet",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
