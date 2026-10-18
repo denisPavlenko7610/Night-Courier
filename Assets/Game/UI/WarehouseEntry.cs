@@ -298,6 +298,10 @@ namespace NightCourier.UI
 					case EscalationEffect.SpawnEnemy:
 						SpawnAlarmEnemy();
 						break;
+					case EscalationEffect.PackageHazardous:
+						_package.Hazard.Activate(_player.Contamination);
+						_packageHud.Notify("notice.package_hazardous");
+						break;
 					case EscalationEffect.FailContract:
 						FailContract("result.too_many_violations");
 						break;

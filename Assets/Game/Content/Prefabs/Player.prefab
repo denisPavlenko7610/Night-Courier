@@ -903,6 +903,7 @@ GameObject:
   - component: {fileID: 6669637129727130011}
   - component: {fileID: 2797275190069338274}
   - component: {fileID: 3162343239199574353}
+  - component: {fileID: 8093014718322916137}
   m_Layer: 10
   m_Name: Player
   m_TagString: Untagged
@@ -1004,6 +1005,7 @@ MonoBehaviour:
   _vitals: {fileID: 5361718097673614087}
   _weapons: {fileID: 2797275190069338274}
   _medkits: {fileID: 3162343239199574353}
+  _contamination: {fileID: 8093014718322916137}
 --- !u!114 &1550987350009345910
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1152,6 +1154,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.Player.PlayerMedkits
   _vitals: {fileID: 5361718097673614087}
+--- !u!114 &8093014718322916137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8211461791556453824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01d56d2852e2b8045b7ab5eba8c6931e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RD.Mechanics.DamageOverTime::RD.Mechanics.DamageOverTime.DamageOverTime
+  _carrier: {fileID: 2479082968419091932}
+  _definitions:
+  - _id: contamination
+    _durationSeconds: 1.2
+    _tickIntervalSeconds: 0.4
+    _damagePerTick: 3
+    _damageTypeId: hazard
 --- !u!1 &8514043467969345939
 GameObject:
   m_ObjectHideFlags: 0

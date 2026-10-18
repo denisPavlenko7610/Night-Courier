@@ -13,10 +13,13 @@ namespace NightCourier.Player
 		[SerializeField] private PackageIntegrity _integrity;
 		[SerializeField] private PackageRuleSet _rules;
 		[SerializeField] private PackageUnstableEffect _unstable;
+		[SerializeField] private PackageHazardEffect _hazard;
 
 		private PlayerCarry _carry;
 
 		public PackageUnstableEffect Unstable => _unstable;
+
+		public PackageHazardEffect Hazard => _hazard;
 
 		public PackageImpact Impact => _impact;
 

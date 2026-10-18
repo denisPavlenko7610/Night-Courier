@@ -3,6 +3,7 @@ using NightCourier.App;
 using NightCourier.Controls;
 using NightCourier.Economy;
 using NightCourier.Weapons;
+using RD.Mechanics.DamageOverTime;
 using UnityEngine;
 
 namespace NightCourier.Player
@@ -16,6 +17,7 @@ namespace NightCourier.Player
 		[SerializeField] private PlayerVitals _vitals;
 		[SerializeField] private PlayerWeapons _weapons;
 		[SerializeField] private PlayerMedkits _medkits;
+		[SerializeField] private DamageOverTime _contamination;
 
 		private GameInput _input;
 		private IDisposable _gameplayScope;
@@ -32,6 +34,8 @@ namespace NightCourier.Player
 		public PlayerWeapons Weapons => _weapons;
 
 		public PlayerMedkits Medkits => _medkits;
+
+		public DamageOverTime Contamination => _contamination;
 
 		public void Begin(GameServices services)
 		{
