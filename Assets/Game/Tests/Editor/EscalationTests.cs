@@ -55,6 +55,18 @@ namespace NightCourier.Tests
 		}
 
 		[Test]
+		public void Spec_SpawnEnemyStep_IsReportedAtItsViolation()
+		{
+			ContractSpec spec = SpecWith(
+				new EscalationStep(1, EscalationEffect.PackageUnstable),
+				new EscalationStep(2, EscalationEffect.SpawnEnemy),
+				new EscalationStep(4, EscalationEffect.FailContract));
+
+			Assert.That(spec.GetEscalation(2), Is.EqualTo(new[] { EscalationEffect.SpawnEnemy }));
+			Assert.That(spec.GetEscalation(3), Is.Empty);
+		}
+
+		[Test]
 		public void Spec_WithoutEscalation_HasNoSteps()
 		{
 			Assert.That(SpecWith().Escalation, Is.Empty);

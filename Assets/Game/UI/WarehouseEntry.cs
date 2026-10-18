@@ -11,7 +11,9 @@ using RD.Conditions;
 using RD.DependencyInjection;
 using RD.Foundation;
 using RD.Localization;
+using RD.Mechanics.ChaseTargetMemory;
 using RD.Mechanics.Checkpoint;
+using RD.Mechanics.Spawner;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -41,6 +43,7 @@ namespace NightCourier.UI
 		[SerializeField] private CheckpointSet _checkpoints;
 		[SerializeField] private CourierLocker[] _lockers;
 		[SerializeField] private EncounterGroup[] _encounters;
+		[SerializeField] private Spawner _alarmSpawner;
 		[SerializeField] private WarehouseLighting _lighting;
 		[SerializeField] private PackageHudView _packageHud;
 		[SerializeField] private GameObject _resultPanel;
@@ -289,6 +292,9 @@ namespace NightCourier.UI
 						_package.Unstable.Activate();
 						_packageHud.Notify("notice.package_unstable");
 						break;
+					case EscalationEffect.SpawnEnemy:
+						SpawnAlarmEnemy();
+						break;
 					case EscalationEffect.FailContract:
 						FailContract("result.too_many_violations");
 						break;
@@ -296,6 +302,17 @@ namespace NightCourier.UI
 						throw new ArgumentOutOfRangeException(nameof(effect), effect, "Unknown escalation effect.");
 				}
 			}
+		}
+
+		private void SpawnAlarmEnemy()
+		{
+			if (!_alarmSpawner.TrySpawn(out GameObject enemy))
+			{
+				return;
+			}
+
+			enemy.GetComponent<ChaseTargetMemory>().ReportTarget(_player.transform);
+			_packageHud.Notify("notice.enemy_spawned");
 		}
 
 		private void OnIntegrityChanged()

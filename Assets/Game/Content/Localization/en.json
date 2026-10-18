@@ -92,6 +92,7 @@
 		{ "Key": "notice.property_damage", "Value": "Property damaged" },
 		{ "Key": "notice.hands_full", "Value": "Your hands are full." },
 		{ "Key": "notice.weapon_blocked", "Value": "Your hands are full. You cannot use the {0}." },
+		{ "Key": "notice.enemy_spawned", "Value": "The violation drew attention. Something is coming." },
 		{ "Key": "notice.package_unstable", "Value": "The package is unstable. Impacts hurt twice as much." },
 		{ "Key": "notice.text", "Value": "{0}" },
 		{ "Key": "result.too_many_violations", "Value": "Too many violations. The package was lost." },

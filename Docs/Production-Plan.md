@@ -21,9 +21,9 @@ movement mechanics, see [../TEMPLATE-PACKAGES.md](../TEMPLATE-PACKAGES.md)); int
 The Warehouse map, the package rules and ladder, the Lights Out battery, player health with respawn and checkpoints,
 the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Play Mode.
 
-1. **Phase 13 remaining content.** The Restricted Cargo environmental puzzle and the Lights Out `Spawner` waves, plus the
-   ladder steps "spawn an enemy" (with `Spawner`) and "package becomes hazardous". Fairness tuning of the encounters now
-   that the player can fight back.
+1. **Phase 13 remaining content.** The Restricted Cargo environmental puzzle and the ladder step "package becomes
+   hazardous" (needs `DamageOverTime`). A Play Mode run of Restricted Cargo and fairness tuning of the encounters now that
+   the player can fight back.
 2. **Phase 10–11 Upgrades, progression, persistence.** Equipment Locker (the two carried items, `Equipment` driving
    `WeaponSwitching`) and Upgrade Terminal in the Depot, the death penalty, property damage, and ammo expense settlement
    lines. Then the first-milestone definition of done is met.
@@ -98,8 +98,14 @@ damage, with a HUD notice) or `FailContract` (the failure panel). The shipped la
 Fragile and Lights Out, 1 unstable and 3 fail for Restricted Cargo, and none for Standard Delivery and Express.
 Property damage (the barricade) counts toward the no-violations bonus through `RegisterPropertyDamage` but not toward
 the ladder. Verified in stepped Play Mode on Fragile (four floor drops: unstable at the first, failed at the fourth).
-Still to build: the ladder steps "spawn an enemy" and "package becomes hazardous" (they need Phase 8 enemies and damage
-over time), an audible warning (needs `Audio`), and per-package Behavior components.
+Violation 2 now spawns an enemy: `EscalationEffect.SpawnEnemy` makes `WarehouseEntry` ask a scene `Spawner` (the Crawler
+prefab, three alarm points on the NavMesh, at most 2 alive) for a Crawler and report the player to its
+`ChaseTargetMemory`, with a HUD notice. Fragile and Lights Out now run 1 unstable, 2 enemy, 4 fail; Restricted Cargo runs
+1 unstable, 2 enemy, 3 fail. Verified in stepped Play Mode on Fragile (violation 2 spawns a chasing Crawler, 3 changes
+nothing, 4 fails). The dock bay is a separate NavMesh region, so an alarm Crawler cannot reach a player still in the dock
+bay (its path is partial) and waits at the nearest reachable point.
+Still to build: the ladder step "package becomes hazardous" (needs damage over time), an audible warning (needs `Audio`),
+and per-package Behavior components.
 Package `Health` does not carry over from the Depot to the Warehouse yet (the Warehouse spawns a fresh package); revisit
 with the road tier.
 
@@ -231,10 +237,10 @@ single Warehouse map:
 | #  | Contract          | Done                                                           | Still needs                                  |
 |----|-------------------|----------------------------------------------------------------|----------------------------------------------|
 | 01 | Standard Delivery | Physical pickup and delivery                                   | —                                            |
-| 02 | Fragile           | `DoNotDrop`, ladder 1 / 4                                      | —                                            |
-| 03 | Lights Out        | `KeepInLight`, Blackout, battery and generator, ladder 1 / 4, Crawlers | `Spawner` waves                      |
+| 02 | Fragile           | `DoNotDrop`, ladder 1 / 2 / 4                                  | —                                            |
+| 03 | Lights Out        | `KeepInLight`, Blackout, battery and generator, ladder 1 / 2 / 4, Crawlers | —                                |
 | 04 | Express           | `DeliveryDeadline` (300 s), Security Drone                     | Fairness tuning with the pistol              |
-| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight`, ladder 1 / 3, both enemies (data only; not run) | An environmental puzzle, a Play Mode run |
+| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight`, ladder 1 / 2 / 3, both enemies (data only; not run) | An environmental puzzle, a Play Mode run |
 
 All five use the same Warehouse location with different configuration or state. Do not create five maps.
 
