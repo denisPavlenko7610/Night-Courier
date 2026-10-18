@@ -16,8 +16,9 @@ change is genuinely required, first identify the minimal reason, then change the
 
 ## Next Up (Recommended Order)
 
-All modules and mechanics except Haptics are installed (48 RD packages: three kits plus modules and the unbundled
-movement mechanics, see [../TEMPLATE-PACKAGES.md](../TEMPLATE-PACKAGES.md)); integration still goes one feature at a time.
+All modules and mechanics are installed (10 RD packages: Foundation, seven kits, and two demo-support packages, see
+[../TEMPLATE-PACKAGES.md](../TEMPLATE-PACKAGES.md); Haptics sits inside the Presentation kit and stays unused); integration
+still goes one feature at a time.
 The Warehouse map, the package rules and ladder, the Lights Out battery, player health with respawn and checkpoints,
 the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Play Mode.
 
