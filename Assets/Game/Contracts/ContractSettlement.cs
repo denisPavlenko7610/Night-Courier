@@ -12,7 +12,8 @@ namespace NightCourier.Contracts
 			bool wasOverdue,
 			int deathCount = 0,
 			int shotsFired = 0,
-			int propertyDamageCount = 0)
+			int propertyDamageCount = 0,
+			double cargoIntegrity = 1d)
 		{
 			ViolationCount = violationCount;
 			TransitSeconds = transitSeconds;
@@ -20,9 +21,12 @@ namespace NightCourier.Contracts
 			DeathCount = deathCount;
 			ShotsFired = shotsFired;
 			PropertyDamageCount = propertyDamageCount;
+			CargoIntegrity = cargoIntegrity;
 		}
 
 		public int PropertyDamageCount { get; }
+
+		public double CargoIntegrity { get; }
 
 		public int DeathCount { get; }
 
@@ -60,10 +64,11 @@ namespace NightCourier.Contracts
 
 	public sealed class ContractSettlement
 	{
-		public ContractSettlement(string contractId, IReadOnlyList<SettlementLine> lines)
+		public ContractSettlement(string contractId, IReadOnlyList<SettlementLine> lines, ShiftRating rating = default)
 		{
 			ContractId = contractId;
 			Lines = lines;
+			Rating = rating;
 
 			long sum = 0;
 
@@ -80,6 +85,8 @@ namespace NightCourier.Contracts
 		public IReadOnlyList<SettlementLine> Lines { get; }
 
 		public long Total { get; }
+
+		public ShiftRating Rating { get; }
 	}
 
 	public static class SettlementCalculator
@@ -110,7 +117,7 @@ namespace NightCourier.Contracts
 			AddDeduction(lines, PropertyDamageLabelKey, outcome.PropertyDamageCount, EconomyRules.PropertyDamageFine);
 			AddDeduction(lines, DeathPenaltyLabelKey, outcome.DeathCount, EconomyRules.DeathPenalty);
 
-			return new ContractSettlement(spec.Id, lines.AsReadOnly());
+			return new ContractSettlement(spec.Id, lines.AsReadOnly(), ShiftRatingCalculator.Calculate(spec, outcome));
 		}
 
 		private static void AddDeduction(List<SettlementLine> lines, string labelKey, int count, long unitCost)

@@ -15,6 +15,7 @@ namespace NightCourier.Contracts
 		private int _deathCount;
 		private int _shotsFired;
 		private int _propertyDamageCount;
+		private double _cargoIntegrity = 1d;
 
 		public ContractRun(ContractSpec spec, QuestService quests)
 		{
@@ -50,6 +51,8 @@ namespace NightCourier.Contracts
 		public int ShotsFired => _shotsFired;
 
 		public int PropertyDamageCount => _propertyDamageCount;
+
+		public double CargoIntegrity => _cargoIntegrity;
 
 		public bool HasDeadline => _deadline != null;
 
@@ -117,6 +120,14 @@ namespace NightCourier.Contracts
 			}
 		}
 
+		public void RecordCargoIntegrity(double fraction)
+		{
+			if (Phase == ContractPhase.InTransit)
+			{
+				_cargoIntegrity = Math.Clamp(fraction, 0d, 1d);
+			}
+		}
+
 		public void RegisterDeath()
 		{
 			if (Phase == ContractPhase.InTransit)
@@ -136,7 +147,7 @@ namespace NightCourier.Contracts
 
 		public ContractOutcome CaptureOutcome()
 		{
-			return new ContractOutcome(_violationCount, _transitSeconds, IsOverdue, _deathCount, _shotsFired, _propertyDamageCount);
+			return new ContractOutcome(_violationCount, _transitSeconds, IsOverdue, _deathCount, _shotsFired, _propertyDamageCount, _cargoIntegrity);
 		}
 
 		public bool Fail()

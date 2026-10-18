@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using NightCourier.App;
 using NightCourier.Contracts;
+using NightCourier.Economy;
 using NightCourier.Player;
 using NightCourier.Weapons;
 using RD.DependencyInjection;
@@ -31,6 +32,7 @@ namespace NightCourier.UI
 		[SerializeField] private GameObject _terminalPanel;
 		[SerializeField] private Button _closeButton;
 		[SerializeField] private LocalizedLabel _creditsLabel;
+		[SerializeField] private LocalizedLabel _rankLabel;
 		[SerializeField] private ContractSlot[] _slots;
 		[SerializeField] private GameObject _emptyNotice;
 		[SerializeField] private GameObject _detailsRoot;
@@ -80,6 +82,7 @@ namespace NightCourier.UI
 
 			_terminalPanel.SetActive(false);
 			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
+			ShowRank();
 
 			RefreshWorld();
 		}
@@ -105,6 +108,21 @@ namespace NightCourier.UI
 
 			_actionButton.onClick.RemoveListener(OnAccept);
 			_closeButton.onClick.RemoveListener(CloseTerminal);
+		}
+
+		private void ShowRank()
+		{
+			CourierRank rank = _campaign.Rank;
+			string title = _services.Localization.Get(rank.TitleKey);
+
+			if (rank.IsMaxLevel)
+			{
+				_rankLabel.SetKey("depot.rank_max", title, rank.TotalExperience);
+			}
+			else
+			{
+				_rankLabel.SetKey("depot.rank", title, rank.ExperienceIntoLevel, rank.ExperienceForNextLevel);
+			}
 		}
 
 		private void OpenTerminal()

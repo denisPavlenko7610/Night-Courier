@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using NightCourier.App;
 using NightCourier.Contracts;
+using NightCourier.Economy;
 using NightCourier.Packages;
 using NightCourier.Player;
 using NightCourier.Weapons;
@@ -377,13 +378,15 @@ namespace NightCourier.UI
 
 			try
 			{
+				_run.RecordCargoIntegrity(_package.Integrity.Fraction);
 				_run.Deliver();
 				_carry.ConsumeHeld();
 
 				ContractSettlement settlement = await _campaign.Contracts.SettleAsync();
+				RankChange rankChange = _campaign.Rank.Apply(settlement.Rating);
 				await _services.Campaign.SaveAsync();
 
-				ShowResult(settlement);
+				ShowResult(settlement, rankChange);
 			}
 			catch (Exception exception)
 			{
@@ -402,7 +405,7 @@ namespace NightCourier.UI
 			Navigate(SceneIds.Depot);
 		}
 
-		private void ShowResult(ContractSettlement settlement)
+		private void ShowResult(ContractSettlement settlement, RankChange rankChange)
 		{
 			ILocalizationService localization = _services.Localization;
 			StringBuilder text = new();
@@ -412,13 +415,41 @@ namespace NightCourier.UI
 				text.AppendLine(localization.Get("result.line", localization.Get(line.LabelKey), line.Amount));
 			}
 
-			text.Append(localization.Get("result.total", settlement.Total));
+			text.AppendLine(localization.Get("result.total", settlement.Total));
+			text.AppendLine();
+			text.AppendLine(localization.Get("result.rating", settlement.Rating.Overall));
+			text.AppendLine(localization.Get(
+				"result.rating_axes",
+				GradeText(settlement.Rating.DeliveryTime),
+				GradeText(settlement.Rating.CargoCondition),
+				GradeText(settlement.Rating.ProtocolCompliance),
+				GradeText(settlement.Rating.PropertyDamage)));
+			text.Append(localization.Get(
+				"result.rank_xp",
+				localization.Get(_campaign.Rank.TitleKey),
+				rankChange.ExperienceGained));
+
+			if (rankChange.Promoted)
+			{
+				text.AppendLine();
+				text.Append(localization.Get("result.rank_promoted", localization.Get(_campaign.Rank.TitleKey)));
+			}
 
 			_breakdownText.text = text.ToString();
 			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
 
 			_resultScope = _services.Input.PushMenu();
 			_resultPanel.SetActive(true);
+		}
+
+		private static string GradeText(ShiftGrade? grade)
+		{
+			return grade.HasValue ? grade.Value.ToString() : "-";
+		}
+
+		private static string GradeText(ShiftGrade grade)
+		{
+			return grade.ToString();
 		}
 
 		private async void Navigate(string sceneId)

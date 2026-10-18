@@ -46,6 +46,12 @@
 
 		{ "Key": "depot.title", "Value": "Courier Depot" },
 		{ "Key": "depot.credits", "Value": "Credits: {0}" },
+		{ "Key": "depot.rank", "Value": "Rank: {0}  ({1} / {2} XP)" },
+		{ "Key": "depot.rank_max", "Value": "Rank: {0}  ({1} XP)" },
+		{ "Key": "rank.trainee", "Value": "Trainee" },
+		{ "Key": "rank.courier", "Value": "Courier" },
+		{ "Key": "rank.senior_courier", "Value": "Senior Courier" },
+		{ "Key": "rank.hazard_courier", "Value": "Hazard Courier" },
 		{ "Key": "depot.contracts_header", "Value": "Available Contracts" },
 		{ "Key": "depot.no_contracts", "Value": "No contracts are available right now." },
 
@@ -135,6 +141,10 @@
 		{ "Key": "result.ammo_expense", "Value": "Ammo expense" },
 		{ "Key": "result.property_damage", "Value": "Property damage" },
 		{ "Key": "result.death_penalty", "Value": "Recovery team fee" },
+		{ "Key": "result.rating", "Value": "Shift rating: {0}" },
+		{ "Key": "result.rating_axes", "Value": "Time {0}    Cargo {1}    Protocol {2}    Property {3}" },
+		{ "Key": "result.rank_xp", "Value": "Rank: {0}  (+{1} XP)" },
+		{ "Key": "result.rank_promoted", "Value": "Promoted to {0}!" },
 		{ "Key": "result.line", "Value": "{0}: {1}" },
 		{ "Key": "result.total", "Value": "Total: {0}" },
 		{ "Key": "result.return_to_depot", "Value": "Return to Depot" }
