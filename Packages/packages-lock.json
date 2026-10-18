@@ -17,48 +17,8 @@
       },
       "hash": "aa5fc638d623f56178d50329d9ad8c541a57fe66"
     },
-    "com.rd.achievements": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Achievements",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.addressables": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Addressables",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.unity.addressables": "4.0.1"
-      }
-    },
     "com.rd.ai": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/AI",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.analytics": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Analytics",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.attributes": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/Attributes",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.audio": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Presentation/Audio",
       "depth": 0,
       "source": "local",
       "dependencies": {
@@ -81,83 +41,32 @@
         "com.rd.foundation": "1.0.0"
       }
     },
-    "com.rd.dependencyinjection": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/DependencyInjection",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.equipment": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Equipment",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.events": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/Events",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {}
-    },
-    "com.rd.extensions": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/Extensions",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {}
-    },
     "com.rd.foundation": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/Foundation",
       "depth": 0,
       "source": "local",
       "dependencies": {}
     },
-    "com.rd.input": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Input",
+    "com.rd.framework": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Framework",
       "depth": 0,
       "source": "local",
       "dependencies": {
         "com.rd.foundation": "1.0.0",
+        "com.unity.addressables": "4.0.1",
         "com.unity.inputsystem": "1.20.1"
+      }
+    },
+    "com.rd.gameplay": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Gameplay",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rd.foundation": "1.0.0"
       }
     },
     "com.rd.interaction": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Interaction",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.inventory": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Inventory",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.localization": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Localization",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.conveyorbelt": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/ConveyorBelt/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.dash": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Character/Dash/Runtime",
       "depth": 0,
       "source": "local",
       "dependencies": {
@@ -172,222 +81,16 @@
         "com.rd.foundation": "1.0.0"
       }
     },
-    "com.rd.mechanics.disappearingplatform": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/DisappearingPlatform/Runtime",
+    "com.rd.platformer": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Platformer",
       "depth": 0,
       "source": "local",
       "dependencies": {
         "com.rd.foundation": "1.0.0"
       }
     },
-    "com.rd.mechanics.fallingplatform": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/FallingPlatform/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.forcezone": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/ForceZone/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.grapplinghook": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/GrapplingHook/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.jumppad": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/JumpPad/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.ladder": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/Ladder/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.ledgegrabmantle": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/LedgeGrabMantle/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.movingplatform": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/MovingPlatform/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.pendulum": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/Pendulum/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.responsivejump": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Character/ResponsiveJump/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.ropeswing": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/RopeSwing/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.rotatingplatform": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/RotatingPlatform/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.stamina": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Character/Stamina/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.teleporter": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/World/Teleporter/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.walljump": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/WallJump/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.mechanics.zipline": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Traversal/Zipline/Runtime",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.prefabwindows": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Presentation/PrefabWindows",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.progression": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Progression",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.quests": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Quests",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.rewards": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Rewards",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.save": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Save",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.sceneflow": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/SceneFlow",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {}
-    },
-    "com.rd.screennavigation": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Presentation/ScreenNavigation",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.settings": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Settings",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.startup": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Startup",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.stats": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Stats",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.tutorials": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Application/Tutorials",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.wallet": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Gameplay/Wallet",
+    "com.rd.presentation": {
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Presentation",
       "depth": 0,
       "source": "local",
       "dependencies": {
