@@ -1,6 +1,7 @@
 using System;
 using NightCourier.App;
 using NightCourier.Controls;
+using RD.Mechanics.Recoil;
 using RD.Settings;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -32,6 +33,12 @@ namespace NightCourier.Player
 		private Transform _ground;
 		private Vector3 _groundPosition;
 		private Vector3 _knockback;
+		private Recoil _recoil;
+
+		public void BindRecoil(Recoil recoil)
+		{
+			_recoil = recoil;
+		}
 
 		public void AddKnockback(Vector3 velocity)
 		{
@@ -81,6 +88,14 @@ namespace NightCourier.Player
 			FollowGround();
 			Look();
 			Move();
+		}
+
+		private void LateUpdate()
+		{
+			float pitchKick = _recoil != null ? _recoil.PitchOffset : 0f;
+			float yawKick = _recoil != null ? _recoil.YawOffset : 0f;
+
+			_cameraPoint.localRotation = Quaternion.Euler(_pitch - pitchKick, yawKick, 0f);
 		}
 
 		private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -162,7 +177,6 @@ namespace NightCourier.Player
 			transform.Rotate(0f, degrees.x, 0f, Space.Self);
 
 			_pitch = PlayerLookMath.ClampPitch(_pitch, -degrees.y, PitchLimitDegrees);
-			_cameraPoint.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
 		}
 
 		private void Move()
