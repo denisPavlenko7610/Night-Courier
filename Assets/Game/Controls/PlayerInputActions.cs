@@ -29,6 +29,7 @@ namespace NightCourier.Controls
 			SwitchWeapon = Gameplay.FindAction("SwitchWeapon", true);
 			Weapon1 = Gameplay.FindAction("Weapon1", true);
 			Weapon2 = Gameplay.FindAction("Weapon2", true);
+			UseMedkit = Gameplay.FindAction("UseMedkit", true);
 			Cancel = Ui.FindAction("Cancel", true);
 		}
 
@@ -57,6 +58,8 @@ namespace NightCourier.Controls
 		public InputAction Weapon1 { get; }
 
 		public InputAction Weapon2 { get; }
+
+		public InputAction UseMedkit { get; }
 
 		public InputAction Cancel { get; }
 	}

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using NightCourier.Contracts;
 using NightCourier.Economy;
+using NightCourier.Loadout;
 using RD.Quests;
 using RD.Rewards;
 using RD.Save;
@@ -32,6 +33,7 @@ namespace NightCourier.App
 			Contracts = new ContractBoard(book, Quests, rewards);
 			Stats = new CourierStats();
 			Upgrades = new CourierUpgrades(upgrades, Wallet, Stats);
+			Loadout = new CourierLoadout(Wallet);
 		}
 
 		public IWallet Wallet { get; }
@@ -43,6 +45,8 @@ namespace NightCourier.App
 		public CourierStats Stats { get; }
 
 		public CourierUpgrades Upgrades { get; }
+
+		public CourierLoadout Loadout { get; }
 
 		public long Credits => Wallet.GetBalance(GameCurrencies.Credits);
 
@@ -85,6 +89,7 @@ namespace NightCourier.App
 			state._rewardLedger.RestoreSnapshot(save.Rewards);
 			state.Contracts.AbandonUnfinished();
 			state.Upgrades.Restore(save.Upgrades);
+			state.Loadout.Restore(save.Loadout);
 
 			return state;
 		}
@@ -96,7 +101,8 @@ namespace NightCourier.App
 				Wallet = Wallet.CaptureSnapshot(),
 				Quests = Quests.CaptureSnapshot(),
 				Rewards = _rewardLedger.CaptureSnapshot(),
-				Upgrades = Upgrades.Capture()
+				Upgrades = Upgrades.Capture(),
+				Loadout = Loadout.Capture()
 			};
 		}
 	}

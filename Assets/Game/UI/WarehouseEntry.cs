@@ -40,6 +40,7 @@ namespace NightCourier.UI
 		[SerializeField] private GeneratorSocket _generator;
 		[SerializeField] private PlayerVitalsView _vitalsView;
 		[SerializeField] private WeaponHudView _weaponHud;
+		[SerializeField] private MedkitHudView _medkitHud;
 		[SerializeField] private CheckpointSet _checkpoints;
 		[SerializeField] private CourierLocker[] _lockers;
 		[SerializeField] private EncounterGroup[] _encounters;
@@ -87,6 +88,7 @@ namespace NightCourier.UI
 			_pauseMenu.Bind(services, "pause.abort_contract", OnAbort);
 			_vitalsView.Bind(services.Localization, _player.Vitals);
 			_weaponHud.Bind(services.Localization, _player.Weapons);
+			_medkitHud.Bind(services.Localization, _player.Medkits);
 
 			BuildWorld(scene);
 			SpawnPackage();

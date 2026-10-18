@@ -15,6 +15,7 @@ namespace NightCourier.Player
 		[SerializeField] private PlayerHeavyCarry _heavy;
 		[SerializeField] private PlayerVitals _vitals;
 		[SerializeField] private PlayerWeapons _weapons;
+		[SerializeField] private PlayerMedkits _medkits;
 
 		private GameInput _input;
 		private IDisposable _gameplayScope;
@@ -29,6 +30,8 @@ namespace NightCourier.Player
 		public PlayerVitals Vitals => _vitals;
 
 		public PlayerWeapons Weapons => _weapons;
+
+		public PlayerMedkits Medkits => _medkits;
 
 		public void Begin(GameServices services)
 		{
@@ -48,6 +51,7 @@ namespace NightCourier.Player
 			_carry.Bind(services.Input.Actions);
 			_heavy.Bind(services.Input.Actions);
 			_weapons.Bind(services.Input.Actions);
+			_medkits.Bind(services.Input.Actions);
 			_gameplayScope = services.Input.PushGameplay();
 
 			_vitals.Died += OnDied;
@@ -56,6 +60,8 @@ namespace NightCourier.Player
 			if (services.Campaign.Current != null)
 			{
 				ApplyStats(services.Campaign.Current.Stats);
+				_weapons.SetLoadout(services.Campaign.Current.Loadout);
+				_medkits.SetLoadout(services.Campaign.Current.Loadout);
 			}
 		}
 

@@ -24,6 +24,8 @@ namespace NightCourier.UI
 		[SerializeField] private Interactable _terminal;
 		[SerializeField] private Interactable _van;
 		[SerializeField] private UpgradeTerminalView _upgradeTerminal;
+		[SerializeField] private EquipmentLockerView _equipmentLocker;
+		[SerializeField] private MedkitHudView _medkitHud;
 		[SerializeField] private GameObject _packagePrefab;
 		[SerializeField] private Transform _packageSpawn;
 		[SerializeField] private GameObject _terminalPanel;
@@ -67,6 +69,8 @@ namespace NightCourier.UI
 			_weaponHud.Bind(services.Localization, _player.Weapons);
 			_pauseMenu.Bind(services);
 			_upgradeTerminal.Bind(services, _campaign, _player);
+			_equipmentLocker.Bind(services, _campaign);
+			_medkitHud.Bind(services.Localization, _player.Medkits);
 
 			_terminal.Interacted += OpenTerminal;
 			_van.Interacted += OnVanUsed;

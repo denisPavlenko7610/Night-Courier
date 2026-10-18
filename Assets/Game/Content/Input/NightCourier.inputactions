@@ -115,6 +115,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "UseMedkit",
+                    "type": "Button",
+                    "id": "46b39bd5-e126-42ed-8b6c-cc45c1e5f217",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -401,6 +411,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Weapon2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c2646851-8c5c-498d-bcc2-28e854477a27",
+                    "path": "<Keyboard>/h",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UseMedkit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e5ea5036-e183-4d45-a267-11941eb34bc4",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UseMedkit",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

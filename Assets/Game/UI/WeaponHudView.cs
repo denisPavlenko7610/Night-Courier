@@ -10,6 +10,7 @@ namespace NightCourier.UI
 	{
 		private const string AmmoKey = "hud.ammo";
 		private const string ReloadingKey = "hud.reloading";
+		private const string NoWeaponKey = "weapon.none";
 
 		[SerializeField] private LocalizedLabel _weapon;
 		[SerializeField] private LocalizedLabel _ammo;
@@ -69,6 +70,13 @@ namespace NightCourier.UI
 
 		private void Refresh()
 		{
+			if (!_weapons.HasEquippedWeapon)
+			{
+				_weapon.SetKey(NoWeaponKey);
+				_ammo.gameObject.SetActive(false);
+				return;
+			}
+
 			_weapon.SetKey(WeaponRules.NameKey(_weapons.Current));
 
 			bool pistol = _weapons.Current == WeaponKind.StunPistol;
