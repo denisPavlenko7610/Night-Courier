@@ -8,6 +8,7 @@
         "RD.Equipment",
         "RD.Foundation",
         "RD.Inventory",
+        "RD.Progression",
         "RD.Localization",
         "RD.Quests",
         "RD.Rewards",

@@ -24,10 +24,10 @@ the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Pl
 
 1. **Phase 13 remaining content.** The ladder step "package becomes hazardous" (needs `DamageOverTime`) and a tougher
    drone encounter. Express and Restricted Cargo have been played end to end; the drone is too weak to matter.
-2. **Phase 10–11 remaining.** Courier rank and shift rating through `Progression`, and the upgrades that need new hooks
-   (carry move speed needs a carry slowdown; weapon damage and reload speed need runtime modifiers on `HitscanWeapon` and
-   `AmmoReload`). The Upgrade Terminal, the Equipment Locker, the deduction lines, and the save of upgrades and loadout
-   already work, so the first-milestone path (purchase, save, restart, restore) is playable.
+2. **Phase 10–11 remaining.** The upgrades that need new hooks (carry move speed needs a carry slowdown; weapon damage and
+   reload speed need runtime modifiers on `HitscanWeapon` and `AmmoReload`) and anything the rank should unlock. The
+   Upgrade Terminal, the Equipment Locker, the deduction lines, the shift rating and courier rank, and the save of all of
+   them already work, so the first-milestone path (purchase, save, restart, restore) is playable.
 3. **Phase 2b, UI modules.** `ScreenNavigation` and `PrefabWindows` replacing the plain uGUI menus, `Audio`, `Tween`.
    Can be done at any point between the steps above.
 
@@ -214,8 +214,20 @@ no large skill trees.
 Settlement deductions are done: net payout = base + bonuses − property damage − ammo expense − death penalty, floored at
 ₡0 (`EconomyRules`: ₡3 per shot, ₡20 per property damage event, ₡25 per death; `SettlementLineKind.Deduction`). The run
 counts shots, property damage, and deaths in transit, and the result screen lists each non-zero deduction. From the road
-tier the net payout also loses a cargo damage penalty and optional vehicle repair. Still to add: a shift rating
-(delivery time, cargo condition, protocol compliance, property damage) that feeds `Progression` ([GDD §14](GDD.md)).
+tier the net payout also loses a cargo damage penalty and optional vehicle repair.
+
+**Shift rating and courier rank (done).** `ShiftRatingCalculator` grades four axes from the contract outcome on an
+S–A–B–C–D–F scale and averages them (rounded half up) into an overall grade: delivery time (the share of the deadline used,
+skipped for contracts without a deadline), cargo condition (package integrity at delivery, recorded through
+`ContractRun.RecordCargoIntegrity`), protocol compliance (package rule violations), and property damage (events).
+`ContractSettlement.Rating` carries it, and the grade does not change the payout. `CourierRank` wraps a `ProgressionService`
+track (`courier.rank`, thresholds 100, 300, and 600 XP: Trainee, Courier, Senior Courier, Hazard Courier); an overall S, A,
+B, C, or D grants 120, 100, 70, 40, or 15 XP and F grants none. The Warehouse applies the rank after settlement, before the
+save, and the result screen shows the rating, the four axes, the XP gained, and a promotion line; the Depot header shows
+the rank and progress. Verified in stepped Play Mode: a clean Standard Delivery rated S and promoted to Courier (+120 XP,
+20 of 200 into the level), a delivery with property damage and two violations rated B (Property B, Protocol C), and Continue
+restored the rank. Nothing is unlocked by rank yet (contracts stay gated by prerequisites); candidates are a minimum rank on
+a contract, upgrade levels, and equipment ([GDD §14](GDD.md)).
 
 **Upgrades (done).** `UpgradeDefinition` assets (data) build immutable `UpgradeSpec`s in an `UpgradeBook`; each upgrade
 targets a `Stats` stat and has up to three levels with a price per level. `CourierStats` owns a `StatCollection`
@@ -248,11 +260,11 @@ and credits, and the Warehouse showed the HUD and healed 40 on H. The Shotgun, R
 
 ### Phase 11 — Persistence (remaining)
 
-Credits, quest progress, completed contracts, the reward ledger, purchased upgrade levels, and the loadout (equipment
-snapshot, medkit stock, next medkit instance) are saved (`CampaignSave` version 4; versions 2 and 3 still load with no
-upgrades and the default loadout, unknown upgrade ids are ignored, and levels are clamped to the current maximum). A
-loadout snapshot that fails to restore falls back to the default. Remaining: rank/progression, collectible progress. Do not serialize arbitrary active scene physics. Checkpoint/Respawn
-handles temporary level death.
+Credits, quest progress, completed contracts, the reward ledger, purchased upgrade levels, the loadout (equipment snapshot,
+medkit stock, next medkit instance), and the courier rank experience are saved (`CampaignSave` version 5; versions 2 to 4
+still load with no upgrades, the default loadout, and the Trainee rank; unknown upgrade ids are ignored and levels are
+clamped to the current maximum). A loadout snapshot that fails to restore falls back to the default. Remaining: collectible
+progress. Do not serialize arbitrary active scene physics. Checkpoint/Respawn handles temporary level death.
 
 ### Phase 12 — Full Module Integration
 

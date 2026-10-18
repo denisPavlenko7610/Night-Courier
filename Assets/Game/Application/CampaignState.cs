@@ -34,6 +34,7 @@ namespace NightCourier.App
 			Stats = new CourierStats();
 			Upgrades = new CourierUpgrades(upgrades, Wallet, Stats);
 			Loadout = new CourierLoadout(Wallet);
+			Rank = new CourierRank();
 		}
 
 		public IWallet Wallet { get; }
@@ -47,6 +48,8 @@ namespace NightCourier.App
 		public CourierUpgrades Upgrades { get; }
 
 		public CourierLoadout Loadout { get; }
+
+		public CourierRank Rank { get; }
 
 		public long Credits => Wallet.GetBalance(GameCurrencies.Credits);
 
@@ -90,6 +93,7 @@ namespace NightCourier.App
 			state.Contracts.AbandonUnfinished();
 			state.Upgrades.Restore(save.Upgrades);
 			state.Loadout.Restore(save.Loadout);
+			state.Rank.Restore(save.Rank);
 
 			return state;
 		}
@@ -102,7 +106,8 @@ namespace NightCourier.App
 				Quests = Quests.CaptureSnapshot(),
 				Rewards = _rewardLedger.CaptureSnapshot(),
 				Upgrades = Upgrades.Capture(),
-				Loadout = Loadout.Capture()
+				Loadout = Loadout.Capture(),
+				Rank = Rank.Capture()
 			};
 		}
 	}

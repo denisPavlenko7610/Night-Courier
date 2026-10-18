@@ -20,6 +20,7 @@
         "RD.Equipment",
         "RD.Health",
         "RD.Inventory",
+        "RD.Progression",
         "RD.Stats",
         "RD.Mechanics.BreakableObject",
         "RD.Mechanics.CarryObject",
