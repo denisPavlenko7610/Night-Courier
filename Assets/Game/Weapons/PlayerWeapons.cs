@@ -19,6 +19,7 @@ namespace NightCourier.Weapons
 		[SerializeField] private Transform _aim;
 
 		private IDisposable _subscriptions;
+		private int _appliedReserveBonus;
 
 		public WeaponKind Current { get; private set; }
 
@@ -56,6 +57,18 @@ namespace NightCourier.Weapons
 				? WeaponKind.StunPistol
 				: (WeaponKind)_switching.CurrentIndex;
 			Changed?.Invoke();
+		}
+
+		public void SetReserveBonus(int bonus)
+		{
+			int delta = bonus - _appliedReserveBonus;
+
+			if (delta > 0)
+			{
+				_pistol.Ammo.AddReserve(delta);
+			}
+
+			_appliedReserveBonus = Math.Max(bonus, _appliedReserveBonus);
 		}
 
 		public void RefillAmmo(int rounds)

@@ -29,11 +29,17 @@ namespace NightCourier.Player
 		private ISettingsService _settings;
 		private float _sensitivity = GameSettings.DefaultMouseSensitivity;
 		private float _pitch;
+		private float _speedMultiplier = 1f;
 		private float _verticalVelocity;
 		private Transform _ground;
 		private Vector3 _groundPosition;
 		private Vector3 _knockback;
 		private Recoil _recoil;
+
+		public void SetSpeedMultiplier(float multiplier)
+		{
+			_speedMultiplier = Mathf.Max(0.1f, multiplier);
+		}
 
 		public void BindRecoil(Recoil recoil)
 		{
@@ -181,7 +187,7 @@ namespace NightCourier.Player
 
 		private void Move()
 		{
-			float speed = _actions.Sprint.IsPressed() ? _sprintSpeed : _walkSpeed;
+			float speed = (_actions.Sprint.IsPressed() ? _sprintSpeed : _walkSpeed) * _speedMultiplier;
 			Vector3 planar = PlayerLookMath.PlanarVelocity(_actions.Move.ReadValue<Vector2>(), transform.rotation, speed);
 
 			if (_controller.isGrounded && _verticalVelocity < 0f)

@@ -1,18 +1,28 @@
 using System;
 using System.Collections.Generic;
+using NightCourier.Economy;
 
 namespace NightCourier.Contracts
 {
 	public readonly struct ContractOutcome
 	{
-		public ContractOutcome(int violationCount, double transitSeconds, bool wasOverdue, int deathCount = 0, int shotsFired = 0)
+		public ContractOutcome(
+			int violationCount,
+			double transitSeconds,
+			bool wasOverdue,
+			int deathCount = 0,
+			int shotsFired = 0,
+			int propertyDamageCount = 0)
 		{
 			ViolationCount = violationCount;
 			TransitSeconds = transitSeconds;
 			WasOverdue = wasOverdue;
 			DeathCount = deathCount;
 			ShotsFired = shotsFired;
+			PropertyDamageCount = propertyDamageCount;
 		}
+
+		public int PropertyDamageCount { get; }
 
 		public int DeathCount { get; }
 
@@ -28,7 +38,8 @@ namespace NightCourier.Contracts
 	public enum SettlementLineKind
 	{
 		BasePay = 0,
-		Bonus = 1
+		Bonus = 1,
+		Deduction = 2
 	}
 
 	public readonly struct SettlementLine
@@ -74,6 +85,9 @@ namespace NightCourier.Contracts
 	public static class SettlementCalculator
 	{
 		public const string BasePayLabelKey = "result.base_pay";
+		public const string AmmoExpenseLabelKey = "result.ammo_expense";
+		public const string PropertyDamageLabelKey = "result.property_damage";
+		public const string DeathPenaltyLabelKey = "result.death_penalty";
 
 		public static ContractSettlement Calculate(ContractSpec spec, ContractOutcome outcome)
 		{
@@ -92,7 +106,19 @@ namespace NightCourier.Contracts
 				}
 			}
 
+			AddDeduction(lines, AmmoExpenseLabelKey, outcome.ShotsFired, EconomyRules.AmmoCostPerShot);
+			AddDeduction(lines, PropertyDamageLabelKey, outcome.PropertyDamageCount, EconomyRules.PropertyDamageFine);
+			AddDeduction(lines, DeathPenaltyLabelKey, outcome.DeathCount, EconomyRules.DeathPenalty);
+
 			return new ContractSettlement(spec.Id, lines.AsReadOnly());
+		}
+
+		private static void AddDeduction(List<SettlementLine> lines, string labelKey, int count, long unitCost)
+		{
+			if (count > 0)
+			{
+				lines.Add(new SettlementLine(SettlementLineKind.Deduction, labelKey, -count * unitCost));
+			}
 		}
 
 		private static bool IsMet(ContractObjectiveSpec objective, ContractOutcome outcome)

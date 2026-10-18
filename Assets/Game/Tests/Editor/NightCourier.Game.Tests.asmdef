@@ -10,6 +10,7 @@
         "RD.Quests",
         "RD.Rewards",
         "RD.Save",
+        "RD.Stats",
         "RD.Wallet",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"

@@ -151,6 +151,7 @@ MonoBehaviour:
   _sceneCatalog: {fileID: 11400000, guid: 66b5959083220ae4d8e6dadeec559c1a, type: 2}
   _localizationTable: {fileID: 4900000, guid: cb668863f275a8b42904d1fec8126866, type: 3}
   _contractCatalog: {fileID: 11400000, guid: f0be746444a1317458d8d560ef25e060, type: 2}
+  _upgradeCatalog: {fileID: 11400000, guid: 60e73a74dd5861b40b5b24808f8f605e, type: 2}
   _inputActions: {fileID: -944628639613478452, guid: fca2cbcdc37e9ad4da03d096319abe8d, type: 3}
 --- !u!4 &1192127284
 Transform:

@@ -15,6 +15,7 @@
 		{ "Key": "prompt.press", "Value": "[{0}] {1}" },
 		{ "Key": "prompt.hold", "Value": "Hold [{0}] {1}" },
 		{ "Key": "interact.use_terminal", "Value": "Use contract terminal" },
+		{ "Key": "interact.use_upgrade_terminal", "Value": "Use upgrade terminal" },
 		{ "Key": "interact.deliver_package", "Value": "Deliver package" },
 		{ "Key": "interact.pick_up_package", "Value": "Pick up package" },
 		{ "Key": "interact.load_van", "Value": "Load package and depart" },
@@ -47,6 +48,17 @@
 		{ "Key": "depot.credits", "Value": "Credits: {0}" },
 		{ "Key": "depot.contracts_header", "Value": "Available Contracts" },
 		{ "Key": "depot.no_contracts", "Value": "No contracts are available right now." },
+
+		{ "Key": "upgrades.title", "Value": "Upgrade Terminal" },
+		{ "Key": "upgrades.level", "Value": "Level {0} / {1}" },
+		{ "Key": "upgrades.buy", "Value": "Buy for {0}" },
+		{ "Key": "upgrades.maxed", "Value": "Maxed" },
+		{ "Key": "upgrade.vest.title", "Value": "Reinforced Vest" },
+		{ "Key": "upgrade.vest.description", "Value": "Adds 25 maximum health per level." },
+		{ "Key": "upgrade.boots.title", "Value": "Courier Boots" },
+		{ "Key": "upgrade.boots.description", "Value": "Adds 8% move speed per level." },
+		{ "Key": "upgrade.pouch.title", "Value": "Ammo Pouch" },
+		{ "Key": "upgrade.pouch.description", "Value": "Adds 8 reserve pistol rounds per level." },
 
 		{ "Key": "contract.accept", "Value": "Accept Contract" },
 		{ "Key": "contract.info", "Value": "Risk: {0}    Base pay: {1}    Site: {2}" },
@@ -101,6 +113,9 @@
 
 		{ "Key": "result.title", "Value": "Delivery Complete" },
 		{ "Key": "result.base_pay", "Value": "Base pay" },
+		{ "Key": "result.ammo_expense", "Value": "Ammo expense" },
+		{ "Key": "result.property_damage", "Value": "Property damage" },
+		{ "Key": "result.death_penalty", "Value": "Recovery team fee" },
 		{ "Key": "result.line", "Value": "{0}: {1}" },
 		{ "Key": "result.total", "Value": "Total: {0}" },
 		{ "Key": "result.return_to_depot", "Value": "Return to Depot" }

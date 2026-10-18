@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5ed22999424848429e9b8ad2d157d70, type: 3}
+  m_Name: UpgradeCatalog
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Economy.UpgradeCatalog
+  _upgrades:
+  - {fileID: 11400000, guid: 04666b628c6725242901e2a3c8a23701, type: 2}
+  - {fileID: 11400000, guid: 0a7c9282cef0c444e90a6bd3d6ef280e, type: 2}
+  - {fileID: 11400000, guid: 00093a3b643553d45a8d5167726812f8, type: 2}

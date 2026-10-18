@@ -1,6 +1,7 @@
 using System;
 using NightCourier.App;
 using NightCourier.Controls;
+using NightCourier.Economy;
 using NightCourier.Weapons;
 using UnityEngine;
 
@@ -51,6 +52,23 @@ namespace NightCourier.Player
 
 			_vitals.Died += OnDied;
 			_vitals.Respawned += OnRespawned;
+
+			if (services.Campaign.Current != null)
+			{
+				ApplyStats(services.Campaign.Current.Stats);
+			}
+		}
+
+		public void ApplyStats(CourierStats stats)
+		{
+			if (stats == null)
+			{
+				throw new ArgumentNullException(nameof(stats));
+			}
+
+			_vitals.SetMaximumHealth(stats.MaxHealth);
+			_motor.SetSpeedMultiplier(stats.MoveSpeedMultiplier);
+			_weapons.SetReserveBonus(stats.ReserveAmmoBonus);
 		}
 
 		private void OnDestroy()

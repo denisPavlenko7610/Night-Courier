@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3ca5aeaed55f6f49a23b739d77c7c9d, type: 3}
+  m_Name: Upgrade_Pouch
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Economy.UpgradeDefinition
+  _id: upgrade.pouch
+  _titleKey: upgrade.pouch.title
+  _descriptionKey: upgrade.pouch.description
+  _statId: courier.reserve_ammo
+  _kind: 0
+  _amountPerLevel: 8
+  _prices: 5000000000000000a0000000000000002c01000000000000l

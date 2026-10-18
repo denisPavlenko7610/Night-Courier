@@ -32,6 +32,16 @@ namespace NightCourier.Player
 
 		public event Action Respawned;
 
+		public void SetMaximumHealth(double maximum)
+		{
+			HealthResult result = _health.Pool.SetMaximum(maximum, preserveRatio: true);
+
+			if (!result.IsSuccess)
+			{
+				throw new InvalidOperationException($"The maximum health could not change: {result.Status}.");
+			}
+		}
+
 		public void SetSpawn(Pose pose)
 		{
 			_respawn.SetSpawnPose(pose);
