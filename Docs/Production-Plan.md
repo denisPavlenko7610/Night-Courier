@@ -16,7 +16,8 @@ change is genuinely required, first identify the minimal reason, then change the
 
 ## Next Up (Recommended Order)
 
-All modules and mechanics except Haptics are installed (94 RD packages); integration still goes one feature at a time.
+All modules and mechanics except Haptics are installed (48 RD packages: three kits plus modules and the unbundled
+movement mechanics, see [../TEMPLATE-PACKAGES.md](../TEMPLATE-PACKAGES.md)); integration still goes one feature at a time.
 The Warehouse map, the package rules and ladder, the Lights Out battery, player health with respawn and checkpoints,
 and the two enemies all work in stepped Play Mode.
 
