@@ -34,6 +34,8 @@ MonoBehaviour:
   _escalation:
   - _atViolation: 1
     _effect: 0
+  - _atViolation: 2
+    _effect: 2
   - _atViolation: 3
     _effect: 1
   _encounters: 0000000001000000i

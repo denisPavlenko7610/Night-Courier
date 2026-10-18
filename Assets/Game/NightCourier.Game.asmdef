@@ -40,6 +40,7 @@
         "RD.Mechanics.Projectile",
         "RD.Mechanics.Recoil",
         "RD.Mechanics.Respawn",
+        "RD.Mechanics.Spawner",
         "RD.Mechanics.WeaponSpread",
         "RD.Mechanics.WeaponSwitching",
         "RD.Tween",
