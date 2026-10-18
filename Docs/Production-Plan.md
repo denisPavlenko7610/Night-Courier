@@ -19,16 +19,15 @@ change is genuinely required, first identify the minimal reason, then change the
 All modules and mechanics except Haptics are installed (48 RD packages: three kits plus modules and the unbundled
 movement mechanics, see [../TEMPLATE-PACKAGES.md](../TEMPLATE-PACKAGES.md)); integration still goes one feature at a time.
 The Warehouse map, the package rules and ladder, the Lights Out battery, player health with respawn and checkpoints,
-and the two enemies all work in stepped Play Mode.
+the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Play Mode.
 
-1. **Phase 9 Player combat.** Stun Pistol, Crowbar, `Equipment` and weapon input (with the hands restriction while
-   carrying). Until then the player cannot fight the Crawlers and the Security Drone that Lights Out, Express, and
-   Restricted Cargo now spawn. It also unblocks the ladder steps "spawn an enemy" (with `Spawner`) and "package becomes
-   hazardous".
-2. **Phase 13 remaining content.** The Restricted Cargo environmental puzzle and the Lights Out `Spawner` waves.
-3. **Phase 10–11 Upgrades, progression, persistence.** Equipment Locker and Upgrade Terminal in the Depot, the death
-   penalty and property damage settlement lines. Then the first-milestone definition of done is met.
-4. **Phase 2b, UI modules.** `ScreenNavigation` and `PrefabWindows` replacing the plain uGUI menus, `Audio`, `Tween`.
+1. **Phase 13 remaining content.** The Restricted Cargo environmental puzzle and the Lights Out `Spawner` waves, plus the
+   ladder steps "spawn an enemy" (with `Spawner`) and "package becomes hazardous". Fairness tuning of the encounters now
+   that the player can fight back.
+2. **Phase 10–11 Upgrades, progression, persistence.** Equipment Locker (the two carried items, `Equipment` driving
+   `WeaponSwitching`) and Upgrade Terminal in the Depot, the death penalty, property damage, and ammo expense settlement
+   lines. Then the first-milestone definition of done is met.
+3. **Phase 2b, UI modules.** `ScreenNavigation` and `PrefabWindows` replacing the plain uGUI menus, `Audio`, `Tween`.
    Can be done at any point between the steps above.
 
 ---
@@ -100,7 +99,7 @@ Fragile and Lights Out, 1 unstable and 3 fail for Restricted Cargo, and none for
 Property damage (the barricade) counts toward the no-violations bonus through `RegisterPropertyDamage` but not toward
 the ladder. Verified in stepped Play Mode on Fragile (four floor drops: unstable at the first, failed at the fourth).
 Still to build: the ladder steps "spawn an enemy" and "package becomes hazardous" (they need Phase 8 enemies and damage
-over time), an audible warning (needs `Audio`), per-package Behavior components, and the weapon hands restriction.
+over time), an audible warning (needs `Audio`), and per-package Behavior components.
 Package `Health` does not carry over from the Depot to the Warehouse yet (the Warehouse spawns a fresh package); revisit
 with the road tier.
 
@@ -118,7 +117,7 @@ to the pick-up interactor's lifecycle when no free drop spot exists) and any hea
 context (`GameInput.PushLocked`: no actions, cursor stays locked);
 `PlayerMotor` re-syncs the `CharacterController` on respawn (`Respawn` only moves the transform). The HUD shows health
 and a fading "Courier recovery team retrieved you." overlay (`PlayerVitalsView`, Tween). Dying while carrying the
-package counts as a drop. Still to add, each with the feature that needs it: `Equipment` and weapon input, `Inventory`,
+package counts as a drop. Still to add, each with the feature that needs it: `Equipment`, `Inventory`,
 `Stats` for max health, move speed and upgrades, `Stamina` for sprint (Demo tier). The death penalty and cargo
 worsening wait for the settlement lines (Phase 10): `ContractRun.DeathCount` is already recorded and passed in the
 outcome. No new character framework. First person; no full-body model.
@@ -146,10 +145,9 @@ while carrying the package drops it, counts a `DoNotDrop` violation, and respawn
 the zone on death is not covered. The held package follows the `CargoPoint` while walking; teleporting the player while
 holding it (a test artifact) leaves the interpolated body behind.
 
-Still to build: explosive barrels and the enemies of Phase 8. Property damage is a stand-in:
-breaking the barricade counts against the no-violations bonus until the settlement has a property damage line (Phase
-10); the hold-to-break interaction is a stand-in until the Crowbar exists (Phase 9). JumpPad and Teleporter are optional
-later.
+Still to build: explosive barrels. Property damage is a stand-in: breaking the barricade counts against the
+no-violations bonus until the settlement has a property damage line (Phase 10). The barricade is now broken with the
+Crowbar (three hits). JumpPad and Teleporter are optional later.
 
 ### Phase 8 — Enemy MVP (done, verified in stepped Play Mode)
 
@@ -171,16 +169,32 @@ obstacles, so enemies do not use the shortcut or powered doors. Enemies appear p
 `ContractSpec.Encounters` and `EncounterGroup`: Lights Out has Crawlers, Express a Security Drone, Restricted Cargo both.
 Verified: encounter activation, detection, chase, melee hit with knockback, drone patrol, pursuit, shooting, killing the
 player, searching and returning to route, and enemy death. Not covered: a Spawner-driven wave, enemies hitting a package,
-enemies on the electric floor, and fairness tuning (the player has no weapon until Phase 9, so two Crawlers are
-dangerous but can be outrun while sprinting).
+enemies on the electric floor, and fairness tuning.
 
-### Phase 9 — Player Combat
+### Phase 9 — Player Combat (MVP weapons done, verified in stepped Play Mode)
 
-- **Stun Pistol:** HitscanWeapon, AmmoReload, Recoil, WeaponSpread, HitFeedback.
-- **Crowbar:** MeleeAttack, Knockback.
+- **Stun Pistol** (`StunPistol`): `HitscanWeapon` (15 damage, 3.5 shots/s, damage type `stun`), `AmmoReload` (8 rounds, 24
+  reserve, 1.4 s reload; an empty magazine reloads on the next trigger pull), `Recoil` (applied to the camera by
+  `PlayerMotor`), `WeaponSpread` (1 degree). The aim point comes from the camera ray and the shot leaves the muzzle. A
+  `LineRenderer` tracer shows the shot.
+- **Crowbar** (`Crowbar`): `MeleeAttack` (18 damage, 0.55 s swing with a 0.15–0.3 s hit window) plus `Knockback` (7 m/s)
+  and a Tween swing of the placeholder model. Enemies receive the push through the game-side `EnemyKnockbackReceiver`
+  (a `NavMeshAgent` move that decays), the same pattern as the player's `PlayerKnockbackReceiver`.
+- **Input and switching:** `PlayerWeapons` binds Fire, Reload, SwitchWeapon, Weapon1, and Weapon2 from `PlayerInputActions`
+  (mouse, R, Q, 1, 2; gamepad right trigger, X, Y, D-pad). `WeaponSwitching` holds the two slots; switching cancels a
+  reload. A small `WeaponHudView` shows the weapon name and the magazine/reserve count in both the Depot and the Warehouse.
+- **Hands restriction:** `WeaponRules.CanUse` is the single rule. A held package blocks the Crowbar (the pistol is
+  one-handed); a heavy carry blocks every weapon. A refused use raises `UseRefused` and a HUD notice.
+- **Ammo and the result:** `ContractRun.RegisterShot` counts shots only in transit (`ShotsFired` in `ContractOutcome`).
+  The Emergency Lockers add 8 reserve rounds on activation. The ammo expense settlement line itself is Phase 10.
+- Verified with injected input: fire, recoil, reload, auto-reload on an empty magazine, 1/2/Q switching, three pistol
+  shots kill a Crawler (40 health), two kill a Security Drone (30), the Crowbar knocks a Crawler back about 1 m, three
+  Crowbar hits break the barricade, the package blocks the Crowbar but not the pistol, the battery blocks both, locker
+  refill and the HUD update, and the shot count reaches the active run. Not covered: a gamepad, `HitFeedback` visuals on a
+  pistol hit beyond the existing hit flash, and the recoil-to-package stability event (design in GDD 7.6).
 
-Also in the MVP: the player carries two items chosen at the Equipment Locker (`WeaponSwitching` driven by `Equipment`),
-and ammo use is tracked for the result screen.
+Also in the MVP, still to do in Phase 10: the player carries two items chosen at the Equipment Locker (`WeaponSwitching`
+driven by `Equipment`; today both weapons are always carried), and the ammo expense line.
 
 Later: Shotgun, Repulsor (`ChargeWeapon` + `Projectile` + `Knockback`), HomingProjectile, Grenade, ExplosiveBarrel,
 DamageOverTime, DamageZone. No new weapon framework.
@@ -219,8 +233,8 @@ single Warehouse map:
 | 01 | Standard Delivery | Physical pickup and delivery                                   | —                                            |
 | 02 | Fragile           | `DoNotDrop`, ladder 1 / 4                                      | —                                            |
 | 03 | Lights Out        | `KeepInLight`, Blackout, battery and generator, ladder 1 / 4, Crawlers | `Spawner` waves                      |
-| 04 | Express           | `DeliveryDeadline` (300 s), Security Drone                     | Player combat (Phase 9)                      |
-| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight`, ladder 1 / 3, both enemies (data only; not run) | Player combat and an environmental puzzle |
+| 04 | Express           | `DeliveryDeadline` (300 s), Security Drone                     | Fairness tuning with the pistol              |
+| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight`, ladder 1 / 3, both enemies (data only; not run) | An environmental puzzle, a Play Mode run |
 
 All five use the same Warehouse location with different configuration or state. Do not create five maps.
 

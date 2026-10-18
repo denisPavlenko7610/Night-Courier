@@ -243,8 +243,6 @@ GameObject:
   - component: {fileID: 39906028}
   - component: {fileID: 39906025}
   - component: {fileID: 39906023}
-  - component: {fileID: 39906027}
-  - component: {fileID: 39906026}
   - component: {fileID: 39906022}
   m_Layer: 0
   m_Name: Barricade
@@ -265,10 +263,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd834d26a37dbe14191d83274c637bfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.World.BreakableBarricade
-  _interactable: {fileID: 39906026}
-  _health: {fileID: 39906025}
   _breakable: {fileID: 39906023}
-  _forceDamage: 100
 --- !u!114 &39906023
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,35 +310,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20e64440c877cd34483c6a9933413e76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: RD.Mechanics.Combat::RD.Mechanics.Combat.HealthCarrier
-  _maximumHealth: 100
+  _maximumHealth: 40
   _damageRules: []
---- !u!114 &39906026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 39906021}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9263ce084063d734dbb22072e04dfd5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Player.Interactable
-  _promptKey: interact.break_barricade
-  _hold: {fileID: 39906027}
---- !u!114 &39906027
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 39906021}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e1c779742bca8e4eb3e7ba0ab23c62b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: RD.Mechanics.HoldInteraction::RD.Mechanics.HoldInteraction.HoldInteraction
-  _duration: 2
 --- !u!65 &39906028
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1496,6 +1464,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe009664f8176d94a9d7ce5d8d1f6497, type: 3}
   m_Name: 
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.PlayerVitalsView
+--- !u!114 &185035550 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 388675649924844983, guid: 118e6cefbd6b8a044969a19b7bca2798, type: 3}
+  m_PrefabInstance: {fileID: 185035545}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c24f18ea85124d84cb00394a7dc157e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.WeaponHudView
 --- !u!1 &208326850
 GameObject:
   m_ObjectHideFlags: 0
@@ -8724,6 +8703,7 @@ MonoBehaviour:
   _battery: {fileID: 636531226}
   _generator: {fileID: 1277572369}
   _vitalsView: {fileID: 185035549}
+  _weaponHud: {fileID: 185035550}
   _checkpoints: {fileID: 891044059}
   _lockers:
   - {fileID: 1463166604}

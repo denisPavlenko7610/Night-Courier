@@ -24,6 +24,11 @@ namespace NightCourier.Controls
 			Drop = Gameplay.FindAction("Drop", true);
 			Sprint = Gameplay.FindAction("Sprint", true);
 			Pause = Gameplay.FindAction("Pause", true);
+			Fire = Gameplay.FindAction("Fire", true);
+			Reload = Gameplay.FindAction("Reload", true);
+			SwitchWeapon = Gameplay.FindAction("SwitchWeapon", true);
+			Weapon1 = Gameplay.FindAction("Weapon1", true);
+			Weapon2 = Gameplay.FindAction("Weapon2", true);
 			Cancel = Ui.FindAction("Cancel", true);
 		}
 
@@ -42,6 +47,16 @@ namespace NightCourier.Controls
 		public InputAction Sprint { get; }
 
 		public InputAction Pause { get; }
+
+		public InputAction Fire { get; }
+
+		public InputAction Reload { get; }
+
+		public InputAction SwitchWeapon { get; }
+
+		public InputAction Weapon1 { get; }
+
+		public InputAction Weapon2 { get; }
 
 		public InputAction Cancel { get; }
 	}

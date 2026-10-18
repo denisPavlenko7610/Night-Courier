@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NightCourier.App;
 using NightCourier.Contracts;
 using NightCourier.Player;
+using NightCourier.Weapons;
 using RD.DependencyInjection;
 using RD.Foundation;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace NightCourier.UI
 		[SerializeField] private InteractionPromptView _promptView;
 		[SerializeField] private ObjectiveView _objective;
 		[SerializeField] private PlayerVitalsView _vitalsView;
+		[SerializeField] private WeaponHudView _weaponHud;
 		[SerializeField] private PauseMenu _pauseMenu;
 		[SerializeField] private Interactable _terminal;
 		[SerializeField] private Interactable _van;
@@ -61,6 +63,7 @@ namespace NightCourier.UI
 			_promptView.Bind(_player.Interactor, services.Localization, services.Input.Actions);
 			_objective.Bind(services.Localization);
 			_vitalsView.Bind(services.Localization, _player.Vitals);
+			_weaponHud.Bind(services.Localization, _player.Weapons);
 			_pauseMenu.Bind(services);
 
 			_terminal.Interacted += OpenTerminal;

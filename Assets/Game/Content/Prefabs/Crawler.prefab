@@ -49,6 +49,7 @@ GameObject:
   - component: {fileID: 3074318594362799250}
   - component: {fileID: 9166694657522524381}
   - component: {fileID: 3543141050450496848}
+  - component: {fileID: 3543657090607640090}
   m_Layer: 11
   m_Name: Crawler
   m_TagString: Untagged
@@ -242,6 +243,20 @@ MonoBehaviour:
   - {fileID: 217340485594179567}
   _agent: {fileID: 3685980677962444577}
   _fadeSeconds: 0.6
+--- !u!114 &3543657090607640090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2185428066492792797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f04171249abe7ee4ea38564f7537b971, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.AI.EnemyKnockbackReceiver
+  _agent: {fileID: 3685980677962444577}
+  _decayPerSecond: 16
 --- !u!1 &2299576493458831499
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,6 +5,7 @@ using NightCourier.App;
 using NightCourier.Contracts;
 using NightCourier.Packages;
 using NightCourier.Player;
+using NightCourier.Weapons;
 using NightCourier.World;
 using RD.Conditions;
 using RD.DependencyInjection;
@@ -18,6 +19,8 @@ namespace NightCourier.UI
 {
 	public sealed class WarehouseEntry : MonoBehaviour, ISceneEntry
 	{
+		private const int LockerAmmoRefill = 8;
+
 		[SerializeField] private PlayerSession _player;
 		[SerializeField] private InteractionPromptView _promptView;
 		[SerializeField] private ObjectiveView _objective;
@@ -34,6 +37,7 @@ namespace NightCourier.UI
 		[SerializeField] private BatteryCell _battery;
 		[SerializeField] private GeneratorSocket _generator;
 		[SerializeField] private PlayerVitalsView _vitalsView;
+		[SerializeField] private WeaponHudView _weaponHud;
 		[SerializeField] private CheckpointSet _checkpoints;
 		[SerializeField] private CourierLocker[] _lockers;
 		[SerializeField] private EncounterGroup[] _encounters;
@@ -79,6 +83,7 @@ namespace NightCourier.UI
 			_objective.Bind(services.Localization);
 			_pauseMenu.Bind(services, "pause.abort_contract", OnAbort);
 			_vitalsView.Bind(services.Localization, _player.Vitals);
+			_weaponHud.Bind(services.Localization, _player.Weapons);
 
 			BuildWorld(scene);
 			SpawnPackage();
@@ -88,6 +93,8 @@ namespace NightCourier.UI
 			_carry.PickUpRefused += OnHandsFull;
 			_player.Heavy.HeldChanged += RefreshWorld;
 			_player.Heavy.GrabRefused += OnHandsFull;
+			_player.Weapons.UseRefused += OnWeaponRefused;
+			_player.Weapons.ShotFired += OnShotFired;
 			_facts.Changed += RefreshWorld;
 			_barricade.Broken += OnBarricadeBroken;
 			_returnButton.onClick.AddListener(OnReturn);
@@ -131,6 +138,8 @@ namespace NightCourier.UI
 			{
 				_player.Heavy.HeldChanged -= RefreshWorld;
 				_player.Heavy.GrabRefused -= OnHandsFull;
+				_player.Weapons.UseRefused -= OnWeaponRefused;
+				_player.Weapons.ShotFired -= OnShotFired;
 			}
 
 			if (_player != null && _player.Vitals != null)
@@ -217,12 +226,23 @@ namespace NightCourier.UI
 		private void OnCheckpointActivated(Checkpoint checkpoint)
 		{
 			ApplySpawn(checkpoint);
+			_player.Weapons.RefillAmmo(LockerAmmoRefill);
 			_packageHud.Notify("notice.checkpoint");
 		}
 
 		private void OnPlayerDied()
 		{
 			_run.RegisterDeath();
+		}
+
+		private void OnWeaponRefused(WeaponKind kind)
+		{
+			_packageHud.Notify("notice.weapon_blocked", _services.Localization.Get(WeaponRules.NameKey(kind)));
+		}
+
+		private void OnShotFired()
+		{
+			_run.RegisterShot();
 		}
 
 		private void OnHandsFull()

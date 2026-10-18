@@ -692,6 +692,7 @@ MonoBehaviour:
   _promptView: {fileID: 1733029398}
   _objective: {fileID: 1733029400}
   _vitalsView: {fileID: 1733029401}
+  _weaponHud: {fileID: 1733029402}
   _pauseMenu: {fileID: 2065610681}
   _terminal: {fileID: 980196985}
   _van: {fileID: 69238058}
@@ -4907,6 +4908,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe009664f8176d94a9d7ce5d8d1f6497, type: 3}
   m_Name: 
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.PlayerVitalsView
+--- !u!114 &1733029402 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 388675649924844983, guid: 118e6cefbd6b8a044969a19b7bca2798, type: 3}
+  m_PrefabInstance: {fileID: 1733029397}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c24f18ea85124d84cb00394a7dc157e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.WeaponHudView
 --- !u!1 &1743917446
 GameObject:
   m_ObjectHideFlags: 0

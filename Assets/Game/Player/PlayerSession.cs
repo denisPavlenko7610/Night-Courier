@@ -1,6 +1,7 @@
 using System;
 using NightCourier.App;
 using NightCourier.Controls;
+using NightCourier.Weapons;
 using UnityEngine;
 
 namespace NightCourier.Player
@@ -12,6 +13,7 @@ namespace NightCourier.Player
 		[SerializeField] private PlayerCarry _carry;
 		[SerializeField] private PlayerHeavyCarry _heavy;
 		[SerializeField] private PlayerVitals _vitals;
+		[SerializeField] private PlayerWeapons _weapons;
 
 		private GameInput _input;
 		private IDisposable _gameplayScope;
@@ -24,6 +26,8 @@ namespace NightCourier.Player
 		public PlayerHeavyCarry Heavy => _heavy;
 
 		public PlayerVitals Vitals => _vitals;
+
+		public PlayerWeapons Weapons => _weapons;
 
 		public void Begin(GameServices services)
 		{
@@ -42,6 +46,7 @@ namespace NightCourier.Player
 			_interactor.Bind(services.Input.Actions);
 			_carry.Bind(services.Input.Actions);
 			_heavy.Bind(services.Input.Actions);
+			_weapons.Bind(services.Input.Actions);
 			_gameplayScope = services.Input.PushGameplay();
 
 			_vitals.Died += OnDied;

@@ -13,6 +13,7 @@ namespace NightCourier.Contracts
 		private int _violationCount;
 		private int _packageViolationCount;
 		private int _deathCount;
+		private int _shotsFired;
 
 		public ContractRun(ContractSpec spec, QuestService quests)
 		{
@@ -44,6 +45,8 @@ namespace NightCourier.Contracts
 		public int PackageViolationCount => _packageViolationCount;
 
 		public int DeathCount => _deathCount;
+
+		public int ShotsFired => _shotsFired;
 
 		public bool HasDeadline => _deadline != null;
 
@@ -103,6 +106,14 @@ namespace NightCourier.Contracts
 			PackageViolationRegistered?.Invoke(_packageViolationCount);
 		}
 
+		public void RegisterShot()
+		{
+			if (Phase == ContractPhase.InTransit)
+			{
+				_shotsFired++;
+			}
+		}
+
 		public void RegisterDeath()
 		{
 			if (Phase == ContractPhase.InTransit)
@@ -121,7 +132,7 @@ namespace NightCourier.Contracts
 
 		public ContractOutcome CaptureOutcome()
 		{
-			return new ContractOutcome(_violationCount, _transitSeconds, IsOverdue, _deathCount);
+			return new ContractOutcome(_violationCount, _transitSeconds, IsOverdue, _deathCount, _shotsFired);
 		}
 
 		public bool Fail()
