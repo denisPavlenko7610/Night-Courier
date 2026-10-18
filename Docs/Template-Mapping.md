@@ -293,6 +293,7 @@ reusable mechanics.
 | Package rules         | `PickupItem` `Released`, collisions, `CountdownTimer`, `ContractRun.DeadlineExpired` | `DoNotDrop`, `KeepInLight`, `DeliveryDeadline` components report `Violated`; `PackageRuleSet` relays the kind to `ContractRun.RegisterViolation` and the HUD notice |
 | Warehouse gating      | `WarehouseFacts` changes                                      | `ConditionDoor` re-evaluates its `Conditions` rule through `ConditionLock` and opens its `Door` once |
 | Riding platforms      | Kinematic rigidbody under the `CharacterController`           | `PlayerMotor` applies the ground's position delta each frame |
+| Enemy alert           | `HealthCarrier.DamageResolved`, `IncomingDirection`           | `EnemyAlert` reports the player to `ChaseTargetMemory` when an attack (directional damage) hurts a living enemy |
 | Enemy movement        | `DetectionSensor` `TargetDetected`/`TargetLost`, `ChaseTargetMemory` state, `MeleeAttack` `TargetHit`, `HealthCarrier` `Died` | `CrawlerBrain` and `SecurityDroneBrain` forward detection to the memory and move a `NavMeshAgent` by its state; `EnemyDeath` handles death. No new AI framework |
 | Barricade debris      | `BreakableObject` `Broken`                                    | Debris colliders ignore the player collider so rubble cannot block the shortcut |
 

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using NightCourier.AI;
 using NightCourier.App;
 using NightCourier.Contracts;
 using NightCourier.Economy;
@@ -216,6 +217,11 @@ namespace NightCourier.UI
 			foreach (EncounterGroup encounter in _encounters)
 			{
 				encounter.gameObject.SetActive(_run.Spec.Encounters.Contains(encounter.Kind));
+
+				foreach (EnemyAlert alert in encounter.GetComponentsInChildren<EnemyAlert>(true))
+				{
+					alert.Bind(_player.transform);
+				}
 			}
 
 			ApplySpawn(_checkpoints.ActiveCheckpoint);
@@ -318,6 +324,7 @@ namespace NightCourier.UI
 				return;
 			}
 
+			enemy.GetComponent<EnemyAlert>().Bind(_player.transform);
 			enemy.GetComponent<ChaseTargetMemory>().ReportTarget(_player.transform);
 			_packageHud.Notify("notice.enemy_spawned");
 		}
