@@ -22,8 +22,8 @@ still goes one feature at a time.
 The Warehouse map, the package rules and ladder, the Lights Out battery, player health with respawn and checkpoints,
 the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Play Mode.
 
-1. **Phase 13 remaining content.** The ladder step "package becomes hazardous" (needs `DamageOverTime`) and a tougher
-   drone encounter. Express and Restricted Cargo have been played end to end; the drone is too weak to matter.
+1. **Phase 13 remaining content.** A tougher drone encounter. Express and Restricted Cargo have been played end to end;
+   the drone is too weak to matter.
 2. **Phase 10–11 remaining.** The upgrades that need new hooks (carry move speed needs a carry slowdown; weapon damage and
    reload speed need runtime modifiers on `HitscanWeapon` and `AmmoReload`) and anything the rank should unlock. The
    Upgrade Terminal, the Equipment Locker, the deduction lines, the shift rating and courier rank, and the save of all of
@@ -95,18 +95,26 @@ the Warehouse dock, consumed on delivery) works, and every package rule violatio
 
 The violation ladder is per-contract data (`ContractSpec.Escalation`, authored as `EscalationEntry` rows on the
 definition): at violation N the Warehouse applies `PackageUnstable` (the package pulses red and takes double impact
-damage, with a HUD notice) or `FailContract` (the failure panel). The shipped ladders are 1 unstable and 4 fail for
-Fragile and Lights Out, 1 unstable and 3 fail for Restricted Cargo, and none for Standard Delivery and Express.
+damage, with a HUD notice), `SpawnEnemy`, `PackageHazardous`, or `FailContract` (the failure panel). The shipped ladders
+are the GDD default (1 unstable, 2 enemy, 3 hazardous, 4 fail) for Fragile, Lights Out, and Restricted Cargo, and none
+for Standard Delivery and Express.
 Property damage (the barricade) counts toward the no-violations bonus through `RegisterPropertyDamage` but not toward
 the ladder. Verified in stepped Play Mode on Fragile (four floor drops: unstable at the first, failed at the fourth).
 Violation 2 now spawns an enemy: `EscalationEffect.SpawnEnemy` makes `WarehouseEntry` ask a scene `Spawner` (the Crawler
 prefab, three alarm points on the NavMesh, at most 2 alive) for a Crawler and report the player to its
-`ChaseTargetMemory`, with a HUD notice. Fragile and Lights Out now run 1 unstable, 2 enemy, 4 fail; Restricted Cargo runs
-1 unstable, 2 enemy, 3 fail. Verified in stepped Play Mode on Fragile (violation 2 spawns a chasing Crawler, 3 changes
-nothing, 4 fails). The dock bay is a separate NavMesh region, so an alarm Crawler cannot reach a player still in the dock
-bay (its path is partial) and waits at the nearest reachable point.
-Still to build: the ladder step "package becomes hazardous" (needs damage over time), an audible warning (needs `Audio`),
-and per-package Behavior components.
+`ChaseTargetMemory`, with a HUD notice. Verified in stepped Play Mode on Fragile (violation 2 spawns a chasing Crawler).
+The dock bay is a separate NavMesh region, so an alarm Crawler cannot reach a player still in the dock bay (its path is
+partial) and waits at the nearest reachable point.
+
+Violation 3 makes the package hazardous: `EscalationEffect.PackageHazardous` activates a `PackageHazardEffect` on the
+package, which shows a translucent green aura (`HazardAura`, `PH_Toxic`) and, every 0.4 s, applies the `contamination`
+effect of the `DamageOverTime` mechanic on the player's `HealthCarrier` while the player is within 3.5 m of the package
+(holding it counts). The effect is data on the Player prefab: 3 damage per 0.4 s tick, 1.2 s duration, damage type
+`hazard`, so a refreshed effect keeps ticking about 7.5 damage per second and expires about a second after the player
+leaves. Verified in stepped Play Mode: 100 to 79 health in 3 s while holding the package, no damage at 9 m, damage again
+within 2 m. The ladder was widened for Restricted Cargo (it used to fail at violation 3), so all three ladders now match
+the GDD table; with Blackout's dark-time violations that gives about 40 s of darkness before failure.
+Still to build: an audible warning (needs `Audio`) and per-package Behavior components.
 Package `Health` does not carry over from the Depot to the Warehouse yet (the Warehouse spawns a fresh package); revisit
 with the road tier.
 
@@ -308,8 +316,8 @@ All five use the same Warehouse location with different configuration or state. 
 apply together with Do Not Drop and both enemies (data change only: `LocationState.Blackout`). Verified in stepped Play
 Mode: barricade (three shots), battery pick-up, carry back through the gap, generator, and breaker lever restore the
 lights; the fastest scripted run took about 10.5 s, and the package is dark for the first 10 s, so one Keep In Light
-violation (unstable package) is close to unavoidable and the alarm Crawler at violation 2 follows after 20 s of darkness
-(fail at 30 s, against 40 s in Lights Out). The carry breaks if the battery lags more than 2.5 m behind the carry point,
+violation (unstable package) is close to unavoidable, the alarm Crawler at violation 2 follows after 20 s of darkness, the
+hazardous package after 30 s, and the contract fails at 40 s (the same ladder as Lights Out). The carry breaks if the battery lags more than 2.5 m behind the carry point,
 so a very fast 180-degree turn while holding it drops it; the generator must be used from about 1.5 m.
 
 ### Phase 15 — Presentation

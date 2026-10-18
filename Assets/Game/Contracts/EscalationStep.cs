@@ -6,7 +6,8 @@ namespace NightCourier.Contracts
 	{
 		PackageUnstable = 0,
 		FailContract = 1,
-		SpawnEnemy = 2
+		SpawnEnemy = 2,
+		PackageHazardous = 3
 	}
 
 	public readonly struct EscalationStep : IEquatable<EscalationStep>

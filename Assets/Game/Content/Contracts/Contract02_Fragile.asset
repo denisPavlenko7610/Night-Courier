@@ -36,6 +36,8 @@ MonoBehaviour:
     _effect: 0
   - _atViolation: 2
     _effect: 2
+  - _atViolation: 3
+    _effect: 3
   - _atViolation: 4
     _effect: 1
   _encounters: 
