@@ -264,7 +264,7 @@ states: Normal for all except 03, which uses Blackout. No complications in the M
 | 02 | **Fragile**                                       | Do Not Drop                 | Contract 01 set + package `Health`/`HealthCarrier`, `Timers`, `Events`, `DamageZone`, `HitFeedback`                                                                             |
 | 03 | **Lights Out**                                    | Keep In Light               | `Lever`, `Conditions` (power), `Door`, `CarryObject` (battery), `Timers`, Crawler (`DetectionSensor`, `ChaseTargetMemory`, `MeleeAttack`, `Knockback`)               |
 | 04 | **Express**                                       | Delivery Deadline           | `Timers`, route choice (`DamageZone`, `BreakableObject` vs. `MovingPlatform`), Security Drone (`Patrol`, `DetectionSensor`, `ChaseTargetMemory`, `Projectile`), Stun Pistol set |
-| 05 | **Restricted Cargo**                              | Do Not Drop + Keep In Light | `CarryObject` (heavy cargo), `PressurePlate` (cargo scanner), `Lever`, `MovingPlatform`, `ConditionLock`, both enemies, Crowbar, `Checkpoint`, `Respawn`                        |
+| 05 | **Restricted Cargo**                              | Do Not Drop + Keep In Light | Blackout: `CarryObject` (battery), `Lever`, `Conditions`; `PressurePlate` (cargo scanner), `MovingPlatform`, `ConditionLock`, both enemies, Crowbar, `Checkpoint`, `Respawn`      |
 
 Reward and rank flow for every contract: `Quests` → `Conditions` check → result calculation (game) → `Rewards` bundle →
 `Wallet` credit → `Progression` (shift rating) → `Save`.

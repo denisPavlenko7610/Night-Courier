@@ -22,9 +22,8 @@ still goes one feature at a time.
 The Warehouse map, the package rules and ladder, the Lights Out battery, player health with respawn and checkpoints,
 the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Play Mode.
 
-1. **Phase 13 remaining content.** The Restricted Cargo environmental puzzle and the ladder step "package becomes
-   hazardous" (needs `DamageOverTime`). A Play Mode run of Restricted Cargo and fairness tuning of the encounters now that
-   the player can fight back.
+1. **Phase 13 remaining content.** The ladder step "package becomes hazardous" (needs `DamageOverTime`) and a tougher
+   drone encounter. Express and Restricted Cargo have been played end to end; the drone is too weak to matter.
 2. **Phase 10–11 remaining.** The Equipment Locker (the two carried items, `Equipment` driving `WeaponSwitching`, Medkit),
    courier rank and shift rating through `Progression`, and the upgrades that need new hooks (carry move speed needs a
    carry slowdown; weapon damage and reload speed need runtime modifiers on `HitscanWeapon` and `AmmoReload`). The
@@ -259,10 +258,35 @@ single Warehouse map:
 | 01 | Standard Delivery | Physical pickup and delivery                                   | —                                            |
 | 02 | Fragile           | `DoNotDrop`, ladder 1 / 2 / 4                                  | —                                            |
 | 03 | Lights Out        | `KeepInLight`, Blackout, battery and generator, ladder 1 / 2 / 4, Crawlers | —                                |
-| 04 | Express           | `DeliveryDeadline` (300 s), Security Drone                     | Fairness tuning with the pistol              |
-| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight`, ladder 1 / 2 / 3, both enemies (data only; not run) | An environmental puzzle, a Play Mode run |
+| 04 | Express           | `DeliveryDeadline` (300 s), Security Drone, played end to end   | A tougher drone encounter                    |
+| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight` in Blackout (battery puzzle), ladder 1 / 2 / 3, both enemies | —                           |
 
 All five use the same Warehouse location with different configuration or state. Do not create five maps.
+
+**Playtest (stepped Play Mode, a scripted player with real keyboard and mouse input that walks the route).**
+- *Express.* Route A (breaker lever, maintenance door, north corridor, freight lift, scanner, hatch, terminal) takes about
+  24 s; the payout was 320 base + 75 on time − 9 ammo. The drone patrols the north corridor (waypoints (-16, 0.5),
+  (-16, 11.5), (10, 11.5)) and was shot in the back from the west aisle without ever detecting the player, so it is a
+  speed bump rather than a threat.
+- *Restricted Cargo.* The package rules (Do Not Drop, Keep In Light) and both encounters load. Route B works: with the
+  package held the Crowbar is refused, so the barricade takes three pistol shots (₡9 ammo plus the ₡20 property fine and
+  a lost no-violations bonus); the ramp leads to the delivery floor and the scan, hatch, and terminal work. Payout in the
+  recorded run was 450 − 54 ammo − 40 property damage − 25 recovery fee = 331.
+- *Crawlers.* Two Crawlers in the open are easy for a stand-and-shoot player (8 shots, 2.2 s, no damage taken from a 10 m
+  notice distance). The danger is the electric strip beside the route: a Crawler hit knocks the player about 1.5 m, and the
+  strip deals 30 damage per 0.5 s tick, so a fight at the strip's south edge kills in about a second and, with the package
+  held, adds a Do Not Drop violation (unstable package) on respawn.
+- Known library warning: dropping the package logs "Setting linear velocity of a kinematic body is not supported" from
+  `PickupItem.Drop` (it writes `linearVelocity` on a kinematic rigidbody). It is harmless; a fix belongs in
+  `UnityTemplates` and needs the owner's agreement.
+
+**Restricted Cargo puzzle (decided).** The contract runs in Blackout, so Keep In Light and the Lights Out battery puzzle
+apply together with Do Not Drop and both enemies (data change only: `LocationState.Blackout`). Verified in stepped Play
+Mode: barricade (three shots), battery pick-up, carry back through the gap, generator, and breaker lever restore the
+lights; the fastest scripted run took about 10.5 s, and the package is dark for the first 10 s, so one Keep In Light
+violation (unstable package) is close to unavoidable and the alarm Crawler at violation 2 follows after 20 s of darkness
+(fail at 30 s, against 40 s in Lights Out). The carry breaks if the battery lags more than 2.5 m behind the carry point,
+so a very fast 180-degree turn while holding it drops it; the generator must be used from about 1.5 m.
 
 ### Phase 15 — Presentation
 
