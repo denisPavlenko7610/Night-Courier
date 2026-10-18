@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NightCourier.Contracts;
+using NightCourier.Economy;
 using RD.DependencyInjection;
 using RD.Foundation;
 using RD.SceneFlow;
@@ -17,6 +18,7 @@ namespace NightCourier.App
 		[SerializeField] private SceneCatalog _sceneCatalog;
 		[SerializeField] private TextAsset _localizationTable;
 		[SerializeField] private ContractCatalog _contractCatalog;
+		[SerializeField] private UpgradeCatalog _upgradeCatalog;
 		[SerializeField] private InputActionAsset _inputActions;
 
 		private StartupPipeline _pipeline;
@@ -138,7 +140,7 @@ namespace NightCourier.App
 				new InputStep(builder, _inputActions),
 				new PauseStep(builder),
 				new LocalizationStep(builder, _localizationTable),
-				new CampaignStep(builder, _contractCatalog)
+				new CampaignStep(builder, _contractCatalog, _upgradeCatalog)
 			});
 
 			await _pipeline.StartAsync(cancellationToken);

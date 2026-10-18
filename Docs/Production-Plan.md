@@ -25,9 +25,11 @@ the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Pl
 1. **Phase 13 remaining content.** The Restricted Cargo environmental puzzle and the ladder step "package becomes
    hazardous" (needs `DamageOverTime`). A Play Mode run of Restricted Cargo and fairness tuning of the encounters now that
    the player can fight back.
-2. **Phase 10–11 Upgrades, progression, persistence.** Equipment Locker (the two carried items, `Equipment` driving
-   `WeaponSwitching`) and Upgrade Terminal in the Depot, the death penalty, property damage, and ammo expense settlement
-   lines. Then the first-milestone definition of done is met.
+2. **Phase 10–11 remaining.** The Equipment Locker (the two carried items, `Equipment` driving `WeaponSwitching`, Medkit),
+   courier rank and shift rating through `Progression`, and the upgrades that need new hooks (carry move speed needs a
+   carry slowdown; weapon damage and reload speed need runtime modifiers on `HitscanWeapon` and `AmmoReload`). The
+   Upgrade Terminal, the deduction lines, and the save of purchased upgrades already work, so the first-milestone path
+   (purchase, save, restart, restore) is playable.
 3. **Phase 2b, UI modules.** `ScreenNavigation` and `PrefabWindows` replacing the plain uGUI menus, `Audio`, `Tween`.
    Can be done at any point between the steps above.
 
@@ -212,16 +214,33 @@ Contract settlement, `Rewards`, and `Wallet` credits work. Remaining: minimal co
 `Stats`, `Equipment`; MVP upgrades (+MaxHealth, +CarryMoveSpeed, +ScannerRange or a weapon stat), bought with credits;
 no large skill trees.
 
-The settlement still needs its deduction lines: net payout = base + bonuses − property damage − ammo expense − death
-penalty (floored at ₡0; from the road tier also − cargo damage penalty and optional vehicle repair), plus a shift rating
-(delivery time, cargo condition, protocol compliance, property damage) that feeds `Progression`
-([GDD §14](GDD.md)). Fines and ammo expense come from game-side listeners over existing events
-([Template-Mapping.md §6](Template-Mapping.md)).
+Settlement deductions are done: net payout = base + bonuses − property damage − ammo expense − death penalty, floored at
+₡0 (`EconomyRules`: ₡3 per shot, ₡20 per property damage event, ₡25 per death; `SettlementLineKind.Deduction`). The run
+counts shots, property damage, and deaths in transit, and the result screen lists each non-zero deduction. From the road
+tier the net payout also loses a cargo damage penalty and optional vehicle repair. Still to add: a shift rating
+(delivery time, cargo condition, protocol compliance, property damage) that feeds `Progression` ([GDD §14](GDD.md)).
+
+**Upgrades (done).** `UpgradeDefinition` assets (data) build immutable `UpgradeSpec`s in an `UpgradeBook`; each upgrade
+targets a `Stats` stat and has up to three levels with a price per level. `CourierStats` owns a `StatCollection`
+(`courier.max_health`, `courier.move_speed`, `courier.reserve_ammo`) and rebuilds one modifier per upgrade from its level;
+`CourierUpgrades` spends credits through the `Wallet`, tracks levels, and captures/restores them. The three MVP upgrades
+are Reinforced Vest (+25 max health per level), Courier Boots (+8% move speed per level), and Ammo Pouch (+8 reserve
+pistol rounds per level); prices are 100/200/350, 120/240/400, and 80/160/300. `PlayerSession.ApplyStats` pushes the stats
+to `PlayerVitals` (`HealthPool.SetMaximum`), `PlayerMotor` (speed multiplier), and `PlayerWeapons` (reserve bonus, applied
+as a delta so a purchase in the Depot is not double counted). The Depot has a physical Upgrade Terminal (`PH_UpgradeTerminal`
+with an `Interactable`, `UpgradeTerminalView`, three `UpgradeSlot` rows) that saves the campaign after every purchase.
+Verified in stepped Play Mode: buying the vest through the terminal (E, then the Buy button) raised max health to 125,
+wrote `campaign.json`, and a restart through Continue restored credits, the level, and the stats; boots and pouch applied
+in the Warehouse (speed 1.08, reserve 40 of 24 base); the result screen showed `Base pay 150, Ammo expense -9, Property
+damage -20, Recovery team fee -25, Total 96`. The first MVP list in the GDD (+Max Health, +Carry Move Speed, +Scanner
+Range or a weapon stat) is adapted: there is no carry slowdown or scanner yet, and the library has no runtime damage or
+reload modifier, so move speed and reserve ammo stand in.
 
 ### Phase 11 — Persistence (remaining)
 
-Credits, quest progress, completed contracts, and the reward ledger are saved. Remaining: rank/progression, unlocked
-equipment, purchased upgrades, collectible progress. Do not serialize arbitrary active scene physics. Checkpoint/Respawn
+Credits, quest progress, completed contracts, the reward ledger, and purchased upgrade levels are saved (`CampaignSave`
+version 3; version 2 saves still load with no upgrades, unknown upgrade ids are ignored, and levels are clamped to the
+current maximum). Remaining: rank/progression, unlocked equipment, collectible progress. Do not serialize arbitrary active scene physics. Checkpoint/Respawn
 handles temporary level death.
 
 ### Phase 12 — Full Module Integration

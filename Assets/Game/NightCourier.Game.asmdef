@@ -18,6 +18,7 @@
         "RD.Conditions",
         "RD.DependencyInjection",
         "RD.Health",
+        "RD.Stats",
         "RD.Mechanics.BreakableObject",
         "RD.Mechanics.CarryObject",
         "RD.Mechanics.ChaseTargetMemory",

@@ -23,6 +23,7 @@ namespace NightCourier.UI
 		[SerializeField] private PauseMenu _pauseMenu;
 		[SerializeField] private Interactable _terminal;
 		[SerializeField] private Interactable _van;
+		[SerializeField] private UpgradeTerminalView _upgradeTerminal;
 		[SerializeField] private GameObject _packagePrefab;
 		[SerializeField] private Transform _packageSpawn;
 		[SerializeField] private GameObject _terminalPanel;
@@ -65,6 +66,7 @@ namespace NightCourier.UI
 			_vitalsView.Bind(services.Localization, _player.Vitals);
 			_weaponHud.Bind(services.Localization, _player.Weapons);
 			_pauseMenu.Bind(services);
+			_upgradeTerminal.Bind(services, _campaign, _player);
 
 			_terminal.Interacted += OpenTerminal;
 			_van.Interacted += OnVanUsed;
