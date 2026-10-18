@@ -79,7 +79,7 @@
 		{ "Key": "contract.express.title", "Value": "Express" },
 		{ "Key": "contract.express.description", "Value": "Same address, tight deadline. The short route is faster and a lot less friendly." },
 		{ "Key": "contract.restricted_cargo.title", "Value": "Restricted Cargo" },
-		{ "Key": "contract.restricted_cargo.description", "Value": "Sealed, classified, and picky about everything. Two handling rules and company security on the floor." },
+		{ "Key": "contract.restricted_cargo.description", "Value": "Sealed, classified, and picky about everything. Two handling rules, company security on the floor, and the power is out." },
 
 		{ "Key": "objective.no_violations", "Value": "No violations" },
 		{ "Key": "objective.on_time", "Value": "On time" },

@@ -17,7 +17,7 @@ MonoBehaviour:
   _descriptionKey: contract.restricted_cargo.description
   _type: 0
   _destinationSceneId: warehouse
-  _locationState: 0
+  _locationState: 1
   _risk: 2
   _baseReward: 450
   _timeLimitSeconds: 0
