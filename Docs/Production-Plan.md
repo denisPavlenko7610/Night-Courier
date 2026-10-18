@@ -24,11 +24,10 @@ the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Pl
 
 1. **Phase 13 remaining content.** The ladder step "package becomes hazardous" (needs `DamageOverTime`) and a tougher
    drone encounter. Express and Restricted Cargo have been played end to end; the drone is too weak to matter.
-2. **Phase 10–11 remaining.** The Equipment Locker (the two carried items, `Equipment` driving `WeaponSwitching`, Medkit),
-   courier rank and shift rating through `Progression`, and the upgrades that need new hooks (carry move speed needs a
-   carry slowdown; weapon damage and reload speed need runtime modifiers on `HitscanWeapon` and `AmmoReload`). The
-   Upgrade Terminal, the deduction lines, and the save of purchased upgrades already work, so the first-milestone path
-   (purchase, save, restart, restore) is playable.
+2. **Phase 10–11 remaining.** Courier rank and shift rating through `Progression`, and the upgrades that need new hooks
+   (carry move speed needs a carry slowdown; weapon damage and reload speed need runtime modifiers on `HitscanWeapon` and
+   `AmmoReload`). The Upgrade Terminal, the Equipment Locker, the deduction lines, and the save of upgrades and loadout
+   already work, so the first-milestone path (purchase, save, restart, restore) is playable.
 3. **Phase 2b, UI modules.** `ScreenNavigation` and `PrefabWindows` replacing the plain uGUI menus, `Audio`, `Tween`.
    Can be done at any point between the steps above.
 
@@ -201,8 +200,7 @@ enemies on the electric floor, and fairness tuning.
   refill and the HUD update, and the shot count reaches the active run. Not covered: a gamepad, `HitFeedback` visuals on a
   pistol hit beyond the existing hit flash, and the recoil-to-package stability event (design in GDD 7.6).
 
-Also in the MVP, still to do in Phase 10: the player carries two items chosen at the Equipment Locker (`WeaponSwitching`
-driven by `Equipment`; today both weapons are always carried), and the ammo expense line.
+The player's carried items now come from the Equipment Locker (see Phase 10), and the ammo expense is a settlement line.
 
 Later: Shotgun, Repulsor (`ChargeWeapon` + `Projectile` + `Knockback`), HomingProjectile, Grenade, ExplosiveBarrel,
 DamageOverTime, DamageZone. No new weapon framework.
@@ -235,11 +233,25 @@ damage -20, Recovery team fee -25, Total 96`. The first MVP list in the GDD (+Ma
 Range or a weapon stat) is adapted: there is no carry slowdown or scanner yet, and the library has no runtime damage or
 reload modifier, so move speed and reserve ammo stand in.
 
+**Equipment Locker (done).** `CourierLoadout` owns an `EquipmentLoadout` (slots Primary, Tool, Utility 1, Utility 2;
+definitions Stun Pistol, Crowbar, Medkit) and an `InventoryContainer` (the medkit stock, up to 3 owned). The locker in the
+Depot (`PH_EquipmentLocker` with an `Interactable`, `EquipmentLockerView`, five `LockerRow`s) can stow or equip each
+weapon, buy a medkit for ₡30 (`Wallet.Spend`), and move medkits between the stock and the two utility slots; every change
+saves the campaign. In the field `PlayerMedkits` handles `UseMedkit` (H, D-pad up): it consumes an equipped medkit and
+heals 40, and does nothing at full health or with only stocked (unequipped) medkits. `PlayerWeapons` reads the loadout, so
+a stowed weapon cannot be selected or used and the weapon HUD shows "No weapon" when both are stowed; `MedkitHudView`
+shows the carried count. Stowing the pistol is the way to a no-shots run (and no ammo expense). Verified in stepped Play
+Mode: buy two, equip one, stow the pistol (current weapon fell back to the Crowbar, Weapon1 and Fire did nothing), H at
+full health kept the medkit, H after 55 damage healed to 85 and consumed it, Continue restored the stowed pistol, stock,
+and credits, and the Warehouse showed the HUD and healed 40 on H. The Shotgun, Repulsor, Scanner, and Portable Light
+(Demo tier) will make the Primary and Tool choice real; the suit slot and the grenade wait for their items.
+
 ### Phase 11 — Persistence (remaining)
 
-Credits, quest progress, completed contracts, the reward ledger, and purchased upgrade levels are saved (`CampaignSave`
-version 3; version 2 saves still load with no upgrades, unknown upgrade ids are ignored, and levels are clamped to the
-current maximum). Remaining: rank/progression, unlocked equipment, collectible progress. Do not serialize arbitrary active scene physics. Checkpoint/Respawn
+Credits, quest progress, completed contracts, the reward ledger, purchased upgrade levels, and the loadout (equipment
+snapshot, medkit stock, next medkit instance) are saved (`CampaignSave` version 4; versions 2 and 3 still load with no
+upgrades and the default loadout, unknown upgrade ids are ignored, and levels are clamped to the current maximum). A
+loadout snapshot that fails to restore falls back to the default. Remaining: rank/progression, collectible progress. Do not serialize arbitrary active scene physics. Checkpoint/Respawn
 handles temporary level death.
 
 ### Phase 12 — Full Module Integration

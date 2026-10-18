@@ -1,5 +1,6 @@
 using System;
 using NightCourier.Controls;
+using NightCourier.Loadout;
 using NightCourier.Player;
 using RD.Foundation;
 using RD.Input;
@@ -19,11 +20,14 @@ namespace NightCourier.Weapons
 		[SerializeField] private Transform _aim;
 
 		private IDisposable _subscriptions;
+		private CourierLoadout _loadout;
 		private int _appliedReserveBonus;
 
 		public WeaponKind Current { get; private set; }
 
 		public StunPistol Pistol => _pistol;
+
+		public bool HasEquippedWeapon => IsEquipped(WeaponKind.StunPistol) || IsEquipped(WeaponKind.Crowbar);
 
 		public event Action Changed;
 
@@ -45,9 +49,9 @@ namespace NightCourier.Weapons
 			{
 				actions.Fire.SubscribePerformed(_ => Fire()),
 				actions.Reload.SubscribePerformed(_ => Reload()),
-				actions.SwitchWeapon.SubscribePerformed(_ => _switching.SelectNext()),
-				actions.Weapon1.SubscribePerformed(_ => _switching.Select((int)WeaponKind.StunPistol)),
-				actions.Weapon2.SubscribePerformed(_ => _switching.Select((int)WeaponKind.Crowbar))
+				actions.SwitchWeapon.SubscribePerformed(_ => SelectOther()),
+				actions.Weapon1.SubscribePerformed(_ => Select(WeaponKind.StunPistol)),
+				actions.Weapon2.SubscribePerformed(_ => Select(WeaponKind.Crowbar))
 			});
 
 			_switching.Switched += OnSwitched;
@@ -57,6 +61,24 @@ namespace NightCourier.Weapons
 				? WeaponKind.StunPistol
 				: (WeaponKind)_switching.CurrentIndex;
 			Changed?.Invoke();
+		}
+
+		public void SetLoadout(CourierLoadout loadout)
+		{
+			if (_loadout != null)
+			{
+				_loadout.Changed -= OnLoadoutChanged;
+			}
+
+			_loadout = loadout ?? throw new ArgumentNullException(nameof(loadout));
+			_loadout.Changed += OnLoadoutChanged;
+
+			OnLoadoutChanged();
+		}
+
+		public bool IsEquipped(WeaponKind kind)
+		{
+			return _loadout == null || _loadout.IsWeaponEquipped(kind);
 		}
 
 		public void SetReserveBonus(int bonus)
@@ -80,15 +102,43 @@ namespace NightCourier.Weapons
 		{
 			_subscriptions?.Dispose();
 
+			if (_loadout != null)
+			{
+				_loadout.Changed -= OnLoadoutChanged;
+			}
+
 			if (_switching != null)
 			{
 				_switching.Switched -= OnSwitched;
 			}
 		}
 
+		private void Select(WeaponKind kind)
+		{
+			if (IsEquipped(kind))
+			{
+				_switching.Select((int)kind);
+			}
+		}
+
+		private void SelectOther()
+		{
+			Select(Current == WeaponKind.StunPistol ? WeaponKind.Crowbar : WeaponKind.StunPistol);
+		}
+
+		private void OnLoadoutChanged()
+		{
+			if (!IsEquipped(Current))
+			{
+				SelectOther();
+			}
+
+			Changed?.Invoke();
+		}
+
 		private void Fire()
 		{
-			if (!TryUse(Current))
+			if (!IsEquipped(Current) || !TryUse(Current))
 			{
 				return;
 			}
@@ -108,7 +158,7 @@ namespace NightCourier.Weapons
 
 		private void Reload()
 		{
-			if (Current == WeaponKind.StunPistol)
+			if (Current == WeaponKind.StunPistol && IsEquipped(WeaponKind.StunPistol))
 			{
 				_pistol.Ammo.TryReload();
 			}

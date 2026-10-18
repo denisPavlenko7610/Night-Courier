@@ -26,11 +26,20 @@ namespace NightCourier.Player
 
 		public int Current => Mathf.CeilToInt((float)_health.Pool.State.Current);
 
+		public bool IsFull => _health.Pool.State.Normalized >= 1d;
+
 		public event Action Changed;
 
 		public event Action Died;
 
 		public event Action Respawned;
+
+		public bool Heal(double amount)
+		{
+			HealthResult result = _health.Pool.Heal(amount);
+
+			return result.Status == HealthStatus.Success;
+		}
 
 		public void SetMaximumHealth(double maximum)
 		{
