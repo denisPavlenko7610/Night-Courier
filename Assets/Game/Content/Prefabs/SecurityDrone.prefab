@@ -339,6 +339,7 @@ GameObject:
   - component: {fileID: 7790340175561399753}
   - component: {fileID: 4717384330745886468}
   - component: {fileID: 6059298477764697419}
+  - component: {fileID: 3891110254281792511}
   m_Layer: 11
   m_Name: SecurityDrone
   m_TagString: Untagged
@@ -396,7 +397,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20e64440c877cd34483c6a9933413e76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: RD.Mechanics.Combat::RD.Mechanics.Combat.HealthCarrier
-  _maximumHealth: 30
+  _maximumHealth: 45
   _damageRules: []
 --- !u!114 &3012121024495122016
 MonoBehaviour:
@@ -469,8 +470,8 @@ MonoBehaviour:
   _standoffDistance: 6
   _fireRange: 14
   _boltSpeed: 18
-  _boltDamage: 8
-  _fireIntervalSeconds: 1.4
+  _boltDamage: 10
+  _fireIntervalSeconds: 1.1
   _repathSeconds: 0.25
   _turnDegreesPerSecond: 240
   _aimHeight: 1.1
@@ -511,3 +512,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.AI.EnemyKnockbackReceiver
   _agent: {fileID: 576163638869879319}
   _decayPerSecond: 16
+--- !u!114 &3891110254281792511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6092305741487052010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7a0fc8329f877a4e8242d6d6dcefc9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.AI.EnemyAlert
+  _health: {fileID: 2745630131921722914}
+  _memory: {fileID: 3012121024495122016}

@@ -22,8 +22,8 @@ still goes one feature at a time.
 The Warehouse map, the package rules and ladder, the Lights Out battery, player health with respawn and checkpoints,
 the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Play Mode.
 
-1. **Phase 13 remaining content.** A tougher drone encounter. Express and Restricted Cargo have been played end to end;
-   the drone is too weak to matter.
+1. **Phase 13 is content-complete for the MVP.** All five contracts have been played end to end and the enemies react to
+   being shot. More enemy variety (a second drone, a tougher route) is a balance pass for later.
 2. **Phase 10–11 remaining.** The upgrades that need new hooks (carry move speed needs a carry slowdown; weapon damage and
    reload speed need runtime modifiers on `HitscanWeapon` and `AmmoReload`) and anything the rank should unlock. The
    Upgrade Terminal, the Equipment Locker, the deduction lines, the shift rating and courier rank, and the save of all of
@@ -170,11 +170,17 @@ Crowbar (three hits). JumpPad and Teleporter are optional later.
   (10 damage, 1.2 s swing), `Knockback` into a game-side `PlayerKnockbackReceiver`, `HealthCarrier` (40), `HitReaction`.
   It chases and searches over a baked NavMesh, swings in range, and walks home when the memory expires.
 - **SecurityDrone** (`SecurityDrone.prefab`, `SecurityDroneBrain`): a ground-level root that hovers through a `Visual`
-  child, `Patrol` along its route, `DetectionSensor`, `ChaseTargetMemory`, `Projectile` bolts (8 damage, `Cooldown`
-  1.4 s, only with line of sight), `HealthCarrier` (30), `HitReaction`. On detection it disables `Patrol` and takes over
+  child, `Patrol` along its route, `DetectionSensor`, `ChaseTargetMemory`, `Projectile` bolts (`Cooldown`
+  1.1 s, only with line of sight; the bolt damage is 10), `HealthCarrier` (45), `HitReaction`. On detection it disables `Patrol` and takes over
   with a `NavMeshAgent` keeping a 6 m standoff; after the memory expires it navigates to the nearest route waypoint and
   hands control back to `Patrol`.
 - Both die through `EnemyDeath` (stop the behaviours, disable colliders, shrink with Tween, destroy).
+- Both react to being shot: `EnemyAlert` listens to `HealthCarrier.DamageResolved` and, when the damage carried an incoming
+  direction (hitscan, melee, and projectile hits do; the electric floor and damage over time do not), reports the player
+  to the enemy's `ChaseTargetMemory`. The Warehouse binds the player to every alert in the encounter groups and to the
+  alarm enemy it spawns. Verified in stepped Play Mode: a drone shot from behind turned and shot back, and a Crawler hit
+  from 17 m, outside its 12 m notice range, started chasing. This closed the "shoot the drone in the back for free" gap
+  found in the Express playtest; the drone was also toughened (45 health, 10 damage bolts every 1.1 s).
 
 The game-side brains only route the template events (`TargetDetected` to `ReportTarget`, `StateChanged` to movement)
 and own movement; the AI state logic stays in `ChaseTargetMemory`. The player moved to a new `Player` layer and enemies
@@ -288,10 +294,10 @@ single Warehouse map:
 | #  | Contract          | Done                                                           | Still needs                                  |
 |----|-------------------|----------------------------------------------------------------|----------------------------------------------|
 | 01 | Standard Delivery | Physical pickup and delivery                                   | —                                            |
-| 02 | Fragile           | `DoNotDrop`, ladder 1 / 2 / 4                                  | —                                            |
-| 03 | Lights Out        | `KeepInLight`, Blackout, battery and generator, ladder 1 / 2 / 4, Crawlers | —                                |
-| 04 | Express           | `DeliveryDeadline` (300 s), Security Drone, played end to end   | A tougher drone encounter                    |
-| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight` in Blackout (battery puzzle), ladder 1 / 2 / 3, both enemies | —                           |
+| 02 | Fragile           | `DoNotDrop`, ladder 1 / 2 / 3 / 4                              | —                                            |
+| 03 | Lights Out        | `KeepInLight`, Blackout, battery and generator, ladder 1 / 2 / 3 / 4, Crawlers | —                            |
+| 04 | Express           | `DeliveryDeadline` (300 s), Security Drone, played end to end   | —                                            |
+| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight` in Blackout (battery puzzle), ladder 1 / 2 / 3 / 4, both enemies | —                       |
 
 All five use the same Warehouse location with different configuration or state. Do not create five maps.
 
@@ -299,7 +305,7 @@ All five use the same Warehouse location with different configuration or state. 
 - *Express.* Route A (breaker lever, maintenance door, north corridor, freight lift, scanner, hatch, terminal) takes about
   24 s; the payout was 320 base + 75 on time − 9 ammo. The drone patrols the north corridor (waypoints (-16, 0.5),
   (-16, 11.5), (10, 11.5)) and was shot in the back from the west aisle without ever detecting the player, so it is a
-  speed bump rather than a threat.
+  speed bump rather than a threat (fixed afterwards: enemies now react to being shot, see Phase 8).
 - *Restricted Cargo.* The package rules (Do Not Drop, Keep In Light) and both encounters load. Route B works: with the
   package held the Crowbar is refused, so the barricade takes three pistol shots (₡9 ammo plus the ₡20 property fine and
   a lost no-violations bonus); the ramp leads to the delivery floor and the scan, hatch, and terminal work. Payout in the
