@@ -206,6 +206,11 @@ Match the surrounding code and the template library's style:
   advance frames with `EditorApplication.Step()` from `execute_code`, in a call separate from the one that pauses. This
   produces Unity-internal "PlayerLoop"/"JobTempAlloc" console messages that are not project errors. Delete any test
   save in `Application.persistentDataPath/Saves` and any test `PlayerPrefs` keys afterwards.
+  Pausing the game (the pause menu sets `Time.timeScale` to 0) while stepping also logs "Delta time must be finite and
+  non-negative" and "The status-effect clock moved backwards" from template `Update` loops; those are stepping artifacts.
+  The project uses Enter Play Mode Options with the domain and scene reload disabled and Code Reload In Place, so a
+  non-serialized field of a scene object can hold `""` instead of `null` after a recompile; test strings with
+  `string.IsNullOrEmpty`, and wait for compilation to finish before entering Play Mode.
 - To drive input in that stepped mode, run once from `execute_code`: set the input manager's
   `runPlayerUpdatesInEditMode` to true by reflection on `InputSystem.s_Manager` (the Input System ignores events while the
   editor is paused otherwise), then queue events with `InputSystem.QueueStateEvent(Keyboard.current, state)` /

@@ -28,8 +28,9 @@ the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Pl
    reload speed need runtime modifiers on `HitscanWeapon` and `AmmoReload`) and anything the rank should unlock. The
    Upgrade Terminal, the Equipment Locker, the deduction lines, the shift rating and courier rank, and the save of all of
    them already work, so the first-milestone path (purchase, save, restart, restore) is playable.
-3. **Phase 2b, UI modules.** `ScreenNavigation` and `PrefabWindows` replacing the plain uGUI menus, `Audio`, `Tween`.
-   Can be done at any point between the steps above.
+3. **Phase 2b, remaining UI modules.** The Depot terminals and the result screen as screens or windows, a rebinding
+   screen, and `Audio` (needs clips; free assets are only imported on your explicit instruction). The main menu, the
+   pause menu, and the confirmation popups already use `ScreenNavigation`, `PrefabWindows`, and `Tween`.
 
 ---
 
@@ -60,8 +61,20 @@ every combat, AI, world, and newly installed mechanic except `HoldInteraction`, 
 
 ### Phase 2b — UI Modules
 
-The menus and the pause menu are plain uGUI placeholders. Still to integrate: `ScreenNavigation` and `PrefabWindows`
-(replacing them, adding the New Game confirmation and a rebinding screen on top of `Input.Rebinding`), `Audio`, `Tween`,
+**Done.** The main menu (Main, Settings) and the pause menu (Main, Settings, Controls) are `ScreenNavigation` screens:
+`PanelScreen` implements `IScreen` over a uGUI panel with a `CanvasGroup` fade through `Tween` on unscaled time (so it
+runs while the game is paused), and each menu owns a `ScreenNavigator`. Escape pops a sub-screen first and closes the pause
+menu only from the main screen (the main menu gained the same Back behavior). Confirmation popups use `PrefabWindows`:
+`ConfirmWindow` (a `UIWindow<ConfirmArguments>` prefab with localized title, message, Confirm and Cancel) is listed in a
+`WindowCatalog` (`UiWindows.asset`) and opened by a `WindowManager` that each menu creates over its own `WindowRoot`. It
+guards New Game when a save exists, Abort Contract, and Main Menu from the pause menu; Escape closes the popup first. The
+navigator and window manager live in the scene entry or the pause menu and are disposed with them (no manager object, no
+global). Verified in stepped Play Mode: fades and Back in the main menu, the popup's Esc, Cancel, and Confirm paths, the
+pause stack in the Depot and Warehouse, and the abort and main-menu confirmations. Navigation calls that outlive their
+scene are ignored (`UiShutdown`).
+
+**Still to integrate:** the Depot terminals (contracts, upgrades, locker) and the result screen as `PrefabWindows` popups
+(they are scene panels with their own `PushMenu` scopes today), a rebinding screen on top of `Input.Rebinding`, `Audio`,
 and last-used-device prompt glyphs (`InputDeviceTracker`).
 
 ### Phase 4 — Package System
@@ -394,7 +407,7 @@ Raised for the user; agents do not settle them alone.
 | Fuel representation | `Wallet` currency committed per road segment; `Stats` value; `Stamina` | Settle in the audit |
 | Hinged vehicle/building doors | Keep `Door` slide-only; or extend the template | `Door` only slides |
 | **`SceneFlow.ChangeSceneAsync` defect** (UnityTemplates) | Fix in the template: skip `SetActiveScene` when the loaded scene is already active | In Unity 6000.6 `SceneManager.SetActiveScene` returns `false` for the scene that is already active, which is the case right after a `Single` load, so `SceneFlow` throws `InvalidOperationException: Failed to set scene ... as active` although the scene loaded. Night Courier avoids it through additive swapping and does not depend on the fix, but every other consumer of `ChangeSceneAsync` is affected. Not changed here because UnityTemplates is a separate repository with work in progress |
-| New Game overwrites the existing save without confirmation | Add a confirmation window when PrefabWindows is integrated | The save is only overwritten at the first progress after New Game |
+| New Game overwrites the existing save without confirmation | Resolved: a `ConfirmWindow` asks first (see Phase 2b) | — |
 
 ---
 

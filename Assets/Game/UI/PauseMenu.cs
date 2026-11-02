@@ -2,6 +2,8 @@ using System;
 using NightCourier.App;
 using RD.Foundation;
 using RD.Input;
+using RD.PrefabWindows;
+using RD.ScreenNavigation;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,9 +14,9 @@ namespace NightCourier.UI
 		private const string PauseReason = "pause-menu";
 
 		[SerializeField] private GameObject _root;
-		[SerializeField] private GameObject _mainPanel;
-		[SerializeField] private GameObject _settingsPanel;
-		[SerializeField] private GameObject _controlsPanel;
+		[SerializeField] private PanelScreen _mainScreen;
+		[SerializeField] private PanelScreen _settingsScreen;
+		[SerializeField] private PanelScreen _controlsScreen;
 		[SerializeField] private Button _resumeButton;
 		[SerializeField] private Button _settingsButton;
 		[SerializeField] private Button _controlsButton;
@@ -24,9 +26,13 @@ namespace NightCourier.UI
 		[SerializeField] private Button _settingsBackButton;
 		[SerializeField] private Button _controlsBackButton;
 		[SerializeField] private SettingsPanelView _settingsView;
+		[SerializeField] private WindowRoot _windowRoot;
+		[SerializeField] private WindowCatalog _windowCatalog;
 
 		private GameServices _services;
 		private Action _leaveAction;
+		private ScreenNavigator _navigator;
+		private WindowManager _windows;
 		private IDisposable _openSubscription;
 		private IDisposable _pauseHandle;
 		private IDisposable _menuScope;
@@ -53,13 +59,20 @@ namespace NightCourier.UI
 				_leaveLabel.SetKey(leaveLabelKey);
 			}
 
+			_mainScreen.HideImmediately();
+			_settingsScreen.HideImmediately();
+			_controlsScreen.HideImmediately();
+
+			_navigator = new ScreenNavigator(new ScreenRegistry(new IScreen[] { _mainScreen, _settingsScreen, _controlsScreen }));
+			_windows = new WindowManager(_windowCatalog, _windowRoot);
+
 			_resumeButton.onClick.AddListener(Close);
 			_settingsButton.onClick.AddListener(ShowSettings);
 			_controlsButton.onClick.AddListener(ShowControls);
 			_leaveButton.onClick.AddListener(OnLeave);
 			_mainMenuButton.onClick.AddListener(OnMainMenu);
-			_settingsBackButton.onClick.AddListener(ShowMain);
-			_controlsBackButton.onClick.AddListener(ShowMain);
+			_settingsBackButton.onClick.AddListener(OnBack);
+			_controlsBackButton.onClick.AddListener(OnBack);
 
 			_openSubscription = services.Input.Actions.Pause.SubscribePerformed(_ => Open());
 
@@ -78,8 +91,9 @@ namespace NightCourier.UI
 			_pauseHandle = _services.Pause.RequestPause(PauseReason);
 			_menuScope = _services.Input.PushMenu(OnCancel);
 
-			ShowMain();
 			_root.SetActive(true);
+
+			Run(() => _navigator.PushAsync(_mainScreen.Id));
 		}
 
 		public void Close()
@@ -91,11 +105,12 @@ namespace NightCourier.UI
 
 			IsOpen = false;
 
-			_root.SetActive(false);
 			_menuScope?.Dispose();
 			_pauseHandle?.Dispose();
 			_menuScope = null;
 			_pauseHandle = null;
+
+			Run(CloseScreensAsync);
 		}
 
 		private void OnDestroy()
@@ -103,46 +118,90 @@ namespace NightCourier.UI
 			_openSubscription?.Dispose();
 			_menuScope?.Dispose();
 			_pauseHandle?.Dispose();
+			_windows?.Dispose();
+			_navigator?.Dispose();
+		}
+
+		private async Awaitable CloseScreensAsync()
+		{
+			await _navigator.ClearAsync();
+
+			if (!IsOpen && _root != null)
+			{
+				_root.SetActive(false);
+			}
+		}
+
+		private async void Run(Func<Awaitable> operation)
+		{
+			try
+			{
+				await operation();
+			}
+			catch (Exception exception) when (UiShutdown.IsExpected(exception))
+			{
+			}
+			catch (Exception exception)
+			{
+				UnityLogger.LogException(exception, this);
+			}
 		}
 
 		private void OnCancel()
 		{
-			if (_mainPanel.activeSelf)
+			if (_windows.IsOpen(ConfirmWindow.WindowId))
 			{
-				Close();
+				Run(() => _windows.BackAsync());
+			}
+			else if (_navigator.Depth > 1)
+			{
+				OnBack();
 			}
 			else
 			{
-				ShowMain();
+				Close();
 			}
 		}
 
-		private void ShowMain()
+		private void OnBack()
 		{
-			_mainPanel.SetActive(true);
-			_settingsPanel.SetActive(false);
-			_controlsPanel.SetActive(false);
+			Run(async () => await _navigator.PopAsync());
 		}
 
 		private void ShowSettings()
 		{
-			_mainPanel.SetActive(false);
-			_settingsPanel.SetActive(true);
+			Run(() => _navigator.PushAsync(_settingsScreen.Id));
 		}
 
 		private void ShowControls()
 		{
-			_mainPanel.SetActive(false);
-			_controlsPanel.SetActive(true);
+			Run(() => _navigator.PushAsync(_controlsScreen.Id));
+		}
+
+		private void Confirm(string titleKey, string messageKey, Action onConfirm)
+		{
+			ConfirmArguments arguments = new(_services.Localization, titleKey, messageKey, onConfirm);
+
+			Run(() => _windows.OpenAsync(ConfirmWindow.WindowId, arguments));
 		}
 
 		private void OnLeave()
+		{
+			Confirm("confirm.abort.title", "confirm.abort.message", ConfirmLeave);
+		}
+
+		private void ConfirmLeave()
 		{
 			Close();
 			_leaveAction();
 		}
 
-		private async void OnMainMenu()
+		private void OnMainMenu()
+		{
+			Confirm("confirm.main_menu.title", "confirm.main_menu.message", ConfirmMainMenu);
+		}
+
+		private async void ConfirmMainMenu()
 		{
 			Close();
 

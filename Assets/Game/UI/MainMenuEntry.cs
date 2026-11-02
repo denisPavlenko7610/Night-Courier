@@ -3,7 +3,9 @@ using System.IO;
 using NightCourier.App;
 using RD.DependencyInjection;
 using RD.Foundation;
+using RD.PrefabWindows;
 using RD.Save;
+using RD.ScreenNavigation;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,16 +13,21 @@ namespace NightCourier.UI
 {
 	public sealed class MainMenuEntry : MonoBehaviour, ISceneEntry
 	{
-		[SerializeField] private GameObject _mainPanel;
-		[SerializeField] private GameObject _settingsPanel;
+		[SerializeField] private PanelScreen _mainScreen;
+		[SerializeField] private PanelScreen _settingsScreen;
 		[SerializeField] private Button _newGameButton;
 		[SerializeField] private Button _continueButton;
 		[SerializeField] private Button _settingsButton;
 		[SerializeField] private Button _quitButton;
 		[SerializeField] private Button _settingsBackButton;
 		[SerializeField] private SettingsPanelView _settingsView;
+		[SerializeField] private WindowRoot _windowRoot;
+		[SerializeField] private WindowCatalog _windowCatalog;
 
 		private GameServices _services;
+		private ScreenNavigator _navigator;
+		private WindowManager _windows;
+		private IDisposable _menuScope;
 
 		public void Enter(GameServices services, IObjectResolver scene)
 		{
@@ -31,34 +38,71 @@ namespace NightCourier.UI
 
 			_continueButton.interactable = services.Campaign.HasSave;
 
+			_mainScreen.HideImmediately();
+			_settingsScreen.HideImmediately();
+
+			_navigator = new ScreenNavigator(new ScreenRegistry(new IScreen[] { _mainScreen, _settingsScreen }));
+			_windows = new WindowManager(_windowCatalog, _windowRoot);
+
 			_newGameButton.onClick.AddListener(OnNewGame);
 			_continueButton.onClick.AddListener(OnContinue);
-			_settingsButton.onClick.AddListener(ShowSettings);
-			_settingsBackButton.onClick.AddListener(ShowMain);
+			_settingsButton.onClick.AddListener(OnSettings);
+			_settingsBackButton.onClick.AddListener(OnBack);
 			_quitButton.onClick.AddListener(OnQuit);
 
-			ShowMain();
+			_menuScope = services.Input.PushMenu(OnCancel);
+
+			Run(() => _navigator.PushAsync(_mainScreen.Id));
 		}
 
 		private void OnDestroy()
 		{
+			_menuScope?.Dispose();
+			_windows?.Dispose();
+			_navigator?.Dispose();
+
 			_newGameButton.onClick.RemoveListener(OnNewGame);
 			_continueButton.onClick.RemoveListener(OnContinue);
-			_settingsButton.onClick.RemoveListener(ShowSettings);
-			_settingsBackButton.onClick.RemoveListener(ShowMain);
+			_settingsButton.onClick.RemoveListener(OnSettings);
+			_settingsBackButton.onClick.RemoveListener(OnBack);
 			_quitButton.onClick.RemoveListener(OnQuit);
 		}
 
-		private void ShowMain()
+		private async void Run(Func<Awaitable> operation)
 		{
-			_mainPanel.SetActive(true);
-			_settingsPanel.SetActive(false);
+			try
+			{
+				await operation();
+			}
+			catch (Exception exception) when (UiShutdown.IsExpected(exception))
+			{
+			}
+			catch (Exception exception)
+			{
+				UnityLogger.LogException(exception, this);
+			}
 		}
 
-		private void ShowSettings()
+		private void OnSettings()
 		{
-			_mainPanel.SetActive(false);
-			_settingsPanel.SetActive(true);
+			Run(() => _navigator.PushAsync(_settingsScreen.Id));
+		}
+
+		private void OnBack()
+		{
+			Run(async () => await _navigator.PopAsync());
+		}
+
+		private void OnCancel()
+		{
+			if (_windows.IsOpen(ConfirmWindow.WindowId))
+			{
+				Run(() => _windows.BackAsync());
+			}
+			else if (_navigator.Depth > 1)
+			{
+				OnBack();
+			}
 		}
 
 		private void OnQuit()
@@ -66,7 +110,24 @@ namespace NightCourier.UI
 			_services.Navigator.Quit();
 		}
 
-		private async void OnNewGame()
+		private void OnNewGame()
+		{
+			if (!_services.Campaign.HasSave)
+			{
+				StartNewGame();
+				return;
+			}
+
+			ConfirmArguments arguments = new(
+				_services.Localization,
+				"confirm.new_game.title",
+				"confirm.new_game.message",
+				StartNewGame);
+
+			Run(() => _windows.OpenAsync(ConfirmWindow.WindowId, arguments));
+		}
+
+		private async void StartNewGame()
 		{
 			try
 			{

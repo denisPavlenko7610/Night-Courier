@@ -98,7 +98,7 @@ namespace NightCourier.App
 
 			try
 			{
-				if (_currentSceneId != null)
+				if (!string.IsNullOrEmpty(_currentSceneId))
 				{
 					string previous = _currentSceneId;
 					_currentSceneId = null;
