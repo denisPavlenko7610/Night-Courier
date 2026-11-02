@@ -4,7 +4,7 @@
     "com.rd.ai": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/AI",
     "com.rd.combat": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Combat",
     "com.rd.demosupport": "file:../../UnityTemplates/Assets/UnityTemplates/Examples/Shared/Support",
-    "com.rd.foundation": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/Foundation",
+    "com.rd.foundation": "file:../../UnityTemplates/Assets/UnityTemplates/Foundation",
     "com.rd.framework": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Framework",
     "com.rd.gameplay": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Gameplay",
     "com.rd.interaction": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Interaction",

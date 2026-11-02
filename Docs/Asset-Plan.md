@@ -601,6 +601,9 @@ Keep a record of every non-primitive asset: source, license, and status. Add row
 | Kenney Sci-Fi Sounds, 23 of 74 clips used | No sound (new) | Kenney | https://kenney.nl/assets/sci-fi-sounds | CC0 | None (credit appreciated) | 2026-11-02 | Final |
 | Kenney Digital Audio, 6 of 63 clips used | No sound (new) | Kenney | https://kenney.nl/assets/digital-audio | CC0 | None (credit appreciated) | 2026-11-02 | Final |
 | Kenney RPG Audio, 5 of 51 clips used | No sound (new) | Kenney | https://kenney.nl/assets/rpg-audio | CC0 | None (credit appreciated) | 2026-11-02 | Final |
+| Kenney Prototype Textures, 4 of 65 files used (Dark 02, 07, 13; Orange 02) | Flat `PH_Concrete`, `PH_Metal`, `PH_Crate` colors on the Depot and Warehouse cubes (materials `Env_Concrete`, `Env_Floor`, `Env_Metal`, `Env_Crate`) | Kenney | https://kenney.nl/assets/prototype-textures | CC0 | None (credit appreciated) | 2026-11-02 | Blockout |
+| Kenney UI Pack Sci-Fi: Kenney Future Narrow font, `button_rectangle_depth` and `panel_rectangle` sprites | Default Unity font and flat UI boxes | Kenney | https://kenney.nl/assets/ui-pack-sci-fi | CC0 | None (credit appreciated) | 2026-11-02 | Final |
+| `PH_BoxMeshes.asset` | Unity cube mesh UVs (box-projected so one texture tile equals 2 m, 4 m on floors) | In-house (generated) | — | Project-owned | None | 2026-11-02 | Blockout |
 | `Ambience_Warehouse.wav`, `Ambience_Depot.wav` | No sound (new) | In-house (generated noise and hum) | — | Project-owned | None | 2026-11-02 | Blockout |
 
 Status values: `Placeholder`, `Blockout`, `Final`.

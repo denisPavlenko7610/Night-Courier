@@ -88,6 +88,15 @@ battery insert, barricade break, checkpoint locker, delivery jingle, purchase an
 `ConditionDoor.Opened/Closed`, `FreightLift.RideStarted/RideCompleted`, `CargoScanner.ScanStarted`,
 `SecurityDroneBrain.BoltFired`.
 
+**Visual replacement, stage 1 (done).** One style family: Kenney. The Depot and Warehouse cubes use Kenney Prototype
+Textures through `Env_*` materials in `Assets/Game/Presentation/Materials`; the cube meshes were replaced by generated
+box meshes (`PH_BoxMeshes.asset`) with world-scale UVs, so the texel density is the same everywhere. Every `Text` uses
+Kenney Future Narrow (sizes scaled by 0.8, best fit on five labels), and all buttons and the dialog, contract, upgrade and
+locker panels use the UI Pack Sci-Fi sprites. Hazard, interactable, delivery, and van placeholders keep their flat
+colors so the light language stays readable. Verified in stepped Play Mode with camera captures of the Depot, Warehouse,
+main menu, and contract terminal; EditMode 189 of 189. Not done: weapons, props and structure, effects, enemies, van
+(later stages of the replacement plan).
+
 ### Phase 4 — Package System
 
 The smallest composition layer that turns existing world items into cargo. Reuse `PickupDrop`, `CarryObject`, `Health`
@@ -468,6 +477,18 @@ Required:
 | Enemies | `SecurityDrone`, `Crawler` |
 | Contracts | 5 |
 | Locations | 1 Warehouse |
+
+### Additional Acceptance Criteria
+
+The slice is not done on a feature count. It is done when these also hold; each is checked by a run, not by reading code.
+
+| Criterion | Evidence so far |
+|---|---|
+| Every contract has its own goal, risk, and at least one differing player action, not only a different payout | Data and Play Mode runs per contract (Phase 13). A fresh playtester explaining in their own words how the five contracts differ is not yet done |
+| Cargo damage and rule violations are reproducible, explained, and shown honestly | Reproducibility was checked per rule in stepped Play Mode (Phase 4). The result screen shows the deduction lines, the overall rating, and the four axis grades; the raw violation count and final integrity are not shown as numbers yet |
+| At least one contract can be finished without firing | Stowing the pistol in the Equipment Locker gives a no-shots run (Phase 10) |
+| Failure, death, abort, replay, and quitting never cause a double payout, a lost profile, or a blocked UI | EditMode: a failed contract returns to Available with no reward (`ContractBoardTests`); the payout grant id includes the completion count. Abort and menu paths were exercised in Play Mode (Phase 2b). Quitting during settlement and repeated retry are not exercised |
+| The result screen tells the player what to change next time, not only the numbers | Not done: the screen lists lines and ratings, with no improvement hint |
 
 ---
 

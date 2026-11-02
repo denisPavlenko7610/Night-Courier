@@ -42,7 +42,7 @@
       }
     },
     "com.rd.foundation": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Modules/Core/Foundation",
+      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Foundation",
       "depth": 0,
       "source": "local",
       "dependencies": {}
