@@ -477,11 +477,6 @@ namespace NightCourier.UI
 			return grade.HasValue ? grade.Value.ToString() : "-";
 		}
 
-		private static string GradeText(ShiftGrade grade)
-		{
-			return grade.ToString();
-		}
-
 		private async void Navigate(string sceneId)
 		{
 			_returnButton.interactable = false;

@@ -137,19 +137,9 @@ namespace NightCourier.UI
 			}
 		}
 
-		private async void Run(Func<Awaitable> operation)
+		private void Run(Func<Awaitable> operation)
 		{
-			try
-			{
-				await operation();
-			}
-			catch (Exception exception) when (UiShutdown.IsExpected(exception))
-			{
-			}
-			catch (Exception exception)
-			{
-				UnityLogger.LogException(exception, this);
-			}
+			UiShutdown.Run(operation, this);
 		}
 
 		private void OnCancel()

@@ -193,17 +193,7 @@ namespace NightCourier.AI
 
 		private void Face(Vector3 direction)
 		{
-			direction.y = 0f;
-
-			if (direction.sqrMagnitude < 0.001f)
-			{
-				return;
-			}
-
-			transform.rotation = Quaternion.RotateTowards(
-				transform.rotation,
-				Quaternion.LookRotation(direction),
-				_turnDegreesPerSecond * Time.deltaTime);
+			EnemyMath.FaceToward(transform, direction, _turnDegreesPerSecond * Time.deltaTime);
 		}
 	}
 }

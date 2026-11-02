@@ -5,6 +5,7 @@ namespace NightCourier.AI
 	public static class EnemyMath
 	{
 		private const float MinPlanarSqrMagnitude = 0.0001f;
+		private const float MinFaceSqrMagnitude = 0.001f;
 
 		public static Vector3 StandoffPoint(Vector3 enemy, Vector3 target, float distance)
 		{
@@ -20,6 +21,18 @@ namespace NightCourier.AI
 			point.y = enemy.y;
 
 			return point;
+		}
+
+		public static void FaceToward(Transform body, Vector3 direction, float maxDegrees)
+		{
+			direction.y = 0f;
+
+			if (direction.sqrMagnitude < MinFaceSqrMagnitude)
+			{
+				return;
+			}
+
+			body.rotation = Quaternion.RotateTowards(body.rotation, Quaternion.LookRotation(direction), maxDegrees);
 		}
 
 		public static float PlanarDistance(Vector3 from, Vector3 to)
