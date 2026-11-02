@@ -3,6 +3,7 @@
     "rootNamespace": "NightCourier.Tests",
     "references": [
         "NightCourier.Game",
+        "RD.Audio",
         "RD.Conditions",
         "RD.DependencyInjection",
         "RD.Equipment",
@@ -15,6 +16,7 @@
         "RD.Localization",
         "RD.Quests",
         "RD.Rewards",
+        "RD.SceneFlow",
         "RD.Save",
         "RD.Stats",
         "RD.Wallet",
