@@ -29,8 +29,8 @@ the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Pl
    Upgrade Terminal, the Equipment Locker, the deduction lines, the shift rating and courier rank, and the save of all of
    them already work, so the first-milestone path (purchase, save, restart, restore) is playable.
 3. **Phase 2b, remaining UI modules.** The Depot terminals and the result screen as screens or windows, a rebinding
-   screen, and `Audio` (needs clips; free assets are only imported on your explicit instruction). The main menu, the
-   pause menu, and the confirmation popups already use `ScreenNavigation`, `PrefabWindows`, and `Tween`.
+   screen, and last-used-device prompt glyphs. The main menu, the pause menu, and the confirmation popups already use
+   `ScreenNavigation`, `PrefabWindows`, and `Tween`; sound goes through the template `AudioService` (see Phase 2b).
 
 ---
 
@@ -74,8 +74,19 @@ pause stack in the Depot and Warehouse, and the abort and main-menu confirmation
 scene are ignored (`UiShutdown`).
 
 **Still to integrate:** the Depot terminals (contracts, upgrades, locker) and the result screen as `PrefabWindows` popups
-(they are scene panels with their own `PushMenu` scopes today), a rebinding screen on top of `Input.Rebinding`, `Audio`,
-and last-used-device prompt glyphs (`InputDeviceTracker`).
+(they are scene panels with their own `PushMenu` scopes today), a rebinding screen on top of `Input.Rebinding`, and
+last-used-device prompt glyphs (`InputDeviceTracker`).
+
+**Audio (done).** `AudioStep` builds the template `AudioService` once and `GameServices.Audio` hands it to the scenes; 42
+`AudioCue` assets in `Assets/Game/Content/Audio/Cues` are assigned to small listener components (`PlayerAudio`,
+`EnemyAudio`, `WarehouseAudio`, `UiSounds`) that subscribe to events the mechanics already raise. The Depot and Warehouse
+ambience loops are generated in-house; every other clip is Kenney CC0 (register in `Docs/Asset-Plan.md` section 8).
+Verified in stepped Play Mode: menu and pause clicks, Depot ambience, footsteps, terminal open and accept, pickup and
+drop, pistol shot, crowbar swing, lever, generator, lift motor, door, violation buzz, unstable, alarm, hazard, player hurt,
+death and respawn, enemy hit, die, crawler attack, drone hum and bolt, and contract failure. Not exercised: scanner beep,
+battery insert, barricade break, checkpoint locker, delivery jingle, purchase and error UI sounds. Added events:
+`ConditionDoor.Opened/Closed`, `FreightLift.RideStarted/RideCompleted`, `CargoScanner.ScanStarted`,
+`SecurityDroneBrain.BoltFired`.
 
 ### Phase 4 — Package System
 
@@ -127,7 +138,7 @@ effect of the `DamageOverTime` mechanic on the player's `HealthCarrier` while th
 leaves. Verified in stepped Play Mode: 100 to 79 health in 3 s while holding the package, no damage at 9 m, damage again
 within 2 m. The ladder was widened for Restricted Cargo (it used to fail at violation 3), so all three ladders now match
 the GDD table; with Blackout's dark-time violations that gives about 40 s of darkness before failure.
-Still to build: an audible warning (needs `Audio`) and per-package Behavior components.
+The violation buzz, unstable, and hazard cues are in; still to build: per-package Behavior components.
 Package `Health` does not carry over from the Depot to the Warehouse yet (the Warehouse spawns a fresh package); revisit
 with the road tier.
 

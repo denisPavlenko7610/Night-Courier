@@ -775,6 +775,7 @@ GameObject:
   - component: {fileID: 68041038}
   - component: {fileID: 68041037}
   - component: {fileID: 68041036}
+  - component: {fileID: 68041039}
   m_Layer: 0
   m_Name: PH_Canvas
   m_TagString: Untagged
@@ -871,6 +872,22 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &68041039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 68041034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 967671839dd7da848a9f4f8f982ee7ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Audio.UiSounds
+  _click: {fileID: 11400000, guid: d9955d4e148cc474997c434c02cb9102, type: 2}
+  _confirm: {fileID: 11400000, guid: 4b502f504c9f04942909110a28d786db, type: 2}
+  _back: {fileID: 11400000, guid: b3d7c4cb0a5a9b44496957532f47870f, type: 2}
+  _open: {fileID: 11400000, guid: 7dd0f0fe6f15f744f91071f8c6ab26e4, type: 2}
 --- !u!1 &69238053
 GameObject:
   m_ObjectHideFlags: 0
@@ -1028,6 +1045,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.DepotEntry
   _player: {fileID: 376290181}
+  _uiSounds: {fileID: 68041039}
+  _ambience: {fileID: 11400000, guid: 6307a6c8db587d64ea1bec6df565a540, type: 2}
   _promptView: {fileID: 1733029398}
   _objective: {fileID: 1733029400}
   _vitalsView: {fileID: 1733029401}
@@ -1432,6 +1451,7 @@ GameObject:
   m_Component:
   - component: {fileID: 124921382}
   - component: {fileID: 124921381}
+  - component: {fileID: 124921383}
   m_Layer: 0
   m_Name: UpgradeTerminal
   m_TagString: Untagged
@@ -1451,6 +1471,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f6b276622bb2fb479749aba82add613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.UpgradeTerminalView
+  _sounds: {fileID: 124921383}
   _terminal: {fileID: 1329402868}
   _panel: {fileID: 902818770}
   _closeButton: {fileID: 1619869802}
@@ -1474,6 +1495,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 85107003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &124921383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124921380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 967671839dd7da848a9f4f8f982ee7ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Audio.UiSounds
+  _click: {fileID: 11400000, guid: d9955d4e148cc474997c434c02cb9102, type: 2}
+  _confirm: {fileID: 11400000, guid: 4b502f504c9f04942909110a28d786db, type: 2}
+  _back: {fileID: 11400000, guid: b3d7c4cb0a5a9b44496957532f47870f, type: 2}
+  _open: {fileID: 11400000, guid: 7dd0f0fe6f15f744f91071f8c6ab26e4, type: 2}
 --- !u!1 &219987901
 GameObject:
   m_ObjectHideFlags: 0
@@ -7886,6 +7923,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1283145169}
   - component: {fileID: 1283145168}
+  - component: {fileID: 1283145170}
   m_Layer: 0
   m_Name: EquipmentLocker
   m_TagString: Untagged
@@ -7905,6 +7943,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7032a5b3e4264744c8f31a43d6783371, type: 3}
   m_Name: 
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.EquipmentLockerView
+  _sounds: {fileID: 1283145170}
   _locker: {fileID: 1235377384}
   _panel: {fileID: 641991912}
   _closeButton: {fileID: 426138486}
@@ -7930,6 +7969,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 85107003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1283145170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1283145167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 967671839dd7da848a9f4f8f982ee7ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Audio.UiSounds
+  _click: {fileID: 11400000, guid: d9955d4e148cc474997c434c02cb9102, type: 2}
+  _confirm: {fileID: 11400000, guid: 4b502f504c9f04942909110a28d786db, type: 2}
+  _back: {fileID: 11400000, guid: b3d7c4cb0a5a9b44496957532f47870f, type: 2}
+  _open: {fileID: 11400000, guid: 7dd0f0fe6f15f744f91071f8c6ab26e4, type: 2}
 --- !u!1 &1329402863
 GameObject:
   m_ObjectHideFlags: 0

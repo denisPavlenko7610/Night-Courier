@@ -904,6 +904,7 @@ GameObject:
   - component: {fileID: 2797275190069338274}
   - component: {fileID: 3162343239199574353}
   - component: {fileID: 8093014718322916137}
+  - component: {fileID: 857369563477303896}
   m_Layer: 10
   m_Name: Player
   m_TagString: Untagged
@@ -1006,6 +1007,7 @@ MonoBehaviour:
   _weapons: {fileID: 2797275190069338274}
   _medkits: {fileID: 3162343239199574353}
   _contamination: {fileID: 8093014718322916137}
+  _sounds: {fileID: 857369563477303896}
 --- !u!114 &1550987350009345910
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1173,6 +1175,38 @@ MonoBehaviour:
     _tickIntervalSeconds: 0.4
     _damagePerTick: 3
     _damageTypeId: hazard
+--- !u!114 &857369563477303896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8211461791556453824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f83785093d291b642b8346f330b5e439, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Audio.PlayerAudio
+  _pistol: {fileID: 5935189659415328283}
+  _crowbar: {fileID: 998883756136919606}
+  _vitals: {fileID: 5361718097673614087}
+  _medkits: {fileID: 3162343239199574353}
+  _carry: {fileID: 8946412414895468902}
+  _heavy: {fileID: 7957260673399685389}
+  _controller: {fileID: 2797712852427832411}
+  _pistolShot: {fileID: 11400000, guid: db1e5356bcc72b54cb05115519725188, type: 2}
+  _pistolDry: {fileID: 11400000, guid: 5bf57eb146d49304fb5b5b81caed8e0d, type: 2}
+  _pistolReload: {fileID: 11400000, guid: a9f2298122c8cc44c9f4105d943b727d, type: 2}
+  _pistolReady: {fileID: 11400000, guid: c2601e19e342ace4e975b93b2667ef5b, type: 2}
+  _crowbarSwing: {fileID: 11400000, guid: 38846830d25fb9f46aa868abff680328, type: 2}
+  _crowbarHit: {fileID: 11400000, guid: 09dfe1c3f5634904eb00ae981cbf1441, type: 2}
+  _footstep: {fileID: 11400000, guid: b4f26e0d1e0f66444a33649e8b3b9275, type: 2}
+  _hurt: {fileID: 11400000, guid: e13b39aab97ab834581a1d62a762ac5b, type: 2}
+  _death: {fileID: 11400000, guid: 28d0f20e8c672c54bad2d233c95b241c, type: 2}
+  _respawn: {fileID: 11400000, guid: 8ea196616a6b3234b948e42c8b9f6335, type: 2}
+  _medkit: {fileID: 11400000, guid: cb0afe62cfa276a4fa87f0cf0776000f, type: 2}
+  _pickUp: {fileID: 11400000, guid: 7ca4c2cc11a60b14bad2d58a8399d2ab, type: 2}
+  _drop: {fileID: 11400000, guid: 89acf301e12e5fa4cb3ff4c743fce7bb, type: 2}
 --- !u!1 &8514043467969345939
 GameObject:
   m_ObjectHideFlags: 0

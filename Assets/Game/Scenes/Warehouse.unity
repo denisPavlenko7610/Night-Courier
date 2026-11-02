@@ -2665,6 +2665,71 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.InputActionReference
   m_Asset: {fileID: 562310080}
   m_ActionId: 24908448-c609-4bc3-a128-ea258674378a
+--- !u!1 &426797901
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 426797903}
+  - component: {fileID: 426797902}
+  m_Layer: 0
+  m_Name: WarehouseAudio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &426797902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 426797901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd0f8d18c4366b946b0b8c5a166374d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Audio.WarehouseAudio
+  _doors:
+  - {fileID: 1426869022}
+  - {fileID: 1309050447}
+  _lift: {fileID: 2143822907}
+  _scanner: {fileID: 152237537}
+  _doorOpen: {fileID: 11400000, guid: e70547a67796f5946a652800d2325f4e, type: 2}
+  _doorClose: {fileID: 11400000, guid: 18b2a327aae0e7a43b2a51c0d40210ff, type: 2}
+  _lever: {fileID: 11400000, guid: 3999f6eaeff30f144ad4b4cf2275ab32, type: 2}
+  _generator: {fileID: 11400000, guid: 9caa7b896efffdf429f8202940add8d1, type: 2}
+  _battery: {fileID: 11400000, guid: 38754d829881579418260b4ab5bf6985, type: 2}
+  _liftMotor: {fileID: 11400000, guid: 4b7191f7b6bd160458c8b997f99f82e3, type: 2}
+  _scannerBeep: {fileID: 11400000, guid: 16ff58029c663094eb68c7b3ae7b3e8c, type: 2}
+  _ambience: {fileID: 11400000, guid: 67969c012c9dc094d8df81fd118a3be8, type: 2}
+  _violation: {fileID: 11400000, guid: ab4c2f129b177cb4dbc18feca18fe0bc, type: 2}
+  _unstable: {fileID: 11400000, guid: c0b84506777ea674a9bcb7c8a96f63aa, type: 2}
+  _hazard: {fileID: 11400000, guid: 05a612ec025ef3a47ac047b84148b1ce, type: 2}
+  _alarm: {fileID: 11400000, guid: ac73624b3a87a2f4ea1cca6e5b965fa7, type: 2}
+  _barricadeBreak: {fileID: 11400000, guid: a90465056d0b21c42b31e7f848f41bf6, type: 2}
+  _checkpoint: {fileID: 11400000, guid: 33ce1ce2334c0024383c623f759945fb, type: 2}
+  _delivered: {fileID: 11400000, guid: 2fb5397d344685f40803667e966e95ee, type: 2}
+  _failed: {fileID: 11400000, guid: 33398435d3ffb9945bc0640190c343c8, type: 2}
+--- !u!4 &426797903
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 426797901}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1458035918}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &439458687
 GameObject:
   m_ObjectHideFlags: 0
@@ -7095,6 +7160,7 @@ GameObject:
   - component: {fileID: 1170879086}
   - component: {fileID: 1170879085}
   - component: {fileID: 1170879084}
+  - component: {fileID: 1170879087}
   m_Layer: 0
   m_Name: PH_Canvas
   m_TagString: Untagged
@@ -7187,6 +7253,22 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &1170879087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1170879082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 967671839dd7da848a9f4f8f982ee7ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Audio.UiSounds
+  _click: {fileID: 11400000, guid: d9955d4e148cc474997c434c02cb9102, type: 2}
+  _confirm: {fileID: 11400000, guid: 4b502f504c9f04942909110a28d786db, type: 2}
+  _back: {fileID: 11400000, guid: b3d7c4cb0a5a9b44496957532f47870f, type: 2}
+  _open: {fileID: 11400000, guid: 7dd0f0fe6f15f744f91071f8c6ab26e4, type: 2}
 --- !u!1 &1186190861
 GameObject:
   m_ObjectHideFlags: 0
@@ -8781,6 +8863,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.WarehouseEntry
   _player: {fileID: 72141991}
+  _sounds: {fileID: 426797902}
+  _uiSounds: {fileID: 1170879087}
   _promptView: {fileID: 185035546}
   _objective: {fileID: 185035548}
   _pauseMenu: {fileID: 1006265759}
@@ -8852,6 +8936,7 @@ Transform:
   - {fileID: 1430454038}
   - {fileID: 1778058925}
   - {fileID: 1536986802}
+  - {fileID: 426797903}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1463166603

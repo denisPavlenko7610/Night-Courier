@@ -139,6 +139,7 @@ namespace NightCourier.App
 				new SettingsStep(builder),
 				new InputStep(builder, _inputActions),
 				new PauseStep(builder),
+				new AudioStep(builder, transform),
 				new LocalizationStep(builder, _localizationTable),
 				new CampaignStep(builder, _contractCatalog, _upgradeCatalog)
 			});

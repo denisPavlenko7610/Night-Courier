@@ -1,5 +1,6 @@
 using System;
 using NightCourier.Controls;
+using RD.Audio;
 using RD.Localization;
 using RD.Pause;
 using RD.Settings;
@@ -14,7 +15,8 @@ namespace NightCourier.App
 			ILocalizationService localization,
 			CampaignRepository campaign,
 			GameInput input,
-			IPauseService pause
+			IPauseService pause,
+			AudioService audio
 		)
 		{
 			Navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
@@ -23,6 +25,7 @@ namespace NightCourier.App
 			Campaign = campaign ?? throw new ArgumentNullException(nameof(campaign));
 			Input = input ?? throw new ArgumentNullException(nameof(input));
 			Pause = pause ?? throw new ArgumentNullException(nameof(pause));
+			Audio = audio ?? throw new ArgumentNullException(nameof(audio));
 		}
 
 		public IGameNavigator Navigator { get; }
@@ -36,5 +39,7 @@ namespace NightCourier.App
 		public GameInput Input { get; }
 
 		public IPauseService Pause { get; }
+
+		public AudioService Audio { get; }
 	}
 }

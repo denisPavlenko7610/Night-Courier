@@ -51,6 +51,7 @@ GameObject:
   - component: {fileID: 3543141050450496848}
   - component: {fileID: 3543657090607640090}
   - component: {fileID: 4397288926509962454}
+  - component: {fileID: 4144111024060757772}
   m_Layer: 11
   m_Name: Crawler
   m_TagString: Untagged
@@ -272,6 +273,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.AI.EnemyAlert
   _health: {fileID: 2049563298713044744}
   _memory: {fileID: 471450182842045478}
+--- !u!114 &4144111024060757772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2185428066492792797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af471b97376958744a78fa391a2f937c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Audio.EnemyAudio
+  _health: {fileID: 2049563298713044744}
+  _death: {fileID: 3543141050450496848}
+  _melee: {fileID: 1540671224465429939}
+  _drone: {fileID: 0}
+  _hit: {fileID: 11400000, guid: 7c7548fb2d337fc4fa357e3cd064d4f5, type: 2}
+  _die: {fileID: 11400000, guid: 6ecbee419e7737a45960bce57c7d1012, type: 2}
+  _attack: {fileID: 11400000, guid: ffd85e9029e35444ba854a42390a6cb7, type: 2}
+  _hum: {fileID: 0}
+  _bolt: {fileID: 0}
 --- !u!1 &2299576493458831499
 GameObject:
   m_ObjectHideFlags: 0

@@ -36,6 +36,8 @@ namespace NightCourier.AI
 
 		public bool IsPursuing => _pursuing;
 
+		public event System.Action BoltFired;
+
 		private void Awake()
 		{
 			_fire = new Cooldown(_fireIntervalSeconds);
@@ -127,6 +129,7 @@ namespace NightCourier.AI
 
 			bolt.Configure(_boltDamage);
 			bolt.Initialize(direction * _boltSpeed, transform);
+			BoltFired?.Invoke();
 		}
 
 		private void ReturnToRoute()

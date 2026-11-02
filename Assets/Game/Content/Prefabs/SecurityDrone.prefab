@@ -340,6 +340,7 @@ GameObject:
   - component: {fileID: 4717384330745886468}
   - component: {fileID: 6059298477764697419}
   - component: {fileID: 3891110254281792511}
+  - component: {fileID: 1418339943843133519}
   m_Layer: 11
   m_Name: SecurityDrone
   m_TagString: Untagged
@@ -526,3 +527,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.AI.EnemyAlert
   _health: {fileID: 2745630131921722914}
   _memory: {fileID: 3012121024495122016}
+--- !u!114 &1418339943843133519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6092305741487052010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af471b97376958744a78fa391a2f937c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Audio.EnemyAudio
+  _health: {fileID: 2745630131921722914}
+  _death: {fileID: 4717384330745886468}
+  _melee: {fileID: 0}
+  _drone: {fileID: 7790340175561399753}
+  _hit: {fileID: 11400000, guid: 7c7548fb2d337fc4fa357e3cd064d4f5, type: 2}
+  _die: {fileID: 11400000, guid: 6ecbee419e7737a45960bce57c7d1012, type: 2}
+  _attack: {fileID: 0}
+  _hum: {fileID: 11400000, guid: 3e22b0bd0672a674581b0453188fb64f, type: 2}
+  _bolt: {fileID: 11400000, guid: 05a3e2c2161c3af40b13cdf7c57059b5, type: 2}

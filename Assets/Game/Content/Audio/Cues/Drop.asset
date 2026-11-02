@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 349ba30805614f1d87a24bf2a6773073, type: 3}
+  m_Name: Drop
+  m_EditorClassIdentifier: RD.Audio::RD.Audio.AudioCue
+  _clips:
+  - _clip: {fileID: 8300000, guid: fd7590248527af647ad6d68e09999b1a, type: 3}
+    _weight: 1
+  - _clip: {fileID: 8300000, guid: 801def4a58674104e86218f6761bad07, type: 3}
+    _weight: 1
+  - _clip: {fileID: 8300000, guid: 008d0ef875d98b64b918e0a928f170f7, type: 3}
+    _weight: 1
+  _output: {fileID: 0}
+  _ignoreListenerPause: 0
+  _loop: 0
+  _priority: 100
+  _volumeRange: {x: 0.7, y: 0.7}
+  _pitchRange: {x: 0.9, y: 1.1}
+  _spatialBlend: 1
+  _panStereo: 0
+  _dopplerLevel: 1
+  _spread: 0
+  _rolloffMode: 0
+  _minDistance: 2
+  _maxDistance: 30
+  _fadeInSeconds: 0
+  _fadeOutSeconds: 0
+  _maxInstances: 2
+  _cooldownSeconds: 0

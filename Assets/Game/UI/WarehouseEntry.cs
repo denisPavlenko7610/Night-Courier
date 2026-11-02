@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using NightCourier.AI;
 using NightCourier.App;
+using NightCourier.Audio;
 using NightCourier.Contracts;
 using NightCourier.Economy;
 using NightCourier.Packages;
@@ -26,6 +27,8 @@ namespace NightCourier.UI
 		private const int LockerAmmoRefill = 8;
 
 		[SerializeField] private PlayerSession _player;
+		[SerializeField] private WarehouseAudio _sounds;
+		[SerializeField] private UiSounds _uiSounds;
 		[SerializeField] private InteractionPromptView _promptView;
 		[SerializeField] private ObjectiveView _objective;
 		[SerializeField] private PauseMenu _pauseMenu;
@@ -93,6 +96,8 @@ namespace NightCourier.UI
 			_medkitHud.Bind(services.Localization, _player.Medkits);
 
 			BuildWorld(scene);
+			_sounds.Bind(services.Audio, _facts);
+			_uiSounds.Bind(services.Audio);
 			SpawnPackage();
 
 			_deliveryPoint.Interacted += OnDelivered;
@@ -222,6 +227,11 @@ namespace NightCourier.UI
 				{
 					alert.Bind(_player.transform);
 				}
+
+				foreach (EnemyAudio enemySounds in encounter.GetComponentsInChildren<EnemyAudio>())
+				{
+					enemySounds.Bind(_services.Audio);
+				}
 			}
 
 			ApplySpawn(_checkpoints.ActiveCheckpoint);
@@ -239,6 +249,7 @@ namespace NightCourier.UI
 		{
 			ApplySpawn(checkpoint);
 			_player.Weapons.RefillAmmo(LockerAmmoRefill);
+			_sounds.PlayCheckpoint();
 			_packageHud.Notify("notice.checkpoint");
 		}
 
@@ -265,6 +276,7 @@ namespace NightCourier.UI
 		private void OnBarricadeBroken()
 		{
 			_run.RegisterPropertyDamage();
+			_sounds.PlayBarricadeBreak(_barricade.transform.position);
 			_packageHud.Notify("notice.property_damage");
 		}
 
@@ -287,6 +299,7 @@ namespace NightCourier.UI
 
 		private void OnRuleViolated(PackageRuleKind kind)
 		{
+			_sounds.PlayViolation();
 			_packageHud.Notify("notice.rule_violated", _services.Localization.Get(PackageRuleKeys.NameKey(kind)));
 			_run.RegisterViolation();
 		}
@@ -299,6 +312,7 @@ namespace NightCourier.UI
 				{
 					case EscalationEffect.PackageUnstable:
 						_package.Unstable.Activate();
+						_sounds.PlayUnstable();
 						_packageHud.Notify("notice.package_unstable");
 						break;
 					case EscalationEffect.SpawnEnemy:
@@ -306,6 +320,7 @@ namespace NightCourier.UI
 						break;
 					case EscalationEffect.PackageHazardous:
 						_package.Hazard.Activate(_player.Contamination);
+						_sounds.PlayHazard();
 						_packageHud.Notify("notice.package_hazardous");
 						break;
 					case EscalationEffect.FailContract:
@@ -326,6 +341,8 @@ namespace NightCourier.UI
 
 			enemy.GetComponent<EnemyAlert>().Bind(_player.transform);
 			enemy.GetComponent<ChaseTargetMemory>().ReportTarget(_player.transform);
+			enemy.GetComponent<EnemyAudio>().Bind(_services.Audio);
+			_sounds.PlayAlarm(enemy.transform.position);
 			_packageHud.Notify("notice.enemy_spawned");
 		}
 
@@ -359,6 +376,7 @@ namespace NightCourier.UI
 				Destroy(_package.gameObject);
 			}
 
+			_sounds.PlayFailed();
 			_resultTitle.SetKey("result.failed_title");
 			_breakdownText.text = _services.Localization.Get(reasonKey);
 			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
@@ -446,6 +464,7 @@ namespace NightCourier.UI
 				text.Append(localization.Get("result.rank_promoted", localization.Get(_campaign.Rank.TitleKey)));
 			}
 
+			_sounds.PlayDelivered();
 			_breakdownText.text = text.ToString();
 			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
 

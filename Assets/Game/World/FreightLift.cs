@@ -15,6 +15,12 @@ namespace NightCourier.World
 
 		private WarehouseFacts _facts;
 
+		public Transform PlatformTransform => _elevator.transform;
+
+		public event Action RideStarted;
+
+		public event Action RideCompleted;
+
 		public void Bind(WarehouseFacts facts)
 		{
 			Unbind();
@@ -23,8 +29,8 @@ namespace NightCourier.World
 
 			_facts.Changed += Refresh;
 			_console.Interacted += OnInteracted;
-			_elevator.RideStarted += OnRideChanged;
-			_elevator.RideCompleted += OnRideChanged;
+			_elevator.RideStarted += OnRideStarted;
+			_elevator.RideCompleted += OnRideCompleted;
 
 			Refresh();
 		}
@@ -49,8 +55,8 @@ namespace NightCourier.World
 
 			if (_elevator != null)
 			{
-				_elevator.RideStarted -= OnRideChanged;
-				_elevator.RideCompleted -= OnRideChanged;
+				_elevator.RideStarted -= OnRideStarted;
+				_elevator.RideCompleted -= OnRideCompleted;
 			}
 		}
 
@@ -59,9 +65,16 @@ namespace NightCourier.World
 			_console.SetAvailable(_facts.PowerOn && !_elevator.IsMoving);
 		}
 
-		private void OnRideChanged(int stop)
+		private void OnRideStarted(int stop)
 		{
 			Refresh();
+			RideStarted?.Invoke();
+		}
+
+		private void OnRideCompleted(int stop)
+		{
+			Refresh();
+			RideCompleted?.Invoke();
 		}
 
 		private void OnInteracted()

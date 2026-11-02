@@ -1,4 +1,6 @@
 using System;
+using NightCourier.Audio;
+using RD.Audio;
 using RD.Localization;
 using RD.PrefabWindows;
 using UnityEngine;
@@ -11,8 +13,14 @@ namespace NightCourier.UI
 		public const string ConfirmKey = "common.confirm";
 		public const string CancelKey = "common.cancel";
 
-		public ConfirmArguments(ILocalizationService localization, string titleKey, string messageKey, Action onConfirm)
+		public ConfirmArguments(
+			ILocalizationService localization,
+			AudioService audio,
+			string titleKey,
+			string messageKey,
+			Action onConfirm)
 		{
+			Audio = audio ?? throw new ArgumentNullException(nameof(audio));
 			Localization = localization ?? throw new ArgumentNullException(nameof(localization));
 			TitleKey = titleKey ?? throw new ArgumentNullException(nameof(titleKey));
 			MessageKey = messageKey ?? throw new ArgumentNullException(nameof(messageKey));
@@ -20,6 +28,8 @@ namespace NightCourier.UI
 		}
 
 		public ILocalizationService Localization { get; }
+
+		public AudioService Audio { get; }
 
 		public string TitleKey { get; }
 
@@ -32,6 +42,7 @@ namespace NightCourier.UI
 	{
 		public const string WindowId = "confirm";
 
+		[SerializeField] private UiSounds _sounds;
 		[SerializeField] private LocalizedLabel _title;
 		[SerializeField] private LocalizedLabel _message;
 		[SerializeField] private LocalizedLabel _confirmLabel;
@@ -49,6 +60,8 @@ namespace NightCourier.UI
 
 		protected override void OnOpen(ConfirmArguments arguments)
 		{
+			_sounds.Bind(arguments.Audio);
+
 			_title.Bind(arguments.Localization);
 			_message.Bind(arguments.Localization);
 			_confirmLabel.Bind(arguments.Localization);

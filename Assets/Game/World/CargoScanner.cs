@@ -20,6 +20,8 @@ namespace NightCourier.World
 		private CountdownTimer _timer;
 		private WarehouseFacts _facts;
 
+		public event Action ScanStarted;
+
 		public bool IsScanning => _timer != null && _timer.IsRunning;
 
 		public float Progress => _timer == null ? 0f : (float)_timer.Progress;
@@ -84,6 +86,7 @@ namespace NightCourier.World
 			if (shouldScan && _timer.State == CountdownTimerState.Idle)
 			{
 				_timer.Restart();
+				ScanStarted?.Invoke();
 			}
 			else if (!shouldScan && _timer.State == CountdownTimerState.Running)
 			{

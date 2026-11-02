@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using NightCourier.App;
+using NightCourier.Audio;
 using RD.DependencyInjection;
 using RD.Foundation;
 using RD.PrefabWindows;
@@ -13,6 +14,7 @@ namespace NightCourier.UI
 {
 	public sealed class MainMenuEntry : MonoBehaviour, ISceneEntry
 	{
+		[SerializeField] private UiSounds _uiSounds;
 		[SerializeField] private PanelScreen _mainScreen;
 		[SerializeField] private PanelScreen _settingsScreen;
 		[SerializeField] private Button _newGameButton;
@@ -35,6 +37,7 @@ namespace NightCourier.UI
 
 			LocalizedLabel.BindAll(gameObject, services.Localization);
 			_settingsView.Bind(services.Settings);
+			_uiSounds.Bind(services.Audio);
 
 			_continueButton.interactable = services.Campaign.HasSave;
 
@@ -120,6 +123,7 @@ namespace NightCourier.UI
 
 			ConfirmArguments arguments = new(
 				_services.Localization,
+				_services.Audio,
 				"confirm.new_game.title",
 				"confirm.new_game.message",
 				StartNewGame);

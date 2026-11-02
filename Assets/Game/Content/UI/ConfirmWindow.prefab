@@ -201,6 +201,7 @@ GameObject:
   - component: {fileID: 4373803616583550722}
   - component: {fileID: 1952483660718683342}
   - component: {fileID: 6342500676391070423}
+  - component: {fileID: 2652331466307977008}
   m_Layer: 0
   m_Name: ConfirmWindow
   m_TagString: Untagged
@@ -295,12 +296,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.ConfirmWindow
   _transitionDuration: 0.15
   _hiddenScale: 0.96
+  _sounds: {fileID: 2652331466307977008}
   _title: {fileID: 2567118868458758669}
   _message: {fileID: 53741157856631376}
   _confirmLabel: {fileID: 946246539284575879}
   _cancelLabel: {fileID: 3591513571352997774}
   _confirmButton: {fileID: 4534366431364424311}
   _cancelButton: {fileID: 1203041149453373793}
+--- !u!114 &2652331466307977008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2751106893445089239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 967671839dd7da848a9f4f8f982ee7ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Audio.UiSounds
+  _click: {fileID: 11400000, guid: d9955d4e148cc474997c434c02cb9102, type: 2}
+  _confirm: {fileID: 11400000, guid: 4b502f504c9f04942909110a28d786db, type: 2}
+  _back: {fileID: 11400000, guid: b3d7c4cb0a5a9b44496957532f47870f, type: 2}
+  _open: {fileID: 11400000, guid: 7dd0f0fe6f15f744f91071f8c6ab26e4, type: 2}
 --- !u!1 &4464682052726128307
 GameObject:
   m_ObjectHideFlags: 0

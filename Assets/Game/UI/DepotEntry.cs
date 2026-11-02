@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using NightCourier.App;
+using NightCourier.Audio;
 using NightCourier.Contracts;
 using NightCourier.Economy;
 using NightCourier.Player;
 using NightCourier.Weapons;
+using RD.Audio;
 using RD.DependencyInjection;
 using RD.Foundation;
 using UnityEngine;
@@ -15,8 +17,11 @@ namespace NightCourier.UI
 	public sealed class DepotEntry : MonoBehaviour, ISceneEntry
 	{
 		private const string AcceptKey = "contract.accept";
+		private const float AmbienceFadeSeconds = 0.5f;
 
 		[SerializeField] private PlayerSession _player;
+		[SerializeField] private UiSounds _uiSounds;
+		[SerializeField] private AudioCue _ambience;
 		[SerializeField] private InteractionPromptView _promptView;
 		[SerializeField] private ObjectiveView _objective;
 		[SerializeField] private PlayerVitalsView _vitalsView;
@@ -47,6 +52,7 @@ namespace NightCourier.UI
 		private PlayerCarry _carry;
 		private ContractSpec _selected;
 		private IDisposable _terminalScope;
+		private AudioVoiceHandle _ambienceVoice;
 
 		public void Enter(GameServices services, IObjectResolver scene)
 		{
@@ -73,6 +79,8 @@ namespace NightCourier.UI
 			_upgradeTerminal.Bind(services, _campaign, _player);
 			_equipmentLocker.Bind(services, _campaign);
 			_medkitHud.Bind(services.Localization, _player.Medkits);
+			_uiSounds.Bind(services.Audio);
+			_ambienceVoice = services.Audio.Play(_ambience);
 
 			_terminal.Interacted += OpenTerminal;
 			_van.Interacted += OnVanUsed;
@@ -90,6 +98,7 @@ namespace NightCourier.UI
 		private void OnDestroy()
 		{
 			_terminalScope?.Dispose();
+			_ambienceVoice.TryStop(AmbienceFadeSeconds);
 
 			if (_terminal != null)
 			{
@@ -134,6 +143,7 @@ namespace NightCourier.UI
 
 			_terminalScope = _services.Input.PushMenu(CloseTerminal);
 			_terminalPanel.SetActive(true);
+			_uiSounds.PlayOpen();
 
 			RefreshTerminal();
 		}

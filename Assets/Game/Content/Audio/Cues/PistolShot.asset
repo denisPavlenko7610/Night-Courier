@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 349ba30805614f1d87a24bf2a6773073, type: 3}
+  m_Name: PistolShot
+  m_EditorClassIdentifier: RD.Audio::RD.Audio.AudioCue
+  _clips:
+  - _clip: {fileID: 8300000, guid: 555da1ec97b97bc44a13dc72f5ea4571, type: 3}
+    _weight: 1
+  - _clip: {fileID: 8300000, guid: 1d7cbefe4f91565499fed1d8b5d6cc8c, type: 3}
+    _weight: 1
+  - _clip: {fileID: 8300000, guid: 6b2d9f984563e8a49b984caa20335e3e, type: 3}
+    _weight: 1
+  - _clip: {fileID: 8300000, guid: ab7c33cf1a2f10b4b842d2325535ecb0, type: 3}
+    _weight: 1
+  - _clip: {fileID: 8300000, guid: a611cae3e639d5d4d82d165f6e044f3e, type: 3}
+    _weight: 1
+  _output: {fileID: 0}
+  _ignoreListenerPause: 0
+  _loop: 0
+  _priority: 60
+  _volumeRange: {x: 0.55, y: 0.65}
+  _pitchRange: {x: 0.95, y: 1.05}
+  _spatialBlend: 0
+  _panStereo: 0
+  _dopplerLevel: 1
+  _spread: 0
+  _rolloffMode: 0
+  _minDistance: 1
+  _maxDistance: 30
+  _fadeInSeconds: 0
+  _fadeOutSeconds: 0
+  _maxInstances: 4
+  _cooldownSeconds: 0

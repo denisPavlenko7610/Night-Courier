@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 349ba30805614f1d87a24bf2a6773073, type: 3}
+  m_Name: DoorClose
+  m_EditorClassIdentifier: RD.Audio::RD.Audio.AudioCue
+  _clips:
+  - _clip: {fileID: 8300000, guid: 540c8d0d900bd6f41b846964d07a5a08, type: 3}
+    _weight: 1
+  - _clip: {fileID: 8300000, guid: d85b56dd69f27e0439139a207752cd7b, type: 3}
+    _weight: 1
+  - _clip: {fileID: 8300000, guid: 7f9402b477e75d44c9f33b8b65832c43, type: 3}
+    _weight: 1
+  _output: {fileID: 0}
+  _ignoreListenerPause: 0
+  _loop: 0
+  _priority: 100
+  _volumeRange: {x: 0.8, y: 0.8}
+  _pitchRange: {x: 0.95, y: 1.05}
+  _spatialBlend: 1
+  _panStereo: 0
+  _dopplerLevel: 1
+  _spread: 0
+  _rolloffMode: 0
+  _minDistance: 3
+  _maxDistance: 35
+  _fadeInSeconds: 0
+  _fadeOutSeconds: 0
+  _maxInstances: 3
+  _cooldownSeconds: 0

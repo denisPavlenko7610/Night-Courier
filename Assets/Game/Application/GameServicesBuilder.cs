@@ -1,3 +1,4 @@
+using RD.Audio;
 using NightCourier.Controls;
 using RD.Localization;
 using RD.Pause;
@@ -19,5 +20,7 @@ namespace NightCourier.App
 		public GameInput Input { get; set; }
 
 		public IPauseService Pause { get; set; }
+
+		public AudioService Audio { get; set; }
 	}
 }

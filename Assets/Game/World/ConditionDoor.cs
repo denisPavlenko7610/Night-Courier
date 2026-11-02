@@ -18,6 +18,16 @@ namespace NightCourier.World
 
 		public bool IsOpen => _door.IsOpen;
 
+		public event Action<ConditionDoor> Opened;
+
+		public event Action<ConditionDoor> Closed;
+
+		private void Awake()
+		{
+			_door.Opened += OnDoorOpened;
+			_door.Closed += OnDoorClosed;
+		}
+
 		public void Bind(WarehouseFacts facts, ConditionEngine engine, ConditionRule rule)
 		{
 			Unbind();
@@ -34,7 +44,23 @@ namespace NightCourier.World
 
 		private void OnDestroy()
 		{
+			if (_door != null)
+			{
+				_door.Opened -= OnDoorOpened;
+				_door.Closed -= OnDoorClosed;
+			}
+
 			Unbind();
+		}
+
+		private void OnDoorOpened()
+		{
+			Opened?.Invoke(this);
+		}
+
+		private void OnDoorClosed()
+		{
+			Closed?.Invoke(this);
 		}
 
 		private void Unbind()

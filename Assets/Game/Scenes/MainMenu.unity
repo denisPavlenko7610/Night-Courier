@@ -223,6 +223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbc1cd0fcccebc948a3a6d18ba11837f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.MainMenuEntry
+  _uiSounds: {fileID: 1178322592}
   _mainScreen: {fileID: 2027810952}
   _settingsScreen: {fileID: 1258689676}
   _newGameButton: {fileID: 295858239}
@@ -2638,6 +2639,7 @@ GameObject:
   - component: {fileID: 1178322591}
   - component: {fileID: 1178322590}
   - component: {fileID: 1178322589}
+  - component: {fileID: 1178322592}
   m_Layer: 0
   m_Name: PH_Canvas
   m_TagString: Untagged
@@ -2731,6 +2733,22 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &1178322592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1178322587}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 967671839dd7da848a9f4f8f982ee7ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Audio.UiSounds
+  _click: {fileID: 11400000, guid: d9955d4e148cc474997c434c02cb9102, type: 2}
+  _confirm: {fileID: 11400000, guid: 4b502f504c9f04942909110a28d786db, type: 2}
+  _back: {fileID: 11400000, guid: b3d7c4cb0a5a9b44496957532f47870f, type: 2}
+  _open: {fileID: 11400000, guid: 7dd0f0fe6f15f744f91071f8c6ab26e4, type: 2}
 --- !u!1 &1258689672
 GameObject:
   m_ObjectHideFlags: 0

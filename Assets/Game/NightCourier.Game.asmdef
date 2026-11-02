@@ -3,6 +3,7 @@
     "rootNamespace": "NightCourier",
     "references": [
         "RD.Attributes",
+        "RD.Audio",
         "RD.Foundation",
         "RD.Startup",
         "RD.SceneFlow",

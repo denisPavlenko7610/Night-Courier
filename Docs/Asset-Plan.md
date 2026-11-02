@@ -532,7 +532,9 @@ Clinic/Lab kit, Apartment/City kit, first-person arms, weapon/tool kit, decals.
 
 ### 6.3 Gate
 
-No sourcing until: the MVP loop is fun, and for the road assets (roads, van) additionally until Road Alpha proves that driving is worth building on. If a milestone fails, spend the effort on gameplay, not art.
+Default: no sourcing until the MVP loop is fun, and for the road assets (roads, van) additionally until Road Alpha proves that driving is worth building on. If a milestone fails, spend the effort on gameplay, not art.
+
+The user lifted the gate on 2026-11-02 and told the agent to import suitable free assets in place of placeholders. Sound was done first (Kenney CC0 packs). The road assets still wait for Road Alpha.
 
 ### 6.4 Free Asset Rules
 
@@ -594,7 +596,12 @@ Keep a record of every non-primitive asset: source, license, and status. Add row
 
 | Asset | Replaces | Author | Source URL | License | Attribution required (text) | Date checked | Status |
 |---|---|---|---|---|---|---|---|
-| — | — | — | — | — | — | — | — |
+| Kenney Impact Sounds (1.0), 21 of 130 clips used | No sound (new) | Kenney | https://kenney.nl/assets/impact-sounds | CC0 | None (credit appreciated) | 2026-11-02 | Final |
+| Kenney Interface Sounds, 9 of 100 clips used | No sound (new) | Kenney | https://kenney.nl/assets/interface-sounds | CC0 | None (credit appreciated) | 2026-11-02 | Final |
+| Kenney Sci-Fi Sounds, 23 of 74 clips used | No sound (new) | Kenney | https://kenney.nl/assets/sci-fi-sounds | CC0 | None (credit appreciated) | 2026-11-02 | Final |
+| Kenney Digital Audio, 6 of 63 clips used | No sound (new) | Kenney | https://kenney.nl/assets/digital-audio | CC0 | None (credit appreciated) | 2026-11-02 | Final |
+| Kenney RPG Audio, 5 of 51 clips used | No sound (new) | Kenney | https://kenney.nl/assets/rpg-audio | CC0 | None (credit appreciated) | 2026-11-02 | Final |
+| `Ambience_Warehouse.wav`, `Ambience_Depot.wav` | No sound (new) | In-house (generated noise and hum) | — | Project-owned | None | 2026-11-02 | Blockout |
 
 Status values: `Placeholder`, `Blockout`, `Final`.
 

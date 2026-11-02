@@ -1,5 +1,6 @@
 using System;
 using NightCourier.App;
+using NightCourier.Audio;
 using RD.Foundation;
 using RD.Input;
 using RD.PrefabWindows;
@@ -13,6 +14,7 @@ namespace NightCourier.UI
 	{
 		private const string PauseReason = "pause-menu";
 
+		[SerializeField] private UiSounds _uiSounds;
 		[SerializeField] private GameObject _root;
 		[SerializeField] private PanelScreen _mainScreen;
 		[SerializeField] private PanelScreen _settingsScreen;
@@ -51,6 +53,7 @@ namespace NightCourier.UI
 
 			LocalizedLabel.BindAll(gameObject, services.Localization);
 			_settingsView.Bind(services.Settings);
+			_uiSounds.Bind(services.Audio);
 
 			_leaveButton.gameObject.SetActive(leaveAction != null);
 
@@ -92,6 +95,7 @@ namespace NightCourier.UI
 			_menuScope = _services.Input.PushMenu(OnCancel);
 
 			_root.SetActive(true);
+			_uiSounds.PlayOpen();
 
 			Run(() => _navigator.PushAsync(_mainScreen.Id));
 		}
@@ -105,6 +109,7 @@ namespace NightCourier.UI
 
 			IsOpen = false;
 
+			_uiSounds.PlayBack();
 			_menuScope?.Dispose();
 			_pauseHandle?.Dispose();
 			_menuScope = null;
@@ -180,7 +185,7 @@ namespace NightCourier.UI
 
 		private void Confirm(string titleKey, string messageKey, Action onConfirm)
 		{
-			ConfirmArguments arguments = new(_services.Localization, titleKey, messageKey, onConfirm);
+			ConfirmArguments arguments = new(_services.Localization, _services.Audio, titleKey, messageKey, onConfirm);
 
 			Run(() => _windows.OpenAsync(ConfirmWindow.WindowId, arguments));
 		}

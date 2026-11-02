@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 349ba30805614f1d87a24bf2a6773073, type: 3}
+  m_Name: AmbienceWarehouse
+  m_EditorClassIdentifier: RD.Audio::RD.Audio.AudioCue
+  _clips:
+  - _clip: {fileID: 8300000, guid: 7b70cadc0a6380f44b381a083d5fc2a3, type: 3}
+    _weight: 1
+  _output: {fileID: 0}
+  _ignoreListenerPause: 0
+  _loop: 1
+  _priority: 200
+  _volumeRange: {x: 0.6, y: 0.6}
+  _pitchRange: {x: 1, y: 1}
+  _spatialBlend: 0
+  _panStereo: 0
+  _dopplerLevel: 1
+  _spread: 0
+  _rolloffMode: 0
+  _minDistance: 1
+  _maxDistance: 30
+  _fadeInSeconds: 0
+  _fadeOutSeconds: 0
+  _maxInstances: 1
+  _cooldownSeconds: 0

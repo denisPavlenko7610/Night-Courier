@@ -1,5 +1,6 @@
 using System;
 using NightCourier.App;
+using NightCourier.Audio;
 using NightCourier.Economy;
 using NightCourier.Player;
 using RD.Foundation;
@@ -12,6 +13,7 @@ namespace NightCourier.UI
 	{
 		private const string CreditsKey = "depot.credits";
 
+		[SerializeField] private UiSounds _sounds;
 		[SerializeField] private Interactable _terminal;
 		[SerializeField] private GameObject _panel;
 		[SerializeField] private Button _closeButton;
@@ -37,6 +39,7 @@ namespace NightCourier.UI
 			}
 
 			_terminal.Interacted += Open;
+			_sounds.Bind(services.Audio);
 			_closeButton.onClick.AddListener(Close);
 			_panel.SetActive(false);
 		}
@@ -62,6 +65,7 @@ namespace NightCourier.UI
 
 			_scope = _services.Input.PushMenu(Close);
 			_panel.SetActive(true);
+			_sounds.PlayOpen();
 
 			Refresh();
 		}

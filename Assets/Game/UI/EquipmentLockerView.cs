@@ -1,5 +1,6 @@
 using System;
 using NightCourier.App;
+using NightCourier.Audio;
 using NightCourier.Loadout;
 using NightCourier.Player;
 using NightCourier.Weapons;
@@ -35,6 +36,7 @@ namespace NightCourier.UI
 		private const int SecondUtilityRow = 4;
 		private const int RowCount = 5;
 
+		[SerializeField] private UiSounds _sounds;
 		[SerializeField] private Interactable _locker;
 		[SerializeField] private GameObject _panel;
 		[SerializeField] private Button _closeButton;
@@ -57,6 +59,7 @@ namespace NightCourier.UI
 			}
 
 			_locker.Interacted += Open;
+			_sounds.Bind(services.Audio);
 			_closeButton.onClick.AddListener(Close);
 			_panel.SetActive(false);
 		}
@@ -82,6 +85,7 @@ namespace NightCourier.UI
 
 			_scope = _services.Input.PushMenu(Close);
 			_panel.SetActive(true);
+			_sounds.PlayOpen();
 
 			Refresh();
 		}

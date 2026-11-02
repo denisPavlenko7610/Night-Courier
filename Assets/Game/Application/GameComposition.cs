@@ -27,6 +27,7 @@ namespace NightCourier.App
 			builder.RegisterInstance(startup.Campaign ?? throw new InvalidOperationException("The campaign has not been started."));
 			builder.RegisterInstance(startup.Input ?? throw new InvalidOperationException("Input has not been started."));
 			builder.RegisterInstance(startup.Pause ?? throw new InvalidOperationException("Pause has not been started."));
+			builder.RegisterInstance(startup.Audio ?? throw new InvalidOperationException("Audio has not been started."));
 			builder.Register<GameServices>(Lifetime.Singleton);
 
 			RegisterWarehouse(builder);

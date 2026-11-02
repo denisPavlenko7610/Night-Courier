@@ -1,5 +1,6 @@
 using System;
 using NightCourier.App;
+using NightCourier.Audio;
 using NightCourier.Controls;
 using NightCourier.Economy;
 using NightCourier.Weapons;
@@ -18,6 +19,7 @@ namespace NightCourier.Player
 		[SerializeField] private PlayerWeapons _weapons;
 		[SerializeField] private PlayerMedkits _medkits;
 		[SerializeField] private DamageOverTime _contamination;
+		[SerializeField] private PlayerAudio _sounds;
 
 		private GameInput _input;
 		private IDisposable _gameplayScope;
@@ -56,6 +58,7 @@ namespace NightCourier.Player
 			_heavy.Bind(services.Input.Actions);
 			_weapons.Bind(services.Input.Actions);
 			_medkits.Bind(services.Input.Actions);
+			_sounds.Bind(services.Audio);
 			_gameplayScope = services.Input.PushGameplay();
 
 			_vitals.Died += OnDied;
