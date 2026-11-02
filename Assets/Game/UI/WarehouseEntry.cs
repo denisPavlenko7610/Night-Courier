@@ -320,7 +320,7 @@ namespace NightCourier.UI
 						break;
 					case EscalationEffect.PackageHazardous:
 						_package.Hazard.Activate(_player.Contamination);
-						_sounds.PlayHazard();
+						_sounds.PlayHazard(_package.transform.position);
 						_packageHud.Notify("notice.package_hazardous");
 						break;
 					case EscalationEffect.FailContract:

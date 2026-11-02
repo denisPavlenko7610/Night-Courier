@@ -2699,6 +2699,8 @@ MonoBehaviour:
   - {fileID: 1309050447}
   _lift: {fileID: 2143822907}
   _scanner: {fileID: 152237537}
+  _leverPoint: {fileID: 445019719}
+  _generatorPoint: {fileID: 1277572370}
   _doorOpen: {fileID: 11400000, guid: e70547a67796f5946a652800d2325f4e, type: 2}
   _doorClose: {fileID: 11400000, guid: 18b2a327aae0e7a43b2a51c0d40210ff, type: 2}
   _lever: {fileID: 11400000, guid: 3999f6eaeff30f144ad4b4cf2275ab32, type: 2}

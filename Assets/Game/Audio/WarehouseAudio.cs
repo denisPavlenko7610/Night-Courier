@@ -13,6 +13,8 @@ namespace NightCourier.Audio
 		[SerializeField] private ConditionDoor[] _doors = Array.Empty<ConditionDoor>();
 		[SerializeField] private FreightLift _lift;
 		[SerializeField] private CargoScanner _scanner;
+		[SerializeField] private Transform _leverPoint;
+		[SerializeField] private Transform _generatorPoint;
 		[SerializeField] private AudioCue _doorOpen;
 		[SerializeField] private AudioCue _doorClose;
 		[SerializeField] private AudioCue _lever;
@@ -40,6 +42,11 @@ namespace NightCourier.Audio
 		public void Bind(AudioService audio, WarehouseFacts facts)
 		{
 			Unbind();
+
+			if (_leverPoint == null || _generatorPoint == null)
+			{
+				throw new InvalidOperationException("The warehouse audio needs the lever and generator points.");
+			}
 
 			_audio = audio ?? throw new ArgumentNullException(nameof(audio));
 			_facts = facts ?? throw new ArgumentNullException(nameof(facts));
@@ -98,9 +105,9 @@ namespace NightCourier.Audio
 			_audio.Play(_unstable);
 		}
 
-		public void PlayHazard()
+		public void PlayHazard(Vector3 position)
 		{
-			_audio.Play(_hazard);
+			_audio.PlayAt(_hazard, position);
 		}
 
 		public void PlayAlarm(Vector3 position)
@@ -132,13 +139,13 @@ namespace NightCourier.Audio
 		{
 			if (_facts.PowerOn && !_powerOn)
 			{
-				_audio.PlayAt(_lever, _lift.transform.position);
-				_audio.Play(_generator);
+				_audio.PlayAt(_lever, _leverPoint.position);
+				_audio.PlayAt(_generator, _generatorPoint.position);
 			}
 
 			if (_facts.BatteryInserted && !_batteryInserted)
 			{
-				_audio.Play(_battery);
+				_audio.PlayAt(_battery, _generatorPoint.position);
 			}
 
 			_powerOn = _facts.PowerOn;

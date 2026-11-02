@@ -180,10 +180,22 @@ namespace NightCourier.Audio
 
 			if (now != _carrying)
 			{
-				_audio.Play(now ? _pickUp : _drop);
+				PlayCarry(now);
 			}
 
 			_carrying = now;
+		}
+
+		private void PlayCarry(bool pickedUp)
+		{
+			if (pickedUp)
+			{
+				_audio.Play(_pickUp);
+			}
+			else
+			{
+				_audio.PlayAt(_drop, transform.position);
+			}
 		}
 
 		private void OnHeavyChanged()
@@ -192,7 +204,7 @@ namespace NightCourier.Audio
 
 			if (now != _heavyCarrying)
 			{
-				_audio.Play(now ? _pickUp : _drop);
+				PlayCarry(now);
 			}
 
 			_heavyCarrying = now;
