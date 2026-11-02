@@ -76,12 +76,10 @@ namespace NightCourier.Contracts
 				throw new ArgumentNullException(nameof(spec));
 			}
 
-			int packageViolations = Math.Max(0, outcome.ViolationCount - outcome.PropertyDamageCount);
-
 			return new ShiftRating(
 				DeliveryGrade(spec, outcome),
 				CargoGrade(outcome.CargoIntegrity),
-				ByCount(packageViolations, ProtocolByViolations),
+				ByCount(outcome.PackageViolationCount, ProtocolByViolations),
 				ByCount(outcome.PropertyDamageCount, PropertyByEvents));
 		}
 

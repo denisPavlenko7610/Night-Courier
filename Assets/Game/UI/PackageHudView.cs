@@ -10,6 +10,7 @@ namespace NightCourier.UI
 	public sealed class PackageHudView : MonoBehaviour
 	{
 		private const float NoticeSeconds = 3f;
+		private const float AnnounceSeconds = 7f;
 		private const int MaxNoticeLines = 3;
 		private const string RulesKey = "hud.package_rules";
 		private const string IntegrityKey = "hud.package_integrity";
@@ -54,6 +55,16 @@ namespace NightCourier.UI
 
 		public void Notify(string key, params object[] arguments)
 		{
+			Show(_localization.Get(key, arguments), NoticeSeconds);
+		}
+
+		public void Announce(string key)
+		{
+			Show(_localization.Get(key), AnnounceSeconds);
+		}
+
+		private void Show(string text, float seconds)
+		{
 			if (_noticeRemaining <= 0f)
 			{
 				_noticeLines.Clear();
@@ -63,10 +74,10 @@ namespace NightCourier.UI
 				_noticeLines.RemoveAt(0);
 			}
 
-			_noticeLines.Add(_localization.Get(key, arguments));
+			_noticeLines.Add(text);
 			_notice.gameObject.SetActive(true);
 			_notice.SetKey(NoticeKey, string.Join("\n", _noticeLines));
-			_noticeRemaining = NoticeSeconds;
+			_noticeRemaining = Mathf.Max(_noticeRemaining, seconds);
 		}
 
 		private void Update()

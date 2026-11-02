@@ -16,6 +16,11 @@ change is genuinely required, first identify the minimal reason, then change the
 
 ## Next Up (Recommended Order)
 
+The current ordered task list, with acceptance checks, is [NightCourier_NextSteps.md](NightCourier_NextSteps.md); the
+status and M0–M4 roadmap are in [GDD.md](GDD.md) section 0. The last pass added the settlement guards, the shadow-aware
+light field (`LightReach`), the contract briefing, the scan and delivery hints, cause-naming damage notices, and the
+improvement lines on the result screen.
+
 All modules and mechanics are installed (10 RD packages: Foundation, seven kits, and two demo-support packages, see
 [../TEMPLATE-PACKAGES.md](../TEMPLATE-PACKAGES.md); Haptics sits inside the Presentation kit and stays unused); integration
 still goes one feature at a time.
@@ -485,10 +490,10 @@ The slice is not done on a feature count. It is done when these also hold; each 
 | Criterion | Evidence so far |
 |---|---|
 | Every contract has its own goal, risk, and at least one differing player action, not only a different payout | Data and Play Mode runs per contract (Phase 13). A fresh playtester explaining in their own words how the five contracts differ is not yet done |
-| Cargo damage and rule violations are reproducible, explained, and shown honestly | Reproducibility was checked per rule in stepped Play Mode (Phase 4). The result screen shows the deduction lines, the overall rating, and the four axis grades; the raw violation count and final integrity are not shown as numbers yet |
+| Cargo damage and rule violations are reproducible, explained, and shown honestly | Reproducibility was checked per rule in stepped Play Mode (Phase 4). Damage notices now name the cause (impact or electric floor) and size, and the result screen shows the deduction lines, the rating and axes, the violation count, final integrity, property damage, and deaths |
 | At least one contract can be finished without firing | Stowing the pistol in the Equipment Locker gives a no-shots run (Phase 10) |
-| Failure, death, abort, replay, and quitting never cause a double payout, a lost profile, or a blocked UI | EditMode: a failed contract returns to Available with no reward (`ContractBoardTests`); the payout grant id includes the completion count. Abort and menu paths were exercised in Play Mode (Phase 2b). Quitting during settlement and repeated retry are not exercised |
-| The result screen tells the player what to change next time, not only the numbers | Not done: the screen lists lines and ratings, with no improvement hint |
+| Failure, death, abort, replay, and quitting never cause a double payout, a lost profile, or a blocked UI | EditMode (`ContractBoardTests`, `CampaignFlowTests`): a failed contract returns to Available with no reward and pays once on retry, a second delivery callback and concurrent settlements pay once, an abort during settlement is refused, and a save taken mid-run restores to a clean Depot. Played (editor-driven): double Accept, double delivery press, double Return, abort ignored while delivered, the Depot recovering from a stuck run, failure at the fourth violation and retry, Continue restoring credits, rank, and contracts. Not exercised: real input, the Death path this pass, a failed disk write |
+| The result screen tells the player what to change next time, not only the numbers | Done: up to three improvement lines from `SettlementAdvice` (per broken rule, overdue, cargo, property damage, death, or "clean run"). Whether players act on them is part of the first-time-player playtest (NightCourier_NextSteps.md task 1) |
 
 ---
 

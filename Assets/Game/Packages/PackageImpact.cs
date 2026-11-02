@@ -29,7 +29,7 @@ namespace NightCourier.Packages
 	{
 		private const string DamageSourceId = "package.impact";
 
-		private static readonly DamageTypeId ImpactDamageType = new("impact");
+		private static readonly DamageTypeId ImpactDamageType = new(PackageDamageKeys.ImpactType);
 
 		[SerializeField] private PickupItem _item;
 		[SerializeField] private HealthCarrier _health;

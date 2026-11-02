@@ -23,6 +23,77 @@ Companion documents:
 
 ---
 
+## 0. Status, Approved Design, and Roadmap
+
+Night Courier is a game about delivering hard cargo into dangerous industrial buildings, not a demo of every template module. The rest of this document is the approved design; this section separates what runs today from what is only designed, and sets the next steps. Every status below was checked against the code and assets in the repository; "played" means exercised in Play Mode through editor-driven scripts (state-driven steps, not real keyboard, mouse, or gamepad input).
+
+### 0.1 Labels
+
+| Label | Meaning |
+|---|---|
+| **Working** | Implemented in `Assets/Game`, configured in a scene or asset, and played in the last verification pass |
+| **Approved** | Decided design (sections 1–24), not built yet, or built and not yet played |
+| **Proposed** | Ideas to evaluate only after the MVP loop is fun; never implemented on the strength of this line alone |
+
+### 0.2 Working today (MVP, one Warehouse, no driving)
+
+| Area | State | Evidence |
+|---|---|---|
+| Loop: Main Menu → Depot → contract terminal → package pickup → van → Warehouse → power → scan → deliver → result → Depot | Working, played | Standard Delivery and Fragile end to end; Fragile failure at the fourth violation and its retry; Lights Out start and power-on |
+| Contracts | 5 data assets on the Warehouse | `Assets/Game/Content/Contracts` (ids `contract.standard-delivery`, `.fragile`, `.lights-out`, `.express`, `.restricted-cargo`) |
+| Package rules | `DoNotDrop`, `KeepInLight`, `DeliveryDeadline`, violation ladder 1 unstable / 2 enemy / 3 hazardous / 4 fail | `Assets/Game/Packages`, contract assets |
+| Location states | Normal and Blackout (battery, generator, breaker lever) | `WarehouseFacts`, `WarehouseLighting`, `BatteryCell`, `GeneratorSocket`, `PowerLever` |
+| Threats | Crawler (melee, alarm spawn) and Security Drone (patrol, bolts); both react to being shot | `Assets/Game/AI`, `EncounterGroup` |
+| Player tools | Stun Pistol, Crowbar, Medkit; emergency lockers as checkpoints; electric floor | `Assets/Game/Weapons`, `CourierLocker`, `PlayerVitals` |
+| Economy | Base pay, bonuses, ammo, property, and death deductions; shift rating (four axes); courier rank; three upgrades; equipment locker | `SettlementCalculator`, `ShiftRatingCalculator`, `CourierRank`, `CourierUpgrades`, `CourierLoadout` |
+| Save | One campaign slot: credits, quests, reward ledger, upgrades, loadout, rank; New Game confirms before replacing a save | `CampaignState`, `CampaignRepository` |
+| Briefing | The contract terminal lists risk, pay, site, package rules, time limit, bonuses, and known threats | `DepotEntry.BuildBriefing` |
+| In-run guidance | Objective line per step (including power and scanning states), rule announcement at the start, violation and damage notices with cause, refused delivery of an unscanned package | `ObjectiveHints`, `WarehouseEntry`, `PackageHudView` |
+| Result report | Settlement lines, rating and axes, rank change, violations, integrity, property damage, deaths, up to three improvement lines | `WarehouseEntry.ShowResult`, `SettlementAdvice` |
+
+Settlement safety (working, covered by EditMode tests and played): a payout is granted once per completion (grant id includes the completion count), a repeated delivery callback is rejected, an abort during settlement is ignored, a settlement or save failure still shows a panel and leaves the Depot enterable, and a Depot that finds an unfinished contract abandons it with a warning instead of failing to start.
+
+Still only a stub or not built: the drivable van and every road-tier system (section 3.2), Demo-tier rules, states, and contract types, archive, rebinding screen, glyph prompts, a first-time-player playtest, and the ten newer mechanics reserved in section 13.4.
+
+### 0.3 Three contract archetypes on the existing Warehouse
+
+No new contract is needed to cover the three archetypes. They already exist and differ in what the player must do.
+
+| Archetype | Contract | State, rules, threats | What changes in play |
+|---|---|---|---|
+| **Introduction**: a careful parcel, normal power, first meeting with the scanner | Standard Delivery (₡150, Low) | Normal, no rules, no enemies | Learn the loop: pick up, breaker panel, scanner plate, terminal. Nothing can go wrong except wandering into the electric floor |
+| **Blackout / keep in light**: power, battery, and light decide the route | Lights Out (₡260, Medium) and, harder, Restricted Cargo (₡450, High: adds Do Not Drop, a Drone, and a no-violations bonus) | Blackout, Keep In Light, Crawlers | The package is in the dark until the generator and breaker are fixed; the battery needs both hands and a trip through the barricade gap; every 10 s of darkness is a violation |
+| **Urgent**: deadline, one short dangerous route against a long safe one | Express (₡320, Medium) | Normal, Deliver On Time (300 s, bonus under 180 s), Security Drone | Route choice under a timer: the maintenance door and freight lift against the barricade, the electric strip, and the drone |
+
+Fragile (₡220, Do Not Drop, ladder) is the careful-handling variant between the introduction and the blackout.
+
+**Known weakness (to verify with a human).** A scripted run of the safe Express route took about 24 s against a 300 s deadline and a 180 s bonus window, so the timer likely never makes the short route tempting. Tuning the numbers (for example 120 s and 75 s) is a data change, but it needs timed human runs first; see Docs/NightCourier_NextSteps.md, task 2. Restricted Cargo and Express were not replayed in this pass.
+
+### 0.4 Win and fail criteria (current rules)
+
+- **Success:** the scanned package is delivered at the terminal. The payout is base pay plus met bonuses minus ammo, property, and death deductions, never below ₡0; the rating feeds the courier rank.
+- **Contract failure (no payout, the contract returns to Available):** the package is destroyed, the ladder reaches its fail step (violation 4 on Fragile, Lights Out, and Restricted Cargo), or the player aborts from the pause menu.
+- **Not a failure:** player death (respawn at the last locker, a ₡25 recovery fee, a dropped package counts as a Do Not Drop violation), an overdue Express (loses the bonus and grades time F), and property damage (a fine and a worse grade).
+- **Campaign progress:** a contract unlocks when its prerequisites are completed; all five contracts are single-use today, so a finished campaign shows "No contracts are available right now." Whether contracts become repeatable is an open design decision (task 6).
+
+### 0.5 Roadmap
+
+| Milestone | Goal | State |
+|---|---|---|
+| **M0 Reliability** | The existing loop never double-pays, loses the profile, or blocks the UI: abort, failure, death, repeat, save and load, double input, scene change during settlement | Done in this pass (EditMode and played); real-input soak and a Depot lost-package safety are open |
+| **M1 First-run clarity** | A first-time player understands the goal, the rule, the power step, the scanner, and the delivery without reading a document | Minimal version done (briefing, hints, scan and refusal feedback); the proof is a first-time-player playtest, not yet done |
+| **M2 Variety and consequences** | Contracts differ in what the player does; the result explains what to change | Result report done; archetype table verified on data; Express urgency needs tuning |
+| **M3 Replay and progression** | A reason to play past the fifth contract: repeatable or generated-by-combination contracts, rank unlocks, upgrades that need new hooks | Not started; needs user decisions |
+| **M4 Road tier gate** | Decide who owns vehicle driving, then Road Alpha (section 3.2) | Blocked on the open decision in Production-Plan.md; starts only when the MVP loop is fun |
+
+### 0.6 Verified and not verified
+
+Verified in this pass: EditMode suite (217 tests); Main Menu → New Game → Depot → accept (double click) → pickup → van → Warehouse → breaker → scan → deliver (double press) → result → Depot (double click on Return); Continue restoring credits, rank, and available contracts; failure at the fourth violation and the retry; abort ignored while settling; Depot recovery from a stuck run; briefing and result layouts at 2560×1440; the shipped Warehouse light field with power off and on across the hall.
+
+Not verified: real keyboard, mouse, or gamepad input; the Death path and the electric floor in Play Mode this pass; Express and Restricted Cargo replays; a first-time-player playtest; a Depot with a lost package (no cancel path); saving through a failed disk write; 16:9 resolutions other than 2560×1440.
+
+---
+
 ## 1. Project Goal: Template-First Development
 
 **The main goal of this project is to validate and exercise the existing `UnityTemplates` library in a real game.**
@@ -669,6 +740,10 @@ So a rule stops being `if (dropped) penalty++` and starts producing situations. 
 | **Do Not Stop the Vehicle** | Example: "If knocking begins, do not stop the vehicle." Stopping is a violation | Road tier |
 
 Each rule is a small independent component with three outcomes: `RuleSatisfied`, `RuleViolated`, and the package's `ViolationCount`. A package is never a single class containing every rule.
+
+**Light field.** Light rules read a light field that mirrors what the renderer shows (`LightReach`, `WarehouseLighting.IsLit`). Only enabled lights with intensity above zero count, so a blackout makes every point dark until the breaker restores the circuit. A point or spot light lights the points inside its range; a spot light also needs the point inside its cone; a directional light lights everything. A light that casts shadows is also blocked by geometry on the occluder layer mask (a line check from the light to the point, triggers ignored, default layer only so the player, the carried package, and enemies never block light); a light without shadows lights through walls, exactly as it renders. The shipped Warehouse has one unshadowed hall light (range 30) and one directional fill, both on the breaker circuit, so today the field is "lit while powered" everywhere in the hall, including the delivery room. A contract that needs a real dark zone adds a shadow-casting light (or a spot) in that room and the rule follows without code changes. Rectangle and disc area lights are not light sources for the rule.
+
+**Explainable consequences.** Every violation and every point of cargo damage is traceable to a visible cause. Working today: a HUD notice names the broken rule when it is broken, a separate notice names the cause and size of each cargo damage hit (impact or the electric floor, at most one per 1.5 s), delivering an unscanned package is refused with a notice, and the result screen lists each settlement line, the four axis grades, the rule violation count, final integrity, property damage, deaths, and up to three plain-language lines on what to change next time (`SettlementAdvice`). A rating never hides a penalty inside an unlisted formula.
 
 ### 7.3 Violation Ladder (Escalation)
 
@@ -1345,7 +1420,22 @@ The first delivery teaches by play, without constant popups:
 Pick up parcel → deliver to locker → door is locked → find keycard → enemy appears → return
 ```
 
-Each mechanic is introduced through play.
+Each mechanic is introduced through play. A single-line contextual hint on the first encounter (the scanner, a locked door, darkness, a cargo rule) is allowed through the HUD objective and notice lines when play alone does not teach it; there are no modal tutorial popups and no separate tutorial system.
+
+Working today: the contract terminal briefing lists the package rules, time limit, bonuses, and known threats before the job is accepted; the objective line says why the breaker panel matters ("the scanner, the lift, and the maintenance door run on it"), reacts to the scan ("Scanning... leave the package on the plate"), and tells the player to pick the scanned package up; each package rule announces itself in one line when the Warehouse loads; pressing the delivery terminal with an unscanned package explains what is missing instead of staying silent. Still unproven: that a first-time player understands all of this without help (task 1 in Docs/NightCourier_NextSteps.md).
+
+### 16.3 In-Run HUD
+
+Show the minimum the player needs and nothing more:
+
+- The active objective or next step.
+- Cargo integrity.
+- The cargo rule indicator: a darkness countdown or a deadline timer, only on contracts that have that rule.
+- Player health.
+- The relevant interaction prompt.
+- Weapon and ammo only while a weapon is usable.
+
+The delivery point and the key interactables are highlighted (17.1) so the player is not lost in the geometry.
 
 ---
 

@@ -25,6 +25,10 @@ namespace NightCourier.UI
 	public sealed class WarehouseEntry : MonoBehaviour, ISceneEntry
 	{
 		private const int LockerAmmoRefill = 8;
+		private const float DamageNoticeCooldownSeconds = 1.5f;
+		private const string ScanFirstKey = "notice.scan_first";
+		private const string SaveFailedKey = "result.save_failed";
+		private const string SettlementFailedKey = "result.settlement_failed";
 
 		[SerializeField] private PlayerSession _player;
 		[SerializeField] private WarehouseAudio _sounds;
@@ -67,6 +71,8 @@ namespace NightCourier.UI
 		private WarehouseFacts _facts;
 		private CargoPackage _package;
 		private IDisposable _resultScope;
+		private bool _wasScanning;
+		private float _lastDamageNoticeAt = float.NegativeInfinity;
 
 		public void Enter(GameServices services, IObjectResolver scene)
 		{
@@ -99,6 +105,7 @@ namespace NightCourier.UI
 			_sounds.Bind(services.Audio, _facts);
 			_uiSounds.Bind(services.Audio);
 			SpawnPackage();
+			AnnounceRules();
 
 			_deliveryPoint.Interacted += OnDelivered;
 			_carry.HeldChanged += RefreshWorld;
@@ -125,9 +132,20 @@ namespace NightCourier.UI
 
 			_run.Tick(Time.deltaTime);
 
-			if (_run.HasDeadline && _run.Phase == ContractPhase.InTransit)
+			if (_run.Phase != ContractPhase.InTransit)
 			{
-				_timerLabel.SetKey("warehouse.time_left", FormatClock(_run.RemainingSeconds));
+				return;
+			}
+
+			if (_run.HasDeadline)
+			{
+				_timerLabel.SetKey("warehouse.time_left", ClockText.Format(_run.RemainingSeconds));
+			}
+
+			if (_scanner.IsScanning != _wasScanning)
+			{
+				_wasScanning = _scanner.IsScanning;
+				RefreshWorld();
 			}
 		}
 
@@ -183,6 +201,7 @@ namespace NightCourier.UI
 			{
 				_package.Rules.Violated -= OnRuleViolated;
 				_package.Integrity.Changed -= OnIntegrityChanged;
+				_package.Integrity.Damaged -= OnPackageDamaged;
 				_package.Integrity.Destroyed -= OnPackageDestroyed;
 			}
 
@@ -292,16 +311,36 @@ namespace NightCourier.UI
 			_package.Rules.Violated += OnRuleViolated;
 			_run.PackageViolationRegistered += OnPackageViolation;
 			_package.Integrity.Changed += OnIntegrityChanged;
+			_package.Integrity.Damaged += OnPackageDamaged;
 			_package.Integrity.Destroyed += OnPackageDestroyed;
 
 			_packageHud.Bind(_services.Localization, _run.Spec.PackageRules);
+		}
+
+		private void AnnounceRules()
+		{
+			foreach (PackageRuleKind kind in _run.Spec.PackageRules)
+			{
+				_packageHud.Announce(PackageRuleKeys.HintKey(kind));
+			}
+		}
+
+		private void OnPackageDamaged(string damageType, float fractionLost)
+		{
+			if (_run.Phase != ContractPhase.InTransit || Time.unscaledTime - _lastDamageNoticeAt < DamageNoticeCooldownSeconds)
+			{
+				return;
+			}
+
+			_lastDamageNoticeAt = Time.unscaledTime;
+			_packageHud.Notify(PackageDamageKeys.NoticeKey(damageType), Mathf.Max(1, Mathf.RoundToInt(fractionLost * 100f)));
 		}
 
 		private void OnRuleViolated(PackageRuleKind kind)
 		{
 			_sounds.PlayViolation();
 			_packageHud.Notify("notice.rule_violated", _services.Localization.Get(PackageRuleKeys.NameKey(kind)));
-			_run.RegisterViolation();
+			_run.RegisterViolation(kind);
 		}
 
 		private void OnPackageViolation(int count)
@@ -376,20 +415,26 @@ namespace NightCourier.UI
 				Destroy(_package.gameObject);
 			}
 
+			ShowFailure(reasonKey);
+		}
+
+		private void ShowFailure(string reasonKey)
+		{
 			_sounds.PlayFailed();
 			_resultTitle.SetKey("result.failed_title");
 			_breakdownText.text = _services.Localization.Get(reasonKey);
 			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
 
-			_resultScope = _services.Input.PushMenu();
+			_resultScope ??= _services.Input.PushMenu();
 			_resultPanel.SetActive(true);
 		}
 
 		private void RefreshWorld()
 		{
 			bool carrying = _carry.IsCarrying;
+			bool inTransit = _run.Phase == ContractPhase.InTransit;
 
-			_deliveryPoint.SetAvailable(carrying && _facts.CargoScanned && _run.Phase == ContractPhase.InTransit);
+			_deliveryPoint.SetAvailable(carrying && inTransit);
 			_objective.Show(ObjectiveHints.ForLocation(
 				_run,
 				new WarehouseProgress(
@@ -398,33 +443,81 @@ namespace NightCourier.UI
 					_facts.CargoScanned,
 					_facts.BatteryRequired,
 					_facts.BatteryInserted,
-					_player.Heavy.IsCarrying)));
+					_player.Heavy.IsCarrying,
+					_scanner.IsScanning)));
 		}
 
 		private async void OnDelivered()
 		{
+			if (_run.Phase != ContractPhase.InTransit || !_carry.IsCarrying)
+			{
+				return;
+			}
+
+			if (!_facts.CargoScanned)
+			{
+				_packageHud.Notify(ScanFirstKey);
+				return;
+			}
+
 			_deliveryPoint.SetAvailable(false);
 
 			try
 			{
 				_run.RecordCargoIntegrity(_package.Integrity.Fraction);
-				_run.Deliver();
+
+				if (!_run.Deliver())
+				{
+					return;
+				}
+
 				_carry.ConsumeHeld();
 
+				ContractOutcome outcome = _run.CaptureOutcome();
 				ContractSettlement settlement = await _campaign.Contracts.SettleAsync();
 				RankChange rankChange = _campaign.Rank.Apply(settlement.Rating);
-				await _services.Campaign.SaveAsync();
+				bool saved = await TrySaveAsync();
 
-				ShowResult(settlement, rankChange);
+				if (this == null)
+				{
+					return;
+				}
+
+				ShowResult(settlement, outcome, rankChange, saved);
 			}
 			catch (Exception exception)
 			{
 				UnityLogger.LogException(exception, this);
+
+				if (this != null)
+				{
+					_campaign.Contracts.AbandonUnfinished();
+					ShowFailure(SettlementFailedKey);
+				}
+			}
+		}
+
+		private async Awaitable<bool> TrySaveAsync()
+		{
+			try
+			{
+				await _services.Campaign.SaveAsync();
+				return true;
+			}
+			catch (Exception exception)
+			{
+				UnityLogger.LogException(exception, this);
+				return false;
 			}
 		}
 
 		private void OnAbort()
 		{
+			if (_run.Phase == ContractPhase.Delivered)
+			{
+				return;
+			}
+
 			_campaign.Contracts.Fail();
 			Navigate(SceneIds.Depot);
 		}
@@ -434,7 +527,7 @@ namespace NightCourier.UI
 			Navigate(SceneIds.Depot);
 		}
 
-		private void ShowResult(ContractSettlement settlement, RankChange rankChange)
+		private void ShowResult(ContractSettlement settlement, ContractOutcome outcome, RankChange rankChange, bool saved)
 		{
 			ILocalizationService localization = _services.Localization;
 			StringBuilder text = new();
@@ -453,22 +546,41 @@ namespace NightCourier.UI
 				GradeText(settlement.Rating.CargoCondition),
 				GradeText(settlement.Rating.ProtocolCompliance),
 				GradeText(settlement.Rating.PropertyDamage)));
-			text.Append(localization.Get(
+			text.AppendLine(localization.Get(
 				"result.rank_xp",
 				localization.Get(_campaign.Rank.TitleKey),
 				rankChange.ExperienceGained));
 
 			if (rankChange.Promoted)
 			{
-				text.AppendLine();
-				text.Append(localization.Get("result.rank_promoted", localization.Get(_campaign.Rank.TitleKey)));
+				text.AppendLine(localization.Get("result.rank_promoted", localization.Get(_campaign.Rank.TitleKey)));
+			}
+
+			text.AppendLine();
+			text.AppendLine(localization.Get(
+				"result.stats",
+				outcome.PackageViolationCount,
+				Mathf.RoundToInt((float)outcome.CargoIntegrity * 100f),
+				outcome.PropertyDamageCount,
+				outcome.DeathCount));
+
+			text.AppendLine();
+
+			foreach (string key in SettlementAdvice.For(outcome))
+			{
+				text.AppendLine(localization.Get(key));
+			}
+
+			if (!saved)
+			{
+				text.AppendLine(localization.Get(SaveFailedKey));
 			}
 
 			_sounds.PlayDelivered();
-			_breakdownText.text = text.ToString();
+			_breakdownText.text = text.ToString().TrimEnd();
 			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
 
-			_resultScope = _services.Input.PushMenu();
+			_resultScope ??= _services.Input.PushMenu();
 			_resultPanel.SetActive(true);
 		}
 
@@ -490,12 +602,6 @@ namespace NightCourier.UI
 				UnityLogger.LogException(exception, this);
 				_returnButton.interactable = true;
 			}
-		}
-
-		private static string FormatClock(double seconds)
-		{
-			int whole = Mathf.CeilToInt((float)seconds);
-			return $"{whole / 60:00}:{whole % 60:00}";
 		}
 	}
 }

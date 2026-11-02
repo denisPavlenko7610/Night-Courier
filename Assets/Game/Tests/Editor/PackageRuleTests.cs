@@ -172,7 +172,17 @@ namespace NightCourier.Tests
 			foreach (PackageRuleKind kind in Enum.GetValues(typeof(PackageRuleKind)))
 			{
 				Assert.That(PackageRuleKeys.NameKey(kind), Does.StartWith("rule."));
+				Assert.That(PackageRuleKeys.HintKey(kind), Is.EqualTo(PackageRuleKeys.NameKey(kind) + ".hint"));
+				Assert.That(PackageRuleKeys.AdviceKey(kind), Is.EqualTo(PackageRuleKeys.NameKey(kind) + ".advice"));
 			}
+		}
+
+		[Test]
+		public void DamageKeys_NameTheCauseAndFallBackForUnknownTypes()
+		{
+			Assert.That(PackageDamageKeys.NoticeKey(PackageDamageKeys.ImpactType), Is.EqualTo("notice.package_damaged.impact"));
+			Assert.That(PackageDamageKeys.NoticeKey(PackageDamageKeys.ElectricType), Is.EqualTo("notice.package_damaged.electric"));
+			Assert.That(PackageDamageKeys.NoticeKey("acid"), Is.EqualTo("notice.package_damaged"));
 		}
 
 		[Test]

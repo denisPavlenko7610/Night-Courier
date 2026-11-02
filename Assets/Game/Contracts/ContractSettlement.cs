@@ -4,6 +4,35 @@ using NightCourier.Economy;
 
 namespace NightCourier.Contracts
 {
+	public readonly struct RuleViolationCount
+	{
+		public RuleViolationCount(PackageRuleKind kind, int count)
+		{
+			Kind = kind;
+			Count = count;
+		}
+
+		public PackageRuleKind Kind { get; }
+
+		public int Count { get; }
+
+		public static IReadOnlyList<RuleViolationCount> Rank(IReadOnlyDictionary<PackageRuleKind, int> counts)
+		{
+			List<RuleViolationCount> ranked = new(counts.Count);
+
+			foreach (KeyValuePair<PackageRuleKind, int> pair in counts)
+			{
+				ranked.Add(new RuleViolationCount(pair.Key, pair.Value));
+			}
+
+			ranked.Sort((left, right) => right.Count != left.Count
+				? right.Count.CompareTo(left.Count)
+				: left.Kind.CompareTo(right.Kind));
+
+			return ranked.AsReadOnly();
+		}
+	}
+
 	public readonly struct ContractOutcome
 	{
 		public ContractOutcome(
@@ -13,7 +42,8 @@ namespace NightCourier.Contracts
 			int deathCount = 0,
 			int shotsFired = 0,
 			int propertyDamageCount = 0,
-			double cargoIntegrity = 1d)
+			double cargoIntegrity = 1d,
+			IReadOnlyList<RuleViolationCount> ruleViolations = null)
 		{
 			ViolationCount = violationCount;
 			TransitSeconds = transitSeconds;
@@ -22,7 +52,12 @@ namespace NightCourier.Contracts
 			ShotsFired = shotsFired;
 			PropertyDamageCount = propertyDamageCount;
 			CargoIntegrity = cargoIntegrity;
+			RuleViolations = ruleViolations ?? Array.Empty<RuleViolationCount>();
 		}
+
+		public IReadOnlyList<RuleViolationCount> RuleViolations { get; }
+
+		public int PackageViolationCount => Math.Max(0, ViolationCount - PropertyDamageCount);
 
 		public int PropertyDamageCount { get; }
 

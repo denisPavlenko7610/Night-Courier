@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RD.Quests;
 using RD.Timers;
 
@@ -8,6 +9,7 @@ namespace NightCourier.Contracts
 	{
 		private readonly QuestService _quests;
 		private readonly CountdownTimer _deadline;
+		private readonly Dictionary<PackageRuleKind, int> _ruleViolations = new();
 
 		private double _transitSeconds;
 		private int _violationCount;
@@ -112,6 +114,17 @@ namespace NightCourier.Contracts
 			PackageViolationRegistered?.Invoke(_packageViolationCount);
 		}
 
+		public void RegisterViolation(PackageRuleKind kind)
+		{
+			if (Phase != ContractPhase.InTransit)
+			{
+				return;
+			}
+
+			_ruleViolations[kind] = _ruleViolations.GetValueOrDefault(kind) + 1;
+			RegisterViolation();
+		}
+
 		public void RegisterShot()
 		{
 			if (Phase == ContractPhase.InTransit)
@@ -147,7 +160,15 @@ namespace NightCourier.Contracts
 
 		public ContractOutcome CaptureOutcome()
 		{
-			return new ContractOutcome(_violationCount, _transitSeconds, IsOverdue, _deathCount, _shotsFired, _propertyDamageCount, _cargoIntegrity);
+			return new ContractOutcome(
+				_violationCount,
+				_transitSeconds,
+				IsOverdue,
+				_deathCount,
+				_shotsFired,
+				_propertyDamageCount,
+				_cargoIntegrity,
+				RuleViolationCount.Rank(_ruleViolations));
 		}
 
 		public bool Fail()

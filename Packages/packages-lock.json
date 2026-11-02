@@ -94,7 +94,8 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.rd.foundation": "1.0.0"
+        "com.rd.foundation": "1.0.0",
+        "com.unity.ugui": "2.6.0"
       }
     },
     "com.unity.2d.sprite": {

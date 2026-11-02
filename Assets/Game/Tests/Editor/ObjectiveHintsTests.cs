@@ -57,7 +57,8 @@ namespace NightCourier.Tests
 			run.Depart();
 
 			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(false, false, false)), Is.EqualTo(ObjectiveHints.PickUpPackage));
-			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(false, true, true)), Is.EqualTo(ObjectiveHints.PickUpPackage));
+			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(false, true, false)), Is.EqualTo(ObjectiveHints.PickUpPackage));
+			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(false, true, true)), Is.EqualTo(ObjectiveHints.PickUpScanned));
 			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(true, true, true)), Is.EqualTo(ObjectiveHints.DeliverPackage));
 
 			run.Deliver();
@@ -76,6 +77,22 @@ namespace NightCourier.Tests
 			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(true, false, false)), Is.EqualTo(ObjectiveHints.RestorePower));
 			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(true, true, false)), Is.EqualTo(ObjectiveHints.ScanPackage));
 			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(true, true, true)), Is.EqualTo(ObjectiveHints.DeliverPackage));
+		}
+
+		[Test]
+		public void Location_PackageOnTheScanner_ExplainsTheScanInsteadOfAskingForPickup()
+		{
+			ContractRun run = Accepted();
+			run.CollectPackage();
+			run.Depart();
+
+			WarehouseProgress scanning = new(false, true, false, scanInProgress: true);
+			WarehouseProgress interrupted = new(false, true, false);
+			WarehouseProgress carriedWhileScanFlagIsStale = new(true, true, false, scanInProgress: true);
+
+			Assert.That(ObjectiveHints.ForLocation(run, scanning), Is.EqualTo(ObjectiveHints.Scanning));
+			Assert.That(ObjectiveHints.ForLocation(run, interrupted), Is.EqualTo(ObjectiveHints.PickUpPackage));
+			Assert.That(ObjectiveHints.ForLocation(run, carriedWhileScanFlagIsStale), Is.EqualTo(ObjectiveHints.ScanPackage));
 		}
 
 		[Test]

@@ -212,6 +212,16 @@ namespace NightCourier.Tests
 				foreach (PackageRuleKind rule in spec.PackageRules)
 				{
 					Require(PackageRuleKeys.NameKey(rule));
+					Require(PackageRuleKeys.HintKey(rule));
+					Require(PackageRuleKeys.AdviceKey(rule));
+				}
+
+				Require(ContractKeys.RiskKey(spec.Risk));
+				Require(ContractKeys.StateKey(spec.LocationState));
+
+				foreach (EncounterKind encounter in spec.Encounters)
+				{
+					Require(ContractKeys.ThreatKey(encounter));
 				}
 			}
 
@@ -235,6 +245,24 @@ namespace NightCourier.Tests
 			Require(SettlementCalculator.AmmoExpenseLabelKey);
 			Require(SettlementCalculator.PropertyDamageLabelKey);
 			Require(SettlementCalculator.DeathPenaltyLabelKey);
+
+			string[] hudKeys =
+			{
+				"contract.briefing", "contract.rules", "contract.none", "contract.time_limit", "contract.bonus", "contract.threats",
+				"notice.scan_first", "result.stats", "result.save_failed", "result.settlement_failed",
+				ObjectiveHints.RestorePower, ObjectiveHints.ScanPackage, ObjectiveHints.Scanning, ObjectiveHints.PickUpScanned,
+				ObjectiveHints.DeliverPackage, ObjectiveHints.PickUpPackage, ObjectiveHints.FindBattery, ObjectiveHints.InsertBattery,
+				ObjectiveHints.AcceptContract, ObjectiveHints.PickUpFromConveyor, ObjectiveHints.LoadVan,
+				SettlementAdvice.CleanKey, SettlementAdvice.OverdueKey, SettlementAdvice.CargoKey, SettlementAdvice.PropertyKey,
+				SettlementAdvice.DeathKey,
+				PackageDamageKeys.NoticeKey(PackageDamageKeys.ImpactType), PackageDamageKeys.NoticeKey(PackageDamageKeys.ElectricType),
+				PackageDamageKeys.NoticeKey(string.Empty)
+			};
+
+			foreach (string key in hudKeys)
+			{
+				Require(key);
+			}
 
 			Assert.That(missing, Is.Empty, "Missing localization keys: " + string.Join(", ", missing));
 		}
