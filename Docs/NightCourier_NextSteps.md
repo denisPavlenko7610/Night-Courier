@@ -14,6 +14,8 @@ Sizes: S under half a day, M about a day, L several days.
 - Clarity: briefing with rules, time limit, bonuses, and threats; a breaker-panel hint that says why; scan-state and
   "scan complete" hints; one-line rule announcements; a refused delivery explains itself; damage notices name the cause.
 - Result report: violations, integrity, property damage, deaths, and up to three improvement lines.
+- Tests: 217 EditMode tests and four PlayMode tests of the full loop, failure and retry, pause-menu abort, and death
+  (see "Play Mode tests" below), plus a manual script for real input.
 
 ## Tasks
 
@@ -27,8 +29,59 @@ Sizes: S under half a day, M about a day, L several days.
 | 6 | What happens after contract five | M | decision | The user picks one: repeatable contracts with diminishing pay, or new contracts by combining existing states, rules, and encounters (the combination test, GDD 22). A finished campaign no longer ends at "No contracts are available". New content is data only |
 | 7 | Rank unlocks | S | 6 | A minimum courier rank on a contract (data field on `ContractDefinition`, checked in `ContractBoard.IsAvailable`), shown in the briefing. EditMode tests for locked, unlocked, and saved-rank cases |
 | 8 | Fix the clipped rank label in the Depot header | S | — | At 2560×1440 and 1920×1080 the rank text "Rank: Trainee (0 / 100 XP)" is fully visible (the screenshot in this pass showed it cut at the right edge) |
-| 9 | Play Mode regression test for the whole loop | M | — | A PlayMode test assembly runs New Game → accept → pickup → van → Warehouse → power → scan → deliver → result → Depot through the real scene entries and asserts credits, rank, and the available contracts; a second test covers failure and retry; both run in the Unity test runner without manual steps |
-| 10 | Real-input soak | S | 9 | A person plays contracts 01, 03, and 04 with keyboard and mouse, then with a gamepad, for 30 minutes. No stuck input context, no double payout, no console errors beyond the known `PickupItem.Drop` kinematic warning |
+| 9 | Extend the Play Mode loop tests | S | — | Add Express (deadline and drone), Lights Out (battery, generator, breaker, dark violation), and Restricted Cargo to `GameLoopPlayModeTests`, each reaching a settled result with asserted credits. The input is still state-driven (see "Play Mode tests" below) |
+| 10 | Real-input soak | S | — | A person follows the manual script below with keyboard and mouse, then with a gamepad, and plays contracts 01, 03, and 04 for 30 minutes. No stuck input context, no double payout, no console errors beyond the known `PickupItem.Drop` kinematic warning |
+
+## Play Mode tests
+
+`Assets/Game/Tests/PlayMode` (`NightCourier.Game.PlayModeTests`) loads the real `Boot` scene and drives the real scene
+entries: button clicks on the menus and the contract terminal, `Interactable.Press` and hold ticks on the package, van,
+breaker lever, and delivery terminal, and a teleport of the player next to each target. It does not synthesize keyboard,
+mouse, or gamepad events and does not click the confirmation popup (the pause-menu abort test calls the popup's confirm
+callback). The four tests cover:
+
+- Full loop: New Game → accept (double click) → pickup → van → Warehouse → breaker → scan → deliver (double press) →
+  result → Depot (double Return) → Main Menu → Continue; asserts credits paid once, rank XP, the save file, and that the
+  completed contract does not return.
+- A destroyed package fails the contract with no payout, and the retry of the same contract pays exactly once.
+- Abort from the pause menu returns to the Depot, unpauses, and keeps the contract available.
+- Death in transit respawns the courier and the settlement charges the recovery fee.
+
+The fixture moves the real `Saves` folder aside before the run and restores it afterwards (a leftover backup from a crashed
+run is restored first), so it never touches a real profile.
+
+Run them with the Unity Test Runner (PlayMode tab) or the MCP `run_tests` tool with `mode: PlayMode` and the full test
+names; filtering by assembly name alone runs the template PlayMode tests instead.
+
+## Manual verification script (real input)
+
+Keyboard defaults: move WASD, look mouse, interact E (hold where the prompt says Hold), drop G, fire left mouse, medkit H,
+pause Esc. Start the game from the `Boot` scene. Expected results are in brackets.
+
+1. **Full loop.** Main Menu → New Game (with an existing save, confirm the popup). At the Contract Terminal press E, open
+   Standard Delivery [the briefing shows "Package rules: none"], double-click Accept Contract [one active contract, the
+   hint reads "Pick up the package from the conveyor."]. Take the package (E) [hint: carry it to the van], use the van (E)
+   [Warehouse loads]. Take the package [hint: switch on the breaker panel, with the reason], pull the breaker lever by the
+   west wall (E) [hint: set the package on the scanner plate]. Carry it to the delivery room, drop it on the plate (G)
+   [hint "Scanning...", indicator turns green after about 3 s, then "Scan complete. Pick up the package..."]. Pick it up,
+   hold E at the delivery terminal, release, hold again [one result panel: Base pay 150, rating S, rank Courier +120 XP,
+   "Clean run. The company has no notes."]. Click Return to Depot twice quickly [one Depot, credits 150].
+2. **Refused delivery.** On a second contract, hold E at the delivery terminal before scanning [a notice says the package has
+   not been scanned and no result appears].
+3. **Save and load.** Esc → Main Menu → confirm → Continue [credits 150, rank Courier 20 / 200 XP, Standard Delivery no
+   longer offered].
+4. **Death.** In the Warehouse walk onto the red electric strip and stay until health reaches zero [the recovery overlay
+   appears, about 2 s later the courier respawns at the last locker and can move]. Finish the delivery [the result shows
+   "Recovery team fee: -25" and the credits drop by 25].
+5. **Abort.** In the Warehouse press Esc → Abort Contract [a confirmation popup]. Press Esc [the popup closes, the menu
+   stays]. Abort again and Cancel [back in the menu]. Abort again and Confirm [Depot, the game is not paused, the contract is
+   offered again, credits unchanged].
+6. **Destroyed package.** Take Fragile, then drop the package on the floor off the scanner plate four times [notices name
+   "Do not drop", the package turns unstable, an alarm Crawler appears, then the failure panel; no payout]. Retry Fragile and
+   deliver cleanly [₡320, paid once].
+7. **Double input while settling.** Press the delivery hold and open the pause menu in the same second [no abort during the
+   settlement; one result panel; if the pause menu opened, Abort does nothing until the result shows].
+8. **Gamepad.** Repeat step 1 on a gamepad (A interact, B drop, Start pause).
 
 ## Mechanic integration queue (not part of this pass)
 

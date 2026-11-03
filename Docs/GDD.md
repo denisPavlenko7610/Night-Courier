@@ -80,17 +80,19 @@ Fragile (₡220, Do Not Drop, ladder) is the careful-handling variant between th
 
 | Milestone | Goal | State |
 |---|---|---|
-| **M0 Reliability** | The existing loop never double-pays, loses the profile, or blocks the UI: abort, failure, death, repeat, save and load, double input, scene change during settlement | Done in this pass (EditMode and played); real-input soak and a Depot lost-package safety are open |
-| **M1 First-run clarity** | A first-time player understands the goal, the rule, the power step, the scanner, and the delivery without reading a document | Minimal version done (briefing, hints, scan and refusal feedback); the proof is a first-time-player playtest, not yet done |
-| **M2 Variety and consequences** | Contracts differ in what the player does; the result explains what to change | Result report done; archetype table verified on data; Express urgency needs tuning |
-| **M3 Replay and progression** | A reason to play past the fifth contract: repeatable or generated-by-combination contracts, rank unlocks, upgrades that need new hooks | Not started; needs user decisions |
-| **M4 Road tier gate** | Decide who owns vehicle driving, then Road Alpha (section 3.2) | Blocked on the open decision in Production-Plan.md; starts only when the MVP loop is fun |
+| **Stage 1 ? Full-loop stability** | Several deliveries, settlement and save recovery, cancellation, scene transition failure, cargo loss, repeated input, checkpoint recovery | Partially verified: 217 EditMode tests passed in this session before the Depot change. Depot cargo creation now precedes contract acceptance; All five PlayMode tests passed after the change, including malformed-prefab rejection and retry. Transition and disk-write recovery remain open |
+| **Stage 2 ? Existing Warehouse variety** | Use Normal/Blackout, scanner, generator, battery, doors and threats to offer meaningful choices | Implemented archetypes are listed in 0.3; full playthrough coverage of all five contracts remains incomplete |
+| **Stage 3 ? Visual and audio polish** | Readable paths and interactions, blackout lighting, state feedback, cargo warnings and sound | Partially implemented; real keyboard, mouse and gamepad verification remains required |
+| **Stage 4 ? Contract and progression balance** | Timed human runs, reward and upgrade costs, risk versus route choice | Planned; Express timing is a known tuning candidate, not a verified balance defect |
+| **Stage 5 ? One additional compact location** | Add only if it improves the established loop | Planned, conditional on the existing Warehouse being stable and enjoyable |
+
+The road tier remains outside this work. The approved future scope in section 3.2 is not an instruction to implement driving now.
 
 ### 0.6 Verified and not verified
 
-Verified in this pass: EditMode suite (217 tests); Main Menu → New Game → Depot → accept (double click) → pickup → van → Warehouse → breaker → scan → deliver (double press) → result → Depot (double click on Return); Continue restoring credits, rank, and available contracts; failure at the fourth violation and the retry; abort ignored while settling; Depot recovery from a stuck run; briefing and result layouts at 2560×1440; the shipped Warehouse light field with power off and on across the hall.
+Verified: EditMode suite (217 tests) and a PlayMode suite of four tests (`Assets/Game/Tests/PlayMode`) that load the real `Boot` scene and run: Main Menu → New Game → Depot → accept (double click) → pickup → van → Warehouse → breaker → scan → deliver (double press) → result → Depot (double Return) → Main Menu → Continue, with credits paid once and the rank and save restored; a destroyed package failing without payout and the retry paying once; abort from the pause menu (the popup's confirm callback) returning to an unpaused Depot with the contract available; death in transit respawning the courier and charging the recovery fee. Also played through editor scripts: abort ignored while settling, Depot recovery from a stuck run, briefing and result layouts at 2560×1440, and the shipped Warehouse light field with power off and on across the hall.
 
-Not verified: real keyboard, mouse, or gamepad input; the Death path and the electric floor in Play Mode this pass; Express and Restricted Cargo replays; a first-time-player playtest; a Depot with a lost package (no cancel path); saving through a failed disk write; 16:9 resolutions other than 2560×1440.
+Not verified: real keyboard, mouse, or gamepad input (the PlayMode tests press interactables and click buttons directly; the manual script is in Docs/NightCourier_NextSteps.md); Express, Lights Out, and Restricted Cargo end to end in the automated suite; a first-time-player playtest; a Depot with a lost package (no cancel path); saving through a failed disk write; resolutions other than 2560×1440.
 
 ---
 
