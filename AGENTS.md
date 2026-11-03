@@ -137,6 +137,13 @@ PhysicsButton, Pendulum, RopeSwing.
 - Build features at their tier only ([Docs/GDD.md](Docs/GDD.md) §3.2). Do not implement Demo/1.0 systems while working
   on the MVP, but do not model data in a way that blocks them.
 - Prefer simple primitives and placeholder materials over waiting for art (see Visuals and Assets).
+- **UI layout.** Every canvas uses `Scale With Screen Size` with the `Expand` match mode and is built inside the 1920×1080
+  reference, so the whole reference area is visible at any aspect ratio. Variable-length text uses best fit with a
+  minimum size and wrapping; single-line fixed titles use a size that fits their box. HUD groups that a menu or result
+  panel covers are hidden with a `CanvasGroup`, not left to show through. `UiLayoutPlayModeTests` captures 18 screens at
+  seven resolutions (16:9, 16:10, 5:4, 4:3, 21:9) into `Temp/UiAudit` and fails on overlapping, clipped, or off-screen
+  text; run it after any UI change and read the screenshots. The UI font draws the letter X like H (`XP`, `maximum`,
+  `Express` are misread), so keep player-facing strings free of X.
 
 ## Visuals and Assets
 

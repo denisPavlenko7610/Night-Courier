@@ -108,6 +108,7 @@ namespace NightCourier.UI
 			bool covered = _pauseMenu.IsOpen || _upgradeTerminal.IsOpen || _equipmentLocker.IsOpen;
 
 			_header.alpha = covered ? 0f : 1f;
+			_objective.SetHidden(covered || _terminalScope != null);
 		}
 
 		private void OnDestroy()

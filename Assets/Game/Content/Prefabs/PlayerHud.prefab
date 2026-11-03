@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6406934659145387601}
   - component: {fileID: 6637686129869488093}
   - component: {fileID: 8467755010988038134}
+  - component: {fileID: 2051252647760761806}
   m_Layer: 0
   m_Name: WeaponLabel
   m_TagString: Untagged
@@ -35,7 +36,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 700, y: -420}
+  m_AnchoredPosition: {x: 660, y: -430}
   m_SizeDelta: {x: 500, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6406934659145387601
@@ -94,6 +95,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.LocalizedLabel
   _key: weapon.stun_pistol
   _text: {fileID: 6637686129869488093}
+--- !u!114 &2051252647760761806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 354854852905656556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.85}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &692196564955926030
 GameObject:
   m_ObjectHideFlags: 0
@@ -106,6 +122,7 @@ GameObject:
   - component: {fileID: 5246900581231876781}
   - component: {fileID: 5639471706519653341}
   - component: {fileID: 470613385346911918}
+  - component: {fileID: 1019171668871902034}
   m_Layer: 0
   m_Name: MedkitLabel
   m_TagString: Untagged
@@ -129,7 +146,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 700, y: -370}
+  m_AnchoredPosition: {x: 660, y: -380}
   m_SizeDelta: {x: 500, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5246900581231876781
@@ -188,6 +205,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.LocalizedLabel
   _key: hud.medkits
   _text: {fileID: 5639471706519653341}
+--- !u!114 &1019171668871902034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692196564955926030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.85}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &991295855249694520
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,6 +232,7 @@ GameObject:
   - component: {fileID: 1967602722404669518}
   - component: {fileID: 1575213164450865486}
   - component: {fileID: 1268122051259034588}
+  - component: {fileID: 3922860737980652970}
   m_Layer: 0
   m_Name: HealthLabel
   m_TagString: Untagged
@@ -223,7 +256,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -700, y: -470}
+  m_AnchoredPosition: {x: -660, y: -480}
   m_SizeDelta: {x: 500, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1967602722404669518
@@ -282,6 +315,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.LocalizedLabel
   _key: hud.health
   _text: {fileID: 1575213164450865486}
+--- !u!114 &3922860737980652970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991295855249694520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.85}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1930216877674497664
 GameObject:
   m_ObjectHideFlags: 0
@@ -501,6 +549,7 @@ GameObject:
   - component: {fileID: 4587047991508093770}
   - component: {fileID: 1308608843327924103}
   - component: {fileID: 3788741044159093284}
+  - component: {fileID: 8535656885601728863}
   m_Layer: 0
   m_Name: AmmoLabel
   m_TagString: Untagged
@@ -524,7 +573,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 700, y: -470}
+  m_AnchoredPosition: {x: 660, y: -480}
   m_SizeDelta: {x: 500, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4587047991508093770
@@ -583,6 +632,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.LocalizedLabel
   _key: hud.ammo
   _text: {fileID: 1308608843327924103}
+--- !u!114 &8535656885601728863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3509602427040729996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.85}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3852929312922831144
 GameObject:
   m_ObjectHideFlags: 0
@@ -835,9 +899,9 @@ MonoBehaviour:
     m_Font: {fileID: 12800000, guid: 495b331d4bfe1b74493fd24222050a96, type: 3}
     m_FontSize: 38
     m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 48
+    m_BestFit: 1
+    m_MinSize: 22
+    m_MaxSize: 38
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1021,6 +1085,7 @@ GameObject:
   - component: {fileID: 999264710220492988}
   - component: {fileID: 3657516634123649067}
   - component: {fileID: 7271452266345196606}
+  - component: {fileID: 516468713709721493}
   m_Layer: 0
   m_Name: Prompt
   m_TagString: Untagged
@@ -1044,8 +1109,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -90}
-  m_SizeDelta: {x: 900, y: 60}
+  m_AnchoredPosition: {x: 0, y: -70}
+  m_SizeDelta: {x: 1100, y: 110}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3657516634123649067
 CanvasRenderer:
@@ -1079,9 +1144,9 @@ MonoBehaviour:
     m_Font: {fileID: 12800000, guid: 495b331d4bfe1b74493fd24222050a96, type: 3}
     m_FontSize: 27
     m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
+    m_BestFit: 1
+    m_MinSize: 16
+    m_MaxSize: 27
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1089,6 +1154,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 
+--- !u!114 &516468713709721493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7687141206020464197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.85}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8120075106783553095
 GameObject:
   m_ObjectHideFlags: 0
@@ -1101,6 +1181,7 @@ GameObject:
   - component: {fileID: 2942070297631616858}
   - component: {fileID: 6231685954817706143}
   - component: {fileID: 7081829381091094752}
+  - component: {fileID: 3014157253489435336}
   m_Layer: 0
   m_Name: ObjectiveLabel
   m_TagString: Untagged
@@ -1124,8 +1205,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 400}
-  m_SizeDelta: {x: 1400, y: 50}
+  m_AnchoredPosition: {x: 0, y: 430}
+  m_SizeDelta: {x: 640, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2942070297631616858
 CanvasRenderer:
@@ -1159,9 +1240,9 @@ MonoBehaviour:
     m_Font: {fileID: 12800000, guid: 495b331d4bfe1b74493fd24222050a96, type: 3}
     m_FontSize: 24
     m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
+    m_BestFit: 1
+    m_MinSize: 16
+    m_MaxSize: 24
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1183,3 +1264,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.UI.LocalizedLabel
   _key: objective.accept_contract
   _text: {fileID: 6231685954817706143}
+--- !u!114 &3014157253489435336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8120075106783553095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.85}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1

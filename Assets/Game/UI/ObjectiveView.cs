@@ -8,6 +8,9 @@ namespace NightCourier.UI
 	{
 		[SerializeField] private LocalizedLabel _label;
 
+		private string _key;
+		private bool _hidden;
+
 		public void Bind(ILocalizationService localization)
 		{
 			if (localization == null)
@@ -16,16 +19,38 @@ namespace NightCourier.UI
 			}
 
 			_label.Bind(localization);
-			_label.gameObject.SetActive(false);
+			_key = null;
+			Apply();
 		}
 
 		public void Show(string key)
 		{
-			_label.gameObject.SetActive(key != null);
+			_key = key;
 
-			if (key != null)
+			Apply();
+		}
+
+		public void SetHidden(bool hidden)
+		{
+			if (_hidden == hidden)
 			{
-				_label.SetKey(key);
+				return;
+			}
+
+			_hidden = hidden;
+
+			Apply();
+		}
+
+		private void Apply()
+		{
+			bool visible = _key != null && !_hidden;
+
+			_label.gameObject.SetActive(visible);
+
+			if (visible)
+			{
+				_label.SetKey(_key);
 			}
 		}
 	}

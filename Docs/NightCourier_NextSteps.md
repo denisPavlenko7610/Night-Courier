@@ -20,7 +20,9 @@ Background for the next work. Design lives in [GDD.md](GDD.md) (section 0 has th
 - Scanner identity: only the bound package, not held, starts a scan; leaving the plate aborts it with a notice.
 - Blocked-object reasons on the prompt; dark and interrupted-scan notices; a package on a dead scanner asks for power.
 - Blackout: an always-on work lamp and a safe crate in the dock, a flat dark ambient, a "park the package" objective.
-- Tests: 221 EditMode and 9 PlayMode tests. Not done: a human playthrough (see [PlaytestChecklist.md](PlaytestChecklist.md)).
+- UI: every canvas scales with `Expand`; the HUD, terminals, pause menu, and result panel no longer overlap or clip at any tested
+  aspect ratio (`UiLayoutPlayModeTests`, 7 resolutions, 18 screens); the "no violations" bonus ignores property damage, which has its own fine.
+- Tests: 222 EditMode and 18 PlayMode tests (11 gameplay, 7 UI layout). Not done: a human playthrough (see [PlaytestChecklist.md](PlaytestChecklist.md)).
 
 ## Tasks
 

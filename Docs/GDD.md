@@ -111,6 +111,8 @@ Labels: **Implemented in code** (compiles, covered by an EditMode or PlayMode te
 | Warehouse ambient light set to `Flat` (dark) instead of `Skybox` | Yes (scene setting) | Editor renders only: with `Skybox` the "blackout" hall was clearly lit | Check in a build |
 | Result screen says XP comes from the shift rating | Yes (text) | | |
 | A failed save keeps the payout in memory and warns the player | Yes (already) | Yes: blocked save folder, warning text, credits kept, no double payout | |
+| Readable UI at 16:9, 16:10, 5:4, 4:3, and 21:9: `Expand` scaling, HUD in three non-overlapping columns, notices at the bottom, covered HUD hidden, blocked prompt wraps | Yes (`UiLayoutPlayModeTests`, scene and prefab layouts) | Yes: 18 screens at 7 resolutions, zero overlapping, clipped, or off-screen text; screenshots read by eye | A hand check on a real monitor and a gamepad |
+| Contract 04 shown to the player as "Rush Delivery" (the font draws X like H; the id stays `contract.express`) | Yes (text only) | | A font that draws X correctly |
 | Express with a real dilemma | Crawlers added to the Express data; a Play Mode test settles Express with both threats active | | The route is still not faster: a wall gap saves only about 4 m; a real shortcut or a slower lift is needed (NextSprint 2) |
 | One honest hand-played trip | | | NextSprint 1 |
 

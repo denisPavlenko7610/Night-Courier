@@ -20,7 +20,13 @@ namespace NightCourier.PlayModeTests
 		private const string LightsOut = "contract.lights-out";
 		private const string Express = "contract.express";
 		private const string AuditFolder = "Temp/UiAudit";
-		private const bool FailOnProblems = false;
+		private const bool FailOnProblems = true;
+		private const float PauseFadeSeconds = 0.8f;
+
+		private static readonly Vector2Int[] Resolutions =
+		{
+			new(1920, 1080), new(1280, 720), new(2560, 1440), new(1280, 1024), new(1600, 1200), new(2560, 1080), new(1280, 800)
+		};
 
 		private GameDriver _driver;
 
@@ -39,9 +45,10 @@ namespace NightCourier.PlayModeTests
 		}
 
 		[UnityTest, Timeout(TestTimeoutMilliseconds)]
-		public IEnumerator Screens_HaveNoOverlappingOrClippedText_AtCommonResolutions([Values(1920, 1280, 2560)] int width)
+		public IEnumerator Screens_HaveNoOverlappingOrClippedText([ValueSource(nameof(Resolutions))] Vector2Int size)
 		{
-			int height = width * 9 / 16;
+			int width = size.x;
+			int height = size.y;
 
 			UiAudit.SetGameViewSize(width, height);
 
@@ -51,6 +58,7 @@ namespace NightCourier.PlayModeTests
 			UiAudit audit = new(Path.Combine(AuditFolder, width + "x" + height));
 
 			yield return _driver.BootToMainMenu();
+			yield return new WaitForSeconds(1.2f);
 			yield return audit.Capture("01_main_menu");
 
 			GameDriver.Get<Button>(Object.FindFirstObjectByType<MainMenuEntry>(), "_settingsButton").onClick.Invoke();
@@ -127,18 +135,18 @@ namespace NightCourier.PlayModeTests
 
 			pause.Open();
 
-			yield return null;
+			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
 			yield return audit.Capture("12_pause_menu");
 
 			GameDriver.Get<Button>(pause, "_settingsButton").onClick.Invoke();
 
-			yield return null;
+			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
 			yield return audit.Capture("13_pause_settings");
 
 			GameDriver.Get<Button>(pause, "_settingsBackButton").onClick.Invoke();
 			GameDriver.Get<Button>(pause, "_controlsButton").onClick.Invoke();
 
-			yield return null;
+			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
 			yield return audit.Capture("14_pause_controls");
 
 			GameDriver.Get<Button>(pause, "_controlsBackButton").onClick.Invoke();

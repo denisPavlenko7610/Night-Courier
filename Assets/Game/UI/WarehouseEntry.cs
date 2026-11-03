@@ -136,7 +136,10 @@ namespace NightCourier.UI
 
 		private void Update()
 		{
-			_hud.alpha = _pauseMenu.IsOpen || _resultPanel.activeSelf ? 0f : 1f;
+			bool covered = _pauseMenu.IsOpen || _resultPanel.activeSelf;
+
+			_hud.alpha = covered ? 0f : 1f;
+			_objective.SetHidden(covered);
 
 			if (_run == null || _run.IsFinished)
 			{

@@ -65,6 +65,15 @@ without help.
 Record: did the tester park the package under the lamp on purpose? ___; violations ___; minutes ___; where the tester
 did not know what to do ___.
 
+## Run C: UI readability on your own screen
+
+Resize the window to the smallest size you would play in and to your full screen. For each screen below, nothing may overlap
+or be cut off, and every line must be readable at arm's length: main menu and settings, the Depot (HUD, contract terminal
+with one and with several contracts, upgrade terminal, equipment locker), the Warehouse HUD (rules, integrity, objective,
+a prompt, three notices at once), the pause menu with Settings and Controls, the result and failure panels, the death
+overlay. Record the window size and anything that overlaps. The automated check (`UiLayoutPlayModeTests`) covers seven
+sizes but cannot judge contrast or taste.
+
 ## Negative scenarios (each once, by hand)
 
 | # | Scenario | Expected |
