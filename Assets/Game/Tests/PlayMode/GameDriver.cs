@@ -276,6 +276,38 @@ namespace NightCourier.PlayModeTests
 			yield return WaitUntil(() => ResultVisible, "the result panel");
 		}
 
+		public IEnumerator PowerUpTheBlackout()
+		{
+			WarehouseEntry warehouse = Warehouse;
+			PlayerSession player = Player;
+			WarehouseFacts facts = Get<WarehouseFacts>(warehouse, "_facts");
+			BreakableBarricade barricade = Get<BreakableBarricade>(warehouse, "_barricade");
+
+			Assert.That(facts.BatteryRequired, Is.True, "This contract has no blackout to power up.");
+
+			barricade.GetComponent<HealthCarrier>().ReceiveDamage(new DamageRequest(1000d, new DamageTypeId("test"), "playmode-test", true));
+
+			yield return WaitUntil(() => Run.PropertyDamageCount == 1, "the barricade to break");
+
+			Interactable battery = Get<Interactable>(Object.FindFirstObjectByType<BatteryCell>(), "_interactable");
+
+			Teleport(player, battery.transform.position + new Vector3(0f, 0.1f, -PickUpDistance));
+			battery.Press();
+
+			yield return WaitUntil(() => player.Heavy.IsCarrying, "the battery in both hands");
+
+			Interactable generator = Get<Interactable>(Object.FindFirstObjectByType<GeneratorSocket>(), "_interactable");
+
+			Teleport(player, generator.transform.position + new Vector3(PickUpDistance, 0.1f, 0f));
+			generator.Press();
+
+			Assert.That(facts.BatteryInserted, Is.True, "The generator did not take the battery.");
+
+			Get<Interactable>(Object.FindFirstObjectByType<PowerLever>(), "_interactable").Press();
+
+			Assert.That(facts.PowerOn, Is.True, "The breaker panel did not switch the power on after the battery.");
+		}
+
 		public IEnumerator StartContract(string contractId)
 		{
 			yield return BootToMainMenu();

@@ -40,6 +40,7 @@ namespace NightCourier.UI
 		[SerializeField] private MedkitHudView _medkitHud;
 		[SerializeField] private GameObject _packagePrefab;
 		[SerializeField] private Transform _packageSpawn;
+		[SerializeField] private CanvasGroup _header;
 		[SerializeField] private GameObject _terminalPanel;
 		[SerializeField] private Button _closeButton;
 		[SerializeField] private LocalizedLabel _creditsLabel;
@@ -100,6 +101,13 @@ namespace NightCourier.UI
 			ShowRank();
 
 			RefreshWorld();
+		}
+
+		private void Update()
+		{
+			bool covered = _pauseMenu.IsOpen || _upgradeTerminal.IsOpen || _equipmentLocker.IsOpen;
+
+			_header.alpha = covered ? 0f : 1f;
 		}
 
 		private void OnDestroy()
@@ -300,8 +308,17 @@ namespace NightCourier.UI
 
 			try
 			{
-				_campaign.Contracts.Accept(_selected.Id);
-				SpawnPackage();
+				CargoPackage package = SpawnPackage();
+
+				try
+				{
+					_campaign.Contracts.Accept(_selected.Id);
+				}
+				catch
+				{
+					Destroy(package.gameObject);
+					throw;
+				}
 				CloseTerminal();
 				RefreshWorld();
 			}
@@ -311,13 +328,24 @@ namespace NightCourier.UI
 			}
 		}
 
-		private void SpawnPackage()
+		private CargoPackage SpawnPackage()
 		{
 			GameObject instance = Instantiate(_packagePrefab, _packageSpawn.position, _packageSpawn.rotation);
-			CargoPackage package = instance.GetComponent<CargoPackage>();
 
-			package.Bind(_carry);
-			package.PickedUp += OnPackagePickedUp;
+			try
+			{
+				CargoPackage package = instance.GetComponent<CargoPackage>()
+					?? throw new InvalidOperationException("The depot package prefab requires CargoPackage.");
+
+				package.Bind(_carry);
+				package.PickedUp += OnPackagePickedUp;
+				return package;
+			}
+			catch
+			{
+				Destroy(instance);
+				throw;
+			}
 		}
 
 		private void OnPackagePickedUp()

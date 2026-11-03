@@ -29,6 +29,20 @@ namespace NightCourier.Tests
 		}
 
 		[Test]
+		public void NoViolationsBonus_IgnoresPropertyDamageWhichHasItsOwnFine()
+		{
+			ContractSpec spec = ContractFixtures.Spec("a", 100, objectives: new[] { ContractFixtures.NoViolations(40) });
+
+			ContractSettlement broke = SettlementCalculator.Calculate(
+				spec, new ContractOutcome(1, 5d, false, propertyDamageCount: 1));
+			ContractSettlement brokeAndDropped = SettlementCalculator.Calculate(
+				spec, new ContractOutcome(2, 5d, false, propertyDamageCount: 1));
+
+			Assert.That(broke.Total, Is.EqualTo(100 + 40 - EconomyRules.PropertyDamageFine));
+			Assert.That(brokeAndDropped.Total, Is.EqualTo(100 - EconomyRules.PropertyDamageFine));
+		}
+
+		[Test]
 		public void UnderTimeBonus_RequiresInTimeAndNotOverdue()
 		{
 			ContractSpec spec = ContractFixtures.Spec("a", 100, objectives: new[] { ContractFixtures.UnderTime(60d, 30) });

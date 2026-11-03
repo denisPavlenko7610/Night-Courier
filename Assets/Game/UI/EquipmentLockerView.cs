@@ -76,6 +76,8 @@ namespace NightCourier.UI
 			_closeButton.onClick.RemoveListener(Close);
 		}
 
+		public bool IsOpen => _scope != null;
+
 		private void Open()
 		{
 			if (_scope != null)

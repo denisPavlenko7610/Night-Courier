@@ -23,6 +23,12 @@ namespace NightCourier.PlayModeTests
 		private const string LightsOut = "contract.lights-out";
 		private const string Express = "contract.express";
 		private const long ExpressPay = 320;
+		private const string RestrictedCargo = "contract.restricted-cargo";
+		private const long LightsOutPay = 260;
+		private const long RestrictedCargoPay = 450;
+		private const long PropertyFine = 20;
+		private const long NoViolationsBonus = 100;
+		private const int PropertyDamageOnly = 1;
 		private const float StrangerObservationSeconds = 4.5f;
 		private const float DarkObservationSeconds = 6f;
 		private const float StrangerSize = 0.4f;
@@ -150,6 +156,52 @@ namespace NightCourier.PlayModeTests
 
 			Assert.That(_driver.NoticeText, Does.Contain("back in the light"));
 			Assert.That(_driver.Run.ViolationCount, Is.EqualTo(0), "Passing through the dark briefly must not violate the rule.");
+		}
+
+		[UnityTest, Timeout(TestTimeoutMilliseconds)]
+		public IEnumerator LightsOut_FullRun_ParkTheBox_PowerUp_AndDeliverWithoutViolations()
+		{
+			yield return _driver.BootToMainMenu();
+			yield return _driver.NewGameToDepot();
+			yield return _driver.CompleteInState(GameDriver.StandardDelivery);
+			yield return _driver.AcceptInTerminal(LightsOut);
+			yield return _driver.CarryPackageToTheVanAndDepart();
+			yield return _driver.PowerUpTheBlackout();
+
+			Assert.That(_driver.Run.ViolationCount, Is.EqualTo(PropertyDamageOnly), "Only the barricade fine is expected before the delivery.");
+
+			yield return _driver.ScanAndDeliver();
+
+			Assert.That(_driver.ResultText, Does.Contain("Base pay: " + LightsOutPay));
+			Assert.That(_driver.ResultText, Does.Contain("Property damage: -" + PropertyFine));
+			Assert.That(_driver.Campaign.Contracts.ActiveRun, Is.Null);
+		}
+
+		[UnityTest, Timeout(TestTimeoutMilliseconds)]
+		public IEnumerator RestrictedCargo_ParkedOnTheCrate_PaysTheNoViolationsBonus()
+		{
+			yield return _driver.BootToMainMenu();
+			yield return _driver.NewGameToDepot();
+			yield return _driver.CompleteInState(GameDriver.StandardDelivery);
+			yield return _driver.CompleteInState(GameDriver.Fragile);
+			yield return _driver.CompleteInState(LightsOut);
+			yield return _driver.CompleteInState(Express);
+			yield return _driver.AcceptInTerminal(RestrictedCargo);
+			yield return _driver.CarryPackageToTheVanAndDepart();
+
+			foreach (EncounterGroup encounter in GameDriver.Get<EncounterGroup[]>(_driver.Warehouse, "_encounters"))
+			{
+				encounter.gameObject.SetActive(false);
+			}
+
+			yield return _driver.PowerUpTheBlackout();
+			yield return _driver.ScanAndDeliver();
+
+			Assert.That(_driver.ResultText, Does.Contain("Base pay: " + RestrictedCargoPay));
+			Assert.That(_driver.ResultText, Does.Contain("Property damage: -" + PropertyFine));
+			Assert.That(_driver.ResultText, Does.Contain("Rule violations: 0"), "Fetching the battery forced a rule violation.");
+			Assert.That(_driver.ResultText, Does.Contain("No violations: " + NoViolationsBonus), "The bonus was lost although only the barricade was broken.");
+			Assert.That(_driver.Campaign.Contracts.ActiveRun, Is.Null, "The run was not settled.");
 		}
 
 		[UnityTest, Timeout(TestTimeoutMilliseconds)]

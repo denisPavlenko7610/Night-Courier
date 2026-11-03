@@ -60,6 +60,7 @@ namespace NightCourier.UI
 		[SerializeField] private Spawner _alarmSpawner;
 		[SerializeField] private WarehouseLighting _lighting;
 		[SerializeField] private PackageHudView _packageHud;
+		[SerializeField] private CanvasGroup _hud;
 		[SerializeField] private GameObject _resultPanel;
 		[SerializeField] private LocalizedLabel _resultTitle;
 		[SerializeField] private LocalizedLabel _contractTitle;
@@ -135,6 +136,8 @@ namespace NightCourier.UI
 
 		private void Update()
 		{
+			_hud.alpha = _pauseMenu.IsOpen || _resultPanel.activeSelf ? 0f : 1f;
+
 			if (_run == null || _run.IsFinished)
 			{
 				return;

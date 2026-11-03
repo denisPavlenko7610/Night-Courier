@@ -167,7 +167,7 @@ namespace NightCourier.Contracts
 		{
 			return objective.Kind switch
 			{
-				ContractObjectiveKind.NoViolations => outcome.ViolationCount == 0,
+				ContractObjectiveKind.NoViolations => outcome.PackageViolationCount == 0,
 				ContractObjectiveKind.UnderTime => !outcome.WasOverdue && outcome.TransitSeconds <= objective.ThresholdSeconds,
 				_ => false
 			};
