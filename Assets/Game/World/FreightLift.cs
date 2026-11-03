@@ -63,6 +63,7 @@ namespace NightCourier.World
 		private void Refresh()
 		{
 			_console.SetAvailable(_facts.PowerOn && !_elevator.IsMoving);
+			_console.SetBlockedKey(_facts.PowerOn ? null : BlockedReasons.LiftNoPower);
 		}
 
 		private void OnRideStarted(int stop)

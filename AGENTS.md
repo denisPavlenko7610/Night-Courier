@@ -198,6 +198,8 @@ Match the surrounding code and the template library's style:
   references, Input, Save, and scene transitions.
 - A scene counts as working only when it was run in Play Mode and the relevant flow was exercised. Compiling is not
   enough. State plainly what was not verified.
+- PlayMode tests must never move, back up, or delete the real `Saves` folder. They set `GameHost._saveFolder` to
+  `Saves.PlayModeTests` (see `GameDriver.BootToMainMenu`) and delete only that folder.
 - Keep Build Settings scene paths valid.
 - Do not claim Play Mode coverage that was not actually run.
 - Domain logic has EditMode tests in `Assets/Game/Tests/Editor` (`NightCourier.Game.Tests`); run them with the Unity MCP

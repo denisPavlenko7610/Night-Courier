@@ -9,7 +9,8 @@ namespace NightCourier.Contracts
 			bool batteryRequired = false,
 			bool batteryInserted = false,
 			bool carryingBattery = false,
-			bool scanInProgress = false
+			bool scanInProgress = false,
+			bool packageOnScanner = false
 		)
 		{
 			CarryingPackage = carryingPackage;
@@ -19,7 +20,10 @@ namespace NightCourier.Contracts
 			BatteryInserted = batteryInserted;
 			CarryingBattery = carryingBattery;
 			ScanInProgress = scanInProgress;
+			PackageOnScanner = packageOnScanner;
 		}
+
+		public bool PackageOnScanner { get; }
 
 		public bool ScanInProgress { get; }
 
@@ -40,6 +44,7 @@ namespace NightCourier.Contracts
 	{
 		public const string FindBattery = "objective.find_battery";
 		public const string InsertBattery = "objective.insert_battery";
+		public const string ParkPackage = "objective.park_package";
 
 		public const string AcceptContract = "objective.accept_contract";
 		public const string PickUpFromConveyor = "objective.pick_up_from_conveyor";
@@ -80,7 +85,7 @@ namespace NightCourier.Contracts
 
 			if (progress.BatteryRequired && !progress.BatteryInserted)
 			{
-				return FindBattery;
+				return progress.CarryingPackage ? ParkPackage : FindBattery;
 			}
 
 			if (!progress.CarryingPackage)
@@ -90,7 +95,12 @@ namespace NightCourier.Contracts
 					return PickUpScanned;
 				}
 
-				return progress.ScanInProgress ? Scanning : PickUpPackage;
+				if (progress.ScanInProgress)
+				{
+					return Scanning;
+				}
+
+				return progress.PackageOnScanner && !progress.PowerOn ? RestorePower : PickUpPackage;
 			}
 
 			if (progress.CargoScanned)

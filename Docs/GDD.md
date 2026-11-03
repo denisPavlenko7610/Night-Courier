@@ -48,7 +48,7 @@ Night Courier is a game about delivering hard cargo into dangerous industrial bu
 | Economy | Base pay, bonuses, ammo, property, and death deductions; shift rating (four axes); courier rank; three upgrades; equipment locker | `SettlementCalculator`, `ShiftRatingCalculator`, `CourierRank`, `CourierUpgrades`, `CourierLoadout` |
 | Save | One campaign slot: credits, quests, reward ledger, upgrades, loadout, rank; New Game confirms before replacing a save | `CampaignState`, `CampaignRepository` |
 | Briefing | The contract terminal lists risk, pay, site, package rules, time limit, bonuses, and known threats | `DepotEntry.BuildBriefing` |
-| In-run guidance | Objective line per step (including power and scanning states), rule announcement at the start, violation and damage notices with cause, refused delivery of an unscanned package | `ObjectiveHints`, `WarehouseEntry`, `PackageHudView` |
+| In-run guidance | Objective line per step (including power and scanning states), rule announcement at the start, violation and damage notices with cause, refused delivery of an unscanned package, a reason on the prompt when a locked or dead object is looked at, dark and interrupted-scan notices (section 0.7) | `ObjectiveHints`, `WarehouseEntry`, `PackageHudView`, `Interactable.BlockedKey` |
 | Result report | Settlement lines, rating and axes, rank change, violations, integrity, property damage, deaths, up to three improvement lines | `WarehouseEntry.ShowResult`, `SettlementAdvice` |
 
 Settlement safety (working, covered by EditMode tests and played): a payout is granted once per completion (grant id includes the completion count), a repeated delivery callback is rejected, an abort during settlement is ignored, a settlement or save failure still shows a panel and leaves the Depot enterable, and a Depot that finds an unfinished contract abandons it with a warning instead of failing to start.
@@ -63,11 +63,13 @@ No new contract is needed to cover the three archetypes. They already exist and 
 |---|---|---|---|
 | **Introduction**: a careful parcel, normal power, first meeting with the scanner | Standard Delivery (₡150, Low) | Normal, no rules, no enemies | Learn the loop: pick up, breaker panel, scanner plate, terminal. Nothing can go wrong except wandering into the electric floor |
 | **Blackout / keep in light**: power, battery, and light decide the route | Lights Out (₡260, Medium) and, harder, Restricted Cargo (₡450, High: adds Do Not Drop, a Drone, and a no-violations bonus) | Blackout, Keep In Light, Crawlers | The package is in the dark until the generator and breaker are fixed; the battery needs both hands and a trip through the barricade gap; every 10 s of darkness is a violation |
-| **Urgent**: deadline, one short dangerous route against a long safe one | Express (₡320, Medium) | Normal, Deliver On Time (300 s, bonus under 180 s), Security Drone | Route choice under a timer: the maintenance door and freight lift against the barricade, the electric strip, and the drone |
+| **Urgent**: deadline, one short dangerous route against a long safe one | Express (₡320, Medium) | Normal, Deliver On Time (300 s, bonus under 180 s), Security Drone and Crawlers (both active in a Play Mode test) | Route choice under a timer: the maintenance door and freight lift against the barricade, the electric strip, and the drone |
 
 Fragile (₡220, Do Not Drop, ladder) is the careful-handling variant between the introduction and the blackout.
 
-**Known weakness (to verify with a human).** A scripted run of the safe Express route took about 24 s against a 300 s deadline and a 180 s bonus window, so the timer likely never makes the short route tempting. Tuning the numbers (for example 120 s and 75 s) is a data change, but it needs timed human runs first; see Docs/NightCourier_NextSteps.md, task 2. Restricted Cargo and Express were not replayed in this pass.
+**Known weakness (measured on the NavMesh, not played).** The "short, dangerous" Express route is not shorter and not more dangerous: from the dock spawn to the scanner area the maintenance route is about 57 m plus a lift ride and the barricade route is about 62 m plus a few crowbar hits and a ₡20 fine; Express uses the drone only, and the drone patrols the maintenance route. A scripted run of the safe route took about 24 s against a 300 s deadline and a 180 s bonus window. No timer value creates a dilemma without a geometry or encounter change; see Docs/NextSprint.md, task 2 and "Express blocker". Restricted Cargo is still not replayed end to end; Express is settled in a teleporting Play Mode test only.
+
+**Lights Out now differs observably (implemented in code, confirmed in the scene by a Play Mode test).** The dock holds an always-on work lamp over the dock crate, which is also a safe surface for Do Not Drop. In a blackout the package starts lit on the crate; the battery needs both hands, so the player must set the package down in the lamp pool, break the barricade, fetch the battery, and power the hall. Carrying the package out into the dark starts the ten-second timer with a notice. In Restricted Cargo this also makes the no-violations bonus reachable: before, fetching the battery forced a Do Not Drop violation because the only safe surface was the scanner plate.
 
 ### 0.4 Win and fail criteria (current rules)
 
@@ -80,7 +82,7 @@ Fragile (₡220, Do Not Drop, ladder) is the careful-handling variant between th
 
 | Milestone | Goal | State |
 |---|---|---|
-| **Stage 1 ? Full-loop stability** | Several deliveries, settlement and save recovery, cancellation, scene transition failure, cargo loss, repeated input, checkpoint recovery | Partially verified: 217 EditMode tests passed in this session before the Depot change. Depot cargo creation now precedes contract acceptance; All five PlayMode tests passed after the change, including malformed-prefab rejection and retry. Transition and disk-write recovery remain open |
+| **Stage 1 ? Full-loop stability** | Several deliveries, settlement and save recovery, cancellation, scene transition failure, cargo loss, repeated input, checkpoint recovery | Verified by tests: 221 EditMode and 9 PlayMode tests pass, including malformed-prefab rejection, a failed save keeping the payout in memory and telling the player, and a payout paid once. The PlayMode fixtures now write to `Saves.PlayModeTests` through `GameHost._saveFolder` and never touch the real `Saves` folder. A lost Depot package and scene-transition failure remain open |
 | **Stage 2 ? Existing Warehouse variety** | Use Normal/Blackout, scanner, generator, battery, doors and threats to offer meaningful choices | Implemented archetypes are listed in 0.3; full playthrough coverage of all five contracts remains incomplete |
 | **Stage 3 ? Visual and audio polish** | Readable paths and interactions, blackout lighting, state feedback, cargo warnings and sound | Partially implemented; real keyboard, mouse and gamepad verification remains required |
 | **Stage 4 ? Contract and progression balance** | Timed human runs, reward and upgrade costs, risk versus route choice | Planned; Express timing is a known tuning candidate, not a verified balance defect |
@@ -90,9 +92,27 @@ The road tier remains outside this work. The approved future scope in section 3.
 
 ### 0.6 Verified and not verified
 
-Verified: EditMode suite (217 tests) and a PlayMode suite of four tests (`Assets/Game/Tests/PlayMode`) that load the real `Boot` scene and run: Main Menu → New Game → Depot → accept (double click) → pickup → van → Warehouse → breaker → scan → deliver (double press) → result → Depot (double Return) → Main Menu → Continue, with credits paid once and the rank and save restored; a destroyed package failing without payout and the retry paying once; abort from the pause menu (the popup's confirm callback) returning to an unpaused Depot with the contract available; death in transit respawning the courier and charging the recovery fee. Also played through editor scripts: abort ignored while settling, Depot recovery from a stuck run, briefing and result layouts at 2560×1440, and the shipped Warehouse light field with power off and on across the hall.
+Verified: EditMode suite (221 tests) and a PlayMode suite of nine tests (`Assets/Game/Tests/PlayMode`; the first four items below plus the invalid-prefab test are in `GameLoopPlayModeTests`, the scanner, Lights Out, Express, and failed-save tests in `WarehouseRulesPlayModeTests`) that load the real `Boot` scene and run: Main Menu → New Game → Depot → accept (double click) → pickup → van → Warehouse → breaker → scan → deliver (double press) → result → Depot (double Return) → Main Menu → Continue, with credits paid once and the rank and save restored; a destroyed package failing without payout and the retry paying once; abort from the pause menu (the popup's confirm callback) returning to an unpaused Depot with the contract available; death in transit respawning the courier and charging the recovery fee. Also played through editor scripts: abort ignored while settling, Depot recovery from a stuck run, briefing and result layouts at 2560×1440, and the shipped Warehouse light field with power off and on across the hall.
 
-Not verified: real keyboard, mouse, or gamepad input (the PlayMode tests press interactables and click buttons directly; the manual script is in Docs/NightCourier_NextSteps.md); Express, Lights Out, and Restricted Cargo end to end in the automated suite; a first-time-player playtest; a Depot with a lost package (no cancel path); saving through a failed disk write; resolutions other than 2560×1440.
+Not verified: real keyboard, mouse, or gamepad input (the PlayMode tests teleport the player, press interactables directly, read private fields by reflection, and click buttons; the manual script is Docs/PlaytestChecklist.md and has not been run by a person); Express, Lights Out, and Restricted Cargo played end to end (Lights Out is covered only up to the blackout state, the lamp, the dark notices, and the blocked prompts); a first-time-player playtest; a Depot with a lost package (no cancel path); resolutions other than 2560×1440; the blackout look in a standalone build (checked only in the editor).
+
+### 0.7 Readable-run sprint: status by item
+
+Labels: **Implemented in code** (compiles, covered by an EditMode or PlayMode test), **Confirmed in scene** (observed in the Warehouse scene by a Play Mode test or an editor render, not by a person), **Planned** (not built).
+
+| Item | Implemented in code | Confirmed in scene | Planned |
+|---|---|---|---|
+| PlayMode saves isolated from the real profile (`GameHost._saveFolder`, folder `Saves.PlayModeTests`) | Yes | Yes: the full-loop test finds its save file in the test folder | |
+| Scanner accepts only the bound package, ignores a held package, aborts and says so when it leaves | Yes (`CargoScanner`, `CargoPackage.IsHeld`) | Yes: a stray `Cargo`-layer cube, the pickup mid-scan, and the final scan; the test fails when the identity check is removed | |
+| Blocked objects explain themselves (locked doors, dead lift, dead breaker panel, generator, intact barricade) | Yes (`Interactable.BlockedKey`, `BlockedReasons`) | Yes: keys on every object in a blackout; the barricade text on the real prompt | |
+| Package-on-plate without power asks for power; carrying the package with a battery needed asks to park it | Yes (`ObjectiveHints`) | | |
+| Dark and scan-interrupted notices | Yes (`KeepInLightRule` events, `WarehouseEntry`) | Yes: dark and light-restored notices in the hall | |
+| Always-on work lamp and a safe crate in the dock | Yes (`WarehouseLighting._emergencyLights`, `PackageSafeSurface`) | Yes: lit at the crate, dark in the hall and at the breaker panel; the lamp reads in an editor render | Night sky or ceiling so the blackout reads dark from above (NextSprint 3) |
+| Warehouse ambient light set to `Flat` (dark) instead of `Skybox` | Yes (scene setting) | Editor renders only: with `Skybox` the "blackout" hall was clearly lit | Check in a build |
+| Result screen says XP comes from the shift rating | Yes (text) | | |
+| A failed save keeps the payout in memory and warns the player | Yes (already) | Yes: blocked save folder, warning text, credits kept, no double payout | |
+| Express with a real dilemma | Crawlers added to the Express data; a Play Mode test settles Express with both threats active | | The route is still not faster: a wall gap saves only about 4 m; a real shortcut or a slower lift is needed (NextSprint 2) |
+| One honest hand-played trip | | | NextSprint 1 |
 
 ---
 

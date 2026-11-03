@@ -52,6 +52,9 @@ namespace NightCourier.World
 		private void Refresh()
 		{
 			_interactable.SetAvailable(_facts.LeverReady);
+			_interactable.SetBlockedKey(!_facts.PowerOn && _facts.BatteryRequired && !_facts.BatteryInserted
+				? BlockedReasons.BreakerNeedsBattery
+				: null);
 		}
 
 		private void OnInteracted()

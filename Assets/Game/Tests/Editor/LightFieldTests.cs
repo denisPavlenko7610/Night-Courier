@@ -185,6 +185,34 @@ namespace NightCourier.Tests
 		}
 
 		[Test]
+		public void Warehouse_EmergencyLamp_LightsItsPoolDuringTheBlackout_AndWallsStillBlockIt()
+		{
+			Light hall = CreateLight(LightType.Point, new Vector3(0f, 5f, 0f), Vector3.forward, LightShadows.None);
+			Light lamp = CreateLight(LightType.Point, new Vector3(40f, 2f, 0f), Vector3.forward, LightShadows.Soft);
+			WarehouseLighting lighting = CreateLighting(hall);
+			WarehouseFacts facts = new();
+
+			typeof(WarehouseLighting)
+				.GetField("_emergencyLights", BindingFlags.Instance | BindingFlags.NonPublic)
+				.SetValue(lighting, new[] { lamp });
+			CreateWall(new Vector3(45f, 2f, 0f));
+			lighting.Bind(LocationState.Blackout, facts);
+
+			Vector3 inPool = new(42f, 1f, 0f);
+			Vector3 behindWall = new(48f, 1f, 0f);
+			Vector3 hallFloor = new(2f, 1f, 0f);
+
+			Assert.That(lighting.IsLit(inPool), Is.True, "the lamp stays on without power");
+			Assert.That(lighting.IsLit(behindWall), Is.False, "the wall blocks the lamp");
+			Assert.That(lighting.IsLit(hallFloor), Is.False, "the hall lights need power");
+
+			facts.SetPower(true);
+
+			Assert.That(lighting.IsLit(hallFloor), Is.True);
+			Assert.That(lighting.IsLit(inPool), Is.True);
+		}
+
+		[Test]
 		public void Warehouse_NormalState_IsLitWithoutThePowerFact()
 		{
 			Light light = CreateLight(LightType.Point, new Vector3(0f, 2f, 0f), Vector3.forward, LightShadows.None);

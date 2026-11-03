@@ -20,6 +20,7 @@ namespace NightCourier.App
 		[SerializeField] private ContractCatalog _contractCatalog;
 		[SerializeField] private UpgradeCatalog _upgradeCatalog;
 		[SerializeField] private InputActionAsset _inputActions;
+		[SerializeField] private string _saveFolder = CampaignStep.SaveFolder;
 
 		private StartupPipeline _pipeline;
 		private ISceneFlow _sceneFlow;
@@ -141,7 +142,7 @@ namespace NightCourier.App
 				new PauseStep(builder),
 				new AudioStep(builder, transform),
 				new LocalizationStep(builder, _localizationTable),
-				new CampaignStep(builder, _contractCatalog, _upgradeCatalog)
+				new CampaignStep(builder, _contractCatalog, _upgradeCatalog, _saveFolder)
 			});
 
 			await _pipeline.StartAsync(cancellationToken);

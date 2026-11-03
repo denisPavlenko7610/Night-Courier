@@ -8,6 +8,7 @@ namespace NightCourier.World
 	public sealed class WarehouseLighting : MonoBehaviour, ILightField
 	{
 		[SerializeField] private Light[] _lights = Array.Empty<Light>();
+		[SerializeField] private Light[] _emergencyLights = Array.Empty<Light>();
 		[SerializeField] private LayerMask _occluders = 1;
 
 		private WarehouseFacts _facts;
@@ -29,7 +30,26 @@ namespace NightCourier.World
 		{
 			_isBlocked ??= IsBlocked;
 
-			foreach (Light light in _lights)
+			return AnyReaches(_lights, point) || AnyReaches(_emergencyLights, point);
+		}
+
+		private void OnDestroy()
+		{
+			Unbind();
+		}
+
+		private void Unbind()
+		{
+			if (_facts != null)
+			{
+				_facts.Changed -= Apply;
+				_facts = null;
+			}
+		}
+
+		private bool AnyReaches(Light[] lights, Vector3 point)
+		{
+			foreach (Light light in lights)
 			{
 				if (!light.enabled || !light.gameObject.activeInHierarchy || light.intensity <= 0f)
 				{
@@ -52,20 +72,6 @@ namespace NightCourier.World
 			}
 
 			return false;
-		}
-
-		private void OnDestroy()
-		{
-			Unbind();
-		}
-
-		private void Unbind()
-		{
-			if (_facts != null)
-			{
-				_facts.Changed -= Apply;
-				_facts = null;
-			}
 		}
 
 		private bool IsBlocked(Vector3 from, Vector3 to)

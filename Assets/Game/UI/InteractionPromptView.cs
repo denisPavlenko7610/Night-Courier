@@ -74,7 +74,9 @@ namespace NightCourier.UI
 
 			if (target == null)
 			{
-				_prompt.text = string.Empty;
+				Interactable blocked = _interactor.Blocked;
+
+				_prompt.text = blocked != null ? _localization.Get(blocked.BlockedKey) : string.Empty;
 				_holdBar.SetActive(false);
 				return;
 			}

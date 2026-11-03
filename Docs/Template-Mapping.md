@@ -147,7 +147,7 @@ gameplay use not yet implemented.
 | **Door**          | In use: Warehouse maintenance door and scanner hatch (slide up). Later: automatic, security, containment doors | MVP    |
 | **ConditionLock** | In use: `ConditionDoor` configures one per Warehouse door with a `Conditions` rule. Later: keycard, quest state, package authorization | MVP    |
 | **Lever**         | In use: the breaker panel lever restores Warehouse power (one-way). Later: emergency door | MVP    |
-| **PressurePlate** | In use: the cargo scanner plate (activation mask is the `Cargo` layer; `CargoScanner` runs a 3 s `CountdownTimer` while powered and occupied). Later: weight puzzles | MVP    |
+| **PressurePlate** | In use: the cargo scanner plate (activation mask is the `Cargo` layer; `CargoScanner` runs a 3 s `CountdownTimer` while powered and the bound `CargoPackage` itself overlaps the plate and is not held, so a stray `Cargo`-layer object cannot scan). Later: weight puzzles | MVP    |
 
 ### 3.3 World and Traversal
 
@@ -263,7 +263,7 @@ states: Normal for all except 03, which uses Blackout. No complications in the M
 | 01 | **Standard Delivery** — learn pickup and delivery | none (tutorial)             | `PickupDrop`, `Door`, `ConditionLock`, `Inventory` (keycard), `Checkpoint`, `Quests`, `Rewards`, `Wallet`, `Tween`, `Audio`                                                     |
 | 02 | **Fragile**                                       | Do Not Drop                 | Contract 01 set + package `Health`/`HealthCarrier`, `Timers`, `Events`, `DamageZone`, `HitFeedback`                                                                             |
 | 03 | **Lights Out**                                    | Keep In Light               | `Lever`, `Conditions` (power), `Door`, `CarryObject` (battery), `Timers`, Crawler (`DetectionSensor`, `ChaseTargetMemory`, `MeleeAttack`, `Knockback`)               |
-| 04 | **Express**                                       | Delivery Deadline           | `Timers`, route choice (`DamageZone`, `BreakableObject` vs. `MovingPlatform`), Security Drone (`Patrol`, `DetectionSensor`, `ChaseTargetMemory`, `Projectile`), Stun Pistol set |
+| 04 | **Express**                                       | Delivery Deadline           | `Timers`, route choice (`DamageZone`, `BreakableObject` vs. `MovingPlatform`), Security Drone (`Patrol`, `DetectionSensor`, `ChaseTargetMemory`, `Projectile`), Crawlers on the barricade route, Stun Pistol set |
 | 05 | **Restricted Cargo**                              | Do Not Drop + Keep In Light | Blackout: `CarryObject` (battery), `Lever`, `Conditions`; `PressurePlate` (cargo scanner), `MovingPlatform`, `ConditionLock`, both enemies, Crowbar, `Checkpoint`, `Respawn`      |
 
 Reward and rank flow for every contract: `Quests` → `Conditions` check → result calculation (game) → `Rewards` bundle →
@@ -292,6 +292,9 @@ reusable mechanics.
 | Press and hold interaction | `Interact` input action, `HoldInteraction`               | `Interactable` (prompt key plus an optional `HoldInteraction`) found by the `PlayerInteractor` raycast; scene entries subscribe to `Interacted`. Mechanics such as `Door` and `Lever` stay input-agnostic and are called from these handlers |
 | Package rules         | `PickupItem` `Released`, collisions, `CountdownTimer`, `ContractRun.DeadlineExpired` | `DoNotDrop`, `KeepInLight`, `DeliveryDeadline` components report `Violated`; `PackageRuleSet` relays the kind to `ContractRun.RegisterViolation` and the HUD notice |
 | Warehouse gating      | `WarehouseFacts` changes                                      | `ConditionDoor` re-evaluates its `Conditions` rule through `ConditionLock` and opens its `Door` once |
+| Blocked-object reasons | `WarehouseFacts` changes, `BreakableObject` `Broken`          | An unavailable `Interactable` may carry a blocked key (`BlockedReasons`); `PlayerInteractor.Blocked` and `InteractionPromptView` show it when the player looks at the object (locked doors, the unpowered lift, the dead breaker panel, the generator, the intact barricade). No new interaction framework |
+| Scan identity and feedback | `PressurePlate` occupancy, `CargoPackage.IsHeld`, `CountdownTimer` | `CargoScanner` re-evaluates every frame; it raises `ScanStarted` and `ScanInterrupted`, and `WarehouseEntry` turns the interruption into a notice |
+| Darkness feedback     | `KeepInLightRule` `DarknessStarted` / `LightRestored`          | `WarehouseEntry` shows a throttled notice with the seconds left; the lamp pool and the hall lights both come from `WarehouseLighting`, which also keeps the always-on emergency lamp |
 | Riding platforms      | Kinematic rigidbody under the `CharacterController`           | `PlayerMotor` applies the ground's position delta each frame |
 | Enemy alert           | `HealthCarrier.DamageResolved`, `IncomingDirection`           | `EnemyAlert` reports the player to `ChaseTargetMemory` when an attack (directional damage) hurts a living enemy |
 | Enemy movement        | `DetectionSensor` `TargetDetected`/`TargetLost`, `ChaseTargetMemory` state, `MeleeAttack` `TargetHit`, `HealthCarrier` `Died` | `CrawlerBrain` and `SecurityDroneBrain` forward detection to the memory and move a `NavMeshAgent` by its state; `EnemyDeath` handles death. No new AI framework |

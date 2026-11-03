@@ -26,7 +26,11 @@ namespace NightCourier.UI
 	{
 		private const int LockerAmmoRefill = 8;
 		private const float DamageNoticeCooldownSeconds = 1.5f;
+		private const float DarkNoticeCooldownSeconds = 3f;
 		private const string ScanFirstKey = "notice.scan_first";
+		private const string ScanInterruptedKey = "notice.scan_interrupted";
+		private const string DarkStartedKey = "notice.dark_started";
+		private const string DarkClearedKey = "notice.dark_cleared";
 		private const string SaveFailedKey = "result.save_failed";
 		private const string SettlementFailedKey = "result.settlement_failed";
 
@@ -71,8 +75,11 @@ namespace NightCourier.UI
 		private WarehouseFacts _facts;
 		private CargoPackage _package;
 		private IDisposable _resultScope;
+		private KeepInLightRule _darkRule;
 		private bool _wasScanning;
+		private bool _wasOnPlate;
 		private float _lastDamageNoticeAt = float.NegativeInfinity;
+		private float _lastDarkNoticeAt = float.NegativeInfinity;
 
 		public void Enter(GameServices services, IObjectResolver scene)
 		{
@@ -106,6 +113,9 @@ namespace NightCourier.UI
 			_uiSounds.Bind(services.Audio);
 			SpawnPackage();
 			AnnounceRules();
+
+			_scanner.Bind(_facts, _package);
+			_scanner.ScanInterrupted += OnScanInterrupted;
 
 			_deliveryPoint.Interacted += OnDelivered;
 			_carry.HeldChanged += RefreshWorld;
@@ -142,9 +152,10 @@ namespace NightCourier.UI
 				_timerLabel.SetKey("warehouse.time_left", ClockText.Format(_run.RemainingSeconds));
 			}
 
-			if (_scanner.IsScanning != _wasScanning)
+			if (_scanner.IsScanning != _wasScanning || _scanner.HasPackageOnPlate != _wasOnPlate)
 			{
 				_wasScanning = _scanner.IsScanning;
+				_wasOnPlate = _scanner.HasPackageOnPlate;
 				RefreshWorld();
 			}
 		}
@@ -192,6 +203,17 @@ namespace NightCourier.UI
 				_barricade.Broken -= OnBarricadeBroken;
 			}
 
+			if (_scanner != null)
+			{
+				_scanner.ScanInterrupted -= OnScanInterrupted;
+			}
+
+			if (_darkRule != null)
+			{
+				_darkRule.DarknessStarted -= OnPackageDark;
+				_darkRule.LightRestored -= OnPackageLit;
+			}
+
 			if (_run != null)
 			{
 				_run.PackageViolationRegistered -= OnPackageViolation;
@@ -227,7 +249,6 @@ namespace NightCourier.UI
 			_generator.Bind(_facts, _player.Heavy);
 			_powerLever.Bind(_facts);
 			_freightLift.Bind(_facts);
-			_scanner.Bind(_facts);
 			_barricade.Bind(_player.GetComponent<CharacterController>());
 			_maintenanceDoor.Bind(_facts, engine, WarehouseConditions.MaintenanceDoor());
 			_scannerHatch.Bind(_facts, engine, WarehouseConditions.ScannerHatch());
@@ -315,6 +336,40 @@ namespace NightCourier.UI
 			_package.Integrity.Destroyed += OnPackageDestroyed;
 
 			_packageHud.Bind(_services.Localization, _run.Spec.PackageRules);
+
+			if (_run.Spec.PackageRules.Contains(PackageRuleKind.KeepInLight))
+			{
+				_darkRule = _package.GetComponent<KeepInLightRule>();
+				_darkRule.DarknessStarted += OnPackageDark;
+				_darkRule.LightRestored += OnPackageLit;
+			}
+		}
+
+		private void OnScanInterrupted()
+		{
+			if (_run.Phase == ContractPhase.InTransit)
+			{
+				_packageHud.Notify(ScanInterruptedKey);
+			}
+		}
+
+		private void OnPackageDark()
+		{
+			if (_run.Phase != ContractPhase.InTransit || Time.unscaledTime - _lastDarkNoticeAt < DarkNoticeCooldownSeconds)
+			{
+				return;
+			}
+
+			_lastDarkNoticeAt = Time.unscaledTime;
+			_packageHud.Notify(DarkStartedKey, Mathf.RoundToInt(_darkRule.DarkLimitSeconds));
+		}
+
+		private void OnPackageLit()
+		{
+			if (_run.Phase == ContractPhase.InTransit)
+			{
+				_packageHud.Notify(DarkClearedKey);
+			}
 		}
 
 		private void AnnounceRules()
@@ -444,7 +499,8 @@ namespace NightCourier.UI
 					_facts.BatteryRequired,
 					_facts.BatteryInserted,
 					_player.Heavy.IsCarrying,
-					_scanner.IsScanning)));
+					_scanner.IsScanning,
+					_scanner.HasPackageOnPlate)));
 		}
 
 		private async void OnDelivered()

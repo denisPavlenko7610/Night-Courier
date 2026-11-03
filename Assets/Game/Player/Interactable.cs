@@ -13,6 +13,8 @@ namespace NightCourier.Player
 
 		public string PromptKey => _promptKey;
 
+		public string BlockedKey { get; private set; }
+
 		public bool IsAvailable { get; private set; } = true;
 
 		public bool RequiresHold => _hold != null;
@@ -29,6 +31,11 @@ namespace NightCourier.Player
 			{
 				Release();
 			}
+		}
+
+		public void SetBlockedKey(string key)
+		{
+			BlockedKey = string.IsNullOrEmpty(key) ? null : key;
 		}
 
 		public void Press()

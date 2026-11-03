@@ -27,6 +27,8 @@ namespace NightCourier.Player
 
 		public PackageRuleSet Rules => _rules;
 
+		public bool IsHeld => _carry != null && _carry.Held == _item;
+
 		public event Action PickedUp;
 
 		public void Bind(PlayerCarry carry)

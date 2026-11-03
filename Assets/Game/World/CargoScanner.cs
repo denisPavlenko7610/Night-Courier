@@ -1,4 +1,5 @@
 using System;
+using NightCourier.Player;
 using RD.Mechanics.PressurePlate;
 using RD.Timers;
 using UnityEngine;
@@ -19,31 +20,67 @@ namespace NightCourier.World
 		private MaterialPropertyBlock _block;
 		private CountdownTimer _timer;
 		private WarehouseFacts _facts;
+		private CargoPackage _package;
+		private Collider _plateCollider;
+		private Collider[] _packageColliders = Array.Empty<Collider>();
 
 		public event Action ScanStarted;
+
+		public event Action ScanInterrupted;
 
 		public bool IsScanning => _timer != null && _timer.IsRunning;
 
 		public float Progress => _timer == null ? 0f : (float)_timer.Progress;
 
-		public void Bind(WarehouseFacts facts)
+		public bool HasPackageOnPlate
+		{
+			get
+			{
+				if (_package == null || _plateCollider == null || !_plate.IsActive || _package.IsHeld)
+				{
+					return false;
+				}
+
+				Bounds plate = _plateCollider.bounds;
+
+				foreach (Collider collider in _packageColliders)
+				{
+					if (collider != null && plate.Intersects(collider.bounds))
+					{
+						return true;
+					}
+				}
+
+				return false;
+			}
+		}
+
+		public void Bind(WarehouseFacts facts, CargoPackage package)
 		{
 			Unbind();
 
 			_facts = facts ?? throw new ArgumentNullException(nameof(facts));
+			_package = package != null ? package : throw new ArgumentNullException(nameof(package));
+			_plateCollider = _plate.GetComponent<Collider>();
+			_packageColliders = Array.FindAll(package.GetComponentsInChildren<Collider>(), collider => !collider.isTrigger);
 			_block ??= new MaterialPropertyBlock();
 			_timer = new CountdownTimer(_scanSeconds);
 			_timer.Completed += OnScanCompleted;
 
-			_plate.Activated += Evaluate;
-			_plate.Deactivated += Evaluate;
-			_facts.Changed += Evaluate;
+			_facts.Changed += OnFactsChanged;
 
-			Evaluate();
+			OnFactsChanged();
 		}
 
 		private void Update()
 		{
+			if (_timer == null)
+			{
+				return;
+			}
+
+			Evaluate();
+
 			if (!IsScanning)
 			{
 				return;
@@ -60,15 +97,9 @@ namespace NightCourier.World
 
 		private void Unbind()
 		{
-			if (_plate != null)
-			{
-				_plate.Activated -= Evaluate;
-				_plate.Deactivated -= Evaluate;
-			}
-
 			if (_facts != null)
 			{
-				_facts.Changed -= Evaluate;
+				_facts.Changed -= OnFactsChanged;
 				_facts = null;
 			}
 
@@ -77,23 +108,38 @@ namespace NightCourier.World
 				_timer.Completed -= OnScanCompleted;
 				_timer = null;
 			}
+
+			_package = null;
+		}
+
+		private void OnFactsChanged()
+		{
+			Evaluate();
+			Paint();
 		}
 
 		private void Evaluate()
 		{
-			bool shouldScan = !_facts.CargoScanned && _facts.PowerOn && _plate.IsActive;
+			bool shouldScan = !_facts.CargoScanned && _facts.PowerOn && HasPackageOnPlate;
 
 			if (shouldScan && _timer.State == CountdownTimerState.Idle)
 			{
 				_timer.Restart();
 				ScanStarted?.Invoke();
+				Paint();
 			}
 			else if (!shouldScan && _timer.State == CountdownTimerState.Running)
 			{
-				_timer.Reset();
-			}
+				bool finished = _facts.CargoScanned;
 
-			Paint();
+				_timer.Reset();
+				Paint();
+
+				if (!finished)
+				{
+					ScanInterrupted?.Invoke();
+				}
+			}
 		}
 
 		private void OnScanCompleted()

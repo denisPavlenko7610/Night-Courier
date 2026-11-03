@@ -102,13 +102,43 @@ namespace NightCourier.Tests
 			run.CollectPackage();
 			run.Depart();
 
-			WarehouseProgress needsBattery = new(true, false, false, batteryRequired: true);
+			WarehouseProgress needsBattery = new(false, false, false, batteryRequired: true);
 			WarehouseProgress holdingBattery = new(false, false, false, batteryRequired: true, carryingBattery: true);
 			WarehouseProgress inserted = new(true, false, false, batteryRequired: true, batteryInserted: true);
 
 			Assert.That(ObjectiveHints.ForLocation(run, needsBattery), Is.EqualTo(ObjectiveHints.FindBattery));
 			Assert.That(ObjectiveHints.ForLocation(run, holdingBattery), Is.EqualTo(ObjectiveHints.InsertBattery));
 			Assert.That(ObjectiveHints.ForLocation(run, inserted), Is.EqualTo(ObjectiveHints.RestorePower));
+		}
+
+		[Test]
+		public void Location_Blackout_CarriedPackage_AsksToParkItBeforeTheBattery()
+		{
+			ContractRun run = Accepted();
+			run.CollectPackage();
+			run.Depart();
+
+			WarehouseProgress carrying = new(true, false, false, batteryRequired: true);
+			WarehouseProgress parked = new(false, false, false, batteryRequired: true);
+
+			Assert.That(ObjectiveHints.ForLocation(run, carrying), Is.EqualTo(ObjectiveHints.ParkPackage));
+			Assert.That(ObjectiveHints.ForLocation(run, parked), Is.EqualTo(ObjectiveHints.FindBattery));
+		}
+
+		[Test]
+		public void Location_PackageOnTheScannerWithoutPower_AsksForPowerInsteadOfPickup()
+		{
+			ContractRun run = Accepted();
+			run.CollectPackage();
+			run.Depart();
+
+			WarehouseProgress unpowered = new(false, false, false, packageOnScanner: true);
+			WarehouseProgress powered = new(false, true, false, packageOnScanner: true);
+			WarehouseProgress elsewhere = new(false, false, false);
+
+			Assert.That(ObjectiveHints.ForLocation(run, unpowered), Is.EqualTo(ObjectiveHints.RestorePower));
+			Assert.That(ObjectiveHints.ForLocation(run, powered), Is.EqualTo(ObjectiveHints.PickUpPackage));
+			Assert.That(ObjectiveHints.ForLocation(run, elsewhere), Is.EqualTo(ObjectiveHints.PickUpPackage));
 		}
 	}
 }

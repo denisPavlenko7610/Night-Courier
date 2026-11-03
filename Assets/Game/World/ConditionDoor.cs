@@ -1,4 +1,5 @@
 using System;
+using NightCourier.Player;
 using RD.Conditions;
 using RD.Mechanics.ConditionLock;
 using RD.Mechanics.Door;
@@ -10,6 +11,7 @@ namespace NightCourier.World
 	{
 		[SerializeField] private ConditionLock _lock;
 		[SerializeField] private Door _door;
+		[SerializeField] private Interactable _notice;
 
 		private WarehouseFacts _facts;
 		private ConditionContext _context;
@@ -80,6 +82,16 @@ namespace NightCourier.World
 		private void Evaluate()
 		{
 			_lock.TryUnlock(_context, out _);
+
+			if (_notice != null)
+			{
+				_notice.SetAvailable(false);
+				_notice.SetBlockedKey(_lock.IsUnlocked
+					? null
+					: _facts.PowerOn
+						? BlockedReasons.DoorNotScanned
+						: BlockedReasons.DoorNoPower);
+			}
 		}
 
 		private void OnUnlocked(ConditionLock unlocked)

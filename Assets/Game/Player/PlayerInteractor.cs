@@ -16,8 +16,12 @@ namespace NightCourier.Player
 		private Interactable _lastFound;
 		private Interactable _target;
 		private Interactable _active;
+		private Interactable _blocked;
+		private string _blockedKey;
 
 		public Interactable Target => _target;
+
+		public Interactable Blocked => _blocked;
 
 		public float HoldProgress => _active != null ? _active.HoldProgress : 0f;
 
@@ -44,10 +48,12 @@ namespace NightCourier.Player
 			{
 				ReleaseActive();
 				SetTarget(null);
+				SetBlocked(null);
 				return;
 			}
 
-			Interactable candidate = Find();
+			Interactable found = Find();
+			Interactable candidate = found != null && found.IsAvailable ? found : null;
 
 			if (_active != null && candidate != _active)
 			{
@@ -55,6 +61,7 @@ namespace NightCourier.Player
 			}
 
 			SetTarget(candidate);
+			SetBlocked(found != null && !found.IsAvailable && found.BlockedKey != null ? found : null);
 
 			if (_target == null)
 			{
@@ -102,7 +109,7 @@ namespace NightCourier.Player
 				_lastFound = hit.collider.GetComponentInParent<Interactable>();
 			}
 
-			return _lastFound != null && _lastFound.IsAvailable ? _lastFound : null;
+			return _lastFound;
 		}
 
 		private void ReleaseActive()
@@ -119,6 +126,20 @@ namespace NightCourier.Player
 			{
 				released.Release();
 			}
+		}
+
+		private void SetBlocked(Interactable blocked)
+		{
+			string key = blocked != null ? blocked.BlockedKey : null;
+
+			if (_blocked == blocked && _blockedKey == key)
+			{
+				return;
+			}
+
+			_blocked = blocked;
+			_blockedKey = key;
+			TargetChanged?.Invoke();
 		}
 
 		private void SetTarget(Interactable target)

@@ -56,7 +56,10 @@ namespace NightCourier.World
 		{
 			bool holdingBattery = _heavy.Carried != null && _heavy.Carried.GetComponent<BatteryCell>() != null;
 
-			_interactable.SetAvailable(_facts.BatteryRequired && !_facts.BatteryInserted && holdingBattery);
+			bool waitingForBattery = _facts.BatteryRequired && !_facts.BatteryInserted;
+
+			_interactable.SetAvailable(waitingForBattery && holdingBattery);
+			_interactable.SetBlockedKey(waitingForBattery && !holdingBattery ? BlockedReasons.GeneratorNeedsBattery : null);
 		}
 
 		private void OnInteracted()

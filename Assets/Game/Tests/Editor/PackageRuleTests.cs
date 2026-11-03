@@ -101,6 +101,34 @@ namespace NightCourier.Tests
 		}
 
 		[Test]
+		public void KeepInLight_AnnouncesTheDarkOnceAndTheReturnOfLight()
+		{
+			_package = new GameObject("Package");
+			KeepInLightRule rule = _package.AddComponent<KeepInLightRule>();
+			rule.Activate(new PackageRuleContext(null, new FixedLight()));
+
+			int darkened = 0;
+			int restored = 0;
+			rule.DarknessStarted += () => darkened++;
+			rule.LightRestored += () => restored++;
+
+			rule.Advance(0.1d, true);
+
+			Assert.That(darkened + restored, Is.EqualTo(0), "a lit package announces nothing");
+
+			rule.Advance(1d, false);
+			rule.Advance(1d, false);
+
+			Assert.That(darkened, Is.EqualTo(1), "the dark is announced once, not every frame");
+
+			rule.Advance(0.1d, true);
+			rule.Advance(0.1d, true);
+
+			Assert.That(restored, Is.EqualTo(1));
+			Assert.That(rule.DarkLimitSeconds, Is.EqualTo(10f));
+		}
+
+		[Test]
 		public void KeepInLight_AdvanceBeforeActivation_Throws()
 		{
 			_package = new GameObject("Package");

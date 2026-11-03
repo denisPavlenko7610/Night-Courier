@@ -16,6 +16,12 @@ namespace NightCourier.Packages
 
 		public double DarkSeconds => _timer?.ElapsedSeconds ?? 0d;
 
+		public float DarkLimitSeconds => _darkSeconds;
+
+		public event Action DarknessStarted;
+
+		public event Action LightRestored;
+
 		public void Advance(double deltaSeconds, bool lit)
 		{
 			if (_timer == null)
@@ -28,6 +34,7 @@ namespace NightCourier.Packages
 				if (_timer.State != CountdownTimerState.Idle)
 				{
 					_timer.Reset();
+					LightRestored?.Invoke();
 				}
 
 				return;
@@ -36,6 +43,7 @@ namespace NightCourier.Packages
 			if (_timer.State == CountdownTimerState.Idle)
 			{
 				_timer.Restart();
+				DarknessStarted?.Invoke();
 			}
 
 			_timer.Tick(deltaSeconds);

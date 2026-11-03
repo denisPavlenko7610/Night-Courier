@@ -1,4 +1,5 @@
 using System;
+using NightCourier.Player;
 using RD.Mechanics.BreakableObject;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ namespace NightCourier.World
 	public sealed class BreakableBarricade : MonoBehaviour
 	{
 		[SerializeField] private BreakableObject _breakable;
+		[SerializeField] private Interactable _notice;
 
 		private Collider _traveller;
 
@@ -19,6 +21,9 @@ namespace NightCourier.World
 			_traveller = traveller != null ? traveller : throw new ArgumentNullException(nameof(traveller));
 
 			_breakable.Broken += OnBroken;
+
+			_notice.SetAvailable(false);
+			_notice.SetBlockedKey(BlockedReasons.BarricadeIntact);
 		}
 
 		private void OnDestroy()
@@ -36,6 +41,8 @@ namespace NightCourier.World
 
 		private void OnBroken()
 		{
+			_notice.SetBlockedKey(null);
+
 			foreach (Collider debris in GetComponentsInChildren<Collider>(true))
 			{
 				Physics.IgnoreCollision(debris, _traveller);

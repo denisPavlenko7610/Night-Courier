@@ -14,60 +14,25 @@ namespace NightCourier.PlayModeTests
 	public sealed class GameLoopPlayModeTests
 	{
 		private const int TestTimeoutMilliseconds = 180000;
-		private const string SaveBackupSuffix = ".playmode-backup";
 		private const long StandardDeliveryPay = 150;
 		private const long FragilePayWithBonus = 320;
 		private const long DeathFee = 25;
 		private const long StandardDeliveryExperience = 120;
 
-		private static string BackupRoot => GameDriver.SaveRoot + SaveBackupSuffix;
-
 		private GameDriver _driver;
-
-		[OneTimeSetUp]
-		public void BackUpTheRealSave()
-		{
-			if (Directory.Exists(BackupRoot))
-			{
-				RestoreTheBackup();
-			}
-
-			if (Directory.Exists(GameDriver.SaveRoot))
-			{
-				Directory.Move(GameDriver.SaveRoot, BackupRoot);
-			}
-		}
-
-		[OneTimeTearDown]
-		public void RestoreTheRealSave()
-		{
-			RestoreTheBackup();
-		}
 
 		[SetUp]
 		public void DeleteTestSave()
 		{
-			DeleteSaves();
+			GameDriver.DeleteTestSaves();
 
 			_driver = new GameDriver();
 		}
 
-		private static void RestoreTheBackup()
+		[OneTimeTearDown]
+		public void DeleteTestSaveAfterTheRun()
 		{
-			DeleteSaves();
-
-			if (Directory.Exists(BackupRoot))
-			{
-				Directory.Move(BackupRoot, GameDriver.SaveRoot);
-			}
-		}
-
-		private static void DeleteSaves()
-		{
-			if (Directory.Exists(GameDriver.SaveRoot))
-			{
-				Directory.Delete(GameDriver.SaveRoot, true);
-			}
+			GameDriver.DeleteTestSaves();
 		}
 
 		private IEnumerator NewGameAndStart(string contractId)

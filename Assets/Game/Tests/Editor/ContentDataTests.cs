@@ -6,6 +6,7 @@ using NightCourier.Contracts;
 using NightCourier.Economy;
 using NightCourier.Packages;
 using NightCourier.Weapons;
+using NightCourier.World;
 using NUnit.Framework;
 using RD.SceneFlow;
 using UnityEditor;
@@ -249,7 +250,8 @@ namespace NightCourier.Tests
 			string[] hudKeys =
 			{
 				"contract.briefing", "contract.rules", "contract.none", "contract.time_limit", "contract.bonus", "contract.threats",
-				"notice.scan_first", "result.stats", "result.save_failed", "result.settlement_failed",
+				"notice.scan_first", "notice.scan_interrupted", "notice.dark_started", "notice.dark_cleared",
+				"result.stats", "result.save_failed", "result.settlement_failed", ObjectiveHints.ParkPackage,
 				ObjectiveHints.RestorePower, ObjectiveHints.ScanPackage, ObjectiveHints.Scanning, ObjectiveHints.PickUpScanned,
 				ObjectiveHints.DeliverPackage, ObjectiveHints.PickUpPackage, ObjectiveHints.FindBattery, ObjectiveHints.InsertBattery,
 				ObjectiveHints.AcceptContract, ObjectiveHints.PickUpFromConveyor, ObjectiveHints.LoadVan,
@@ -260,6 +262,11 @@ namespace NightCourier.Tests
 			};
 
 			foreach (string key in hudKeys)
+			{
+				Require(key);
+			}
+
+			foreach (string key in BlockedReasons.All)
 			{
 				Require(key);
 			}

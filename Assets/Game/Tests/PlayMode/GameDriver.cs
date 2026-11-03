@@ -33,7 +33,9 @@ namespace NightCourier.PlayModeTests
 		private const float ScannerPackageLift = 0.45f;
 		private const float ScannerApproach = 2.5f;
 
-		public static string SaveRoot => Path.Combine(Application.persistentDataPath, CampaignStep.SaveFolder);
+		public const string TestSaveFolder = "Saves.PlayModeTests";
+
+		public static string SaveRoot => Path.Combine(Application.persistentDataPath, TestSaveFolder);
 
 		public GameHost Host { get; private set; }
 
@@ -55,6 +57,30 @@ namespace NightCourier.PlayModeTests
 				?? throw new MissingFieldException(owner.GetType().Name, field);
 
 			return (T)info.GetValue(owner);
+		}
+
+		public static void Set(object owner, string field, object value)
+		{
+			FieldInfo info = owner.GetType().GetField(field, Private)
+				?? throw new MissingFieldException(owner.GetType().Name, field);
+
+			info.SetValue(owner, value);
+		}
+
+		public static void DeleteTestSaves()
+		{
+			string root = Path.GetFullPath(SaveRoot);
+			string real = Path.GetFullPath(Path.Combine(Application.persistentDataPath, CampaignStep.SaveFolder));
+
+			if (string.Equals(root, real, StringComparison.OrdinalIgnoreCase))
+			{
+				throw new InvalidOperationException("The test save folder must never be the real save folder.");
+			}
+
+			if (Directory.Exists(root))
+			{
+				Directory.Delete(root, true);
+			}
 		}
 
 		public static void Invoke(object owner, string method, params object[] arguments)
@@ -99,9 +125,29 @@ namespace NightCourier.PlayModeTests
 			}
 		}
 
-		public IEnumerator BootToMainMenu()
+		public IEnumerator BootToMainMenu(string saveFolder = TestSaveFolder)
 		{
-			yield return SceneManager.LoadSceneAsync(BootScene, LoadSceneMode.Single);
+			void RedirectSaves(Scene scene, LoadSceneMode mode)
+			{
+				GameHost host = Object.FindFirstObjectByType<GameHost>();
+
+				if (host != null)
+				{
+					Set(host, "_saveFolder", saveFolder);
+				}
+			}
+
+			SceneManager.sceneLoaded += RedirectSaves;
+
+			try
+			{
+				yield return SceneManager.LoadSceneAsync(BootScene, LoadSceneMode.Single);
+			}
+			finally
+			{
+				SceneManager.sceneLoaded -= RedirectSaves;
+			}
+
 			yield return WaitUntil(() => Object.FindFirstObjectByType<GameHost>() != null, "the game host");
 
 			Host = Object.FindFirstObjectByType<GameHost>();
@@ -217,19 +263,7 @@ namespace NightCourier.PlayModeTests
 
 			Assert.That(facts.PowerOn, Is.True, "The breaker panel did not switch the power on.");
 
-			CargoScanner scanner = Object.FindFirstObjectByType<CargoScanner>();
-			Collider plate = Get<Component>(scanner, "_plate").GetComponentInChildren<Collider>();
-			CargoPackage package = Object.FindFirstObjectByType<CargoPackage>();
-
-			Teleport(player, plate.bounds.center + new Vector3(-ScannerApproach, 0.1f, 0f));
-			Assert.That(player.Carry.Drop(), Is.True);
-
-			Vector3 onPlate = plate.bounds.center + new Vector3(0f, plate.bounds.extents.y + ScannerPackageLift, 0f);
-			Rigidbody body = package.GetComponent<Rigidbody>();
-
-			body.linearVelocity = Vector3.zero;
-			body.position = onPlate;
-			package.transform.position = onPlate;
+			PlacePackageOnScanner();
 
 			yield return WaitUntil(() => facts.CargoScanned, "the cargo scan", ScanTimeoutSeconds);
 			yield return PickUpPackage();
@@ -241,6 +275,60 @@ namespace NightCourier.PlayModeTests
 
 			yield return WaitUntil(() => ResultVisible, "the result panel");
 		}
+
+		public IEnumerator StartContract(string contractId)
+		{
+			yield return BootToMainMenu();
+			yield return NewGameToDepot();
+			yield return AcceptInTerminal(contractId);
+			yield return CarryPackageToTheVanAndDepart();
+		}
+
+		public void PlacePackageOnScanner()
+		{
+			PlayerSession player = Player;
+			CargoScanner scanner = Object.FindFirstObjectByType<CargoScanner>();
+			Collider plate = Get<Component>(scanner, "_plate").GetComponentInChildren<Collider>();
+			CargoPackage package = Object.FindFirstObjectByType<CargoPackage>();
+
+			Teleport(player, plate.bounds.center + new Vector3(-ScannerApproach, 0.1f, 0f));
+
+			if (player.Carry.IsCarrying)
+			{
+				Assert.That(player.Carry.Drop(), Is.True);
+			}
+
+			Vector3 onPlate = plate.bounds.center + new Vector3(0f, plate.bounds.extents.y + ScannerPackageLift, 0f);
+
+			MovePackage(package, onPlate);
+		}
+
+		public static void MovePackage(CargoPackage package, Vector3 position)
+		{
+			Rigidbody body = package.GetComponent<Rigidbody>();
+
+			if (!body.isKinematic)
+			{
+				body.linearVelocity = Vector3.zero;
+				body.angularVelocity = Vector3.zero;
+			}
+
+			body.position = position;
+			package.transform.position = position;
+		}
+
+		public string NoticeText
+		{
+			get
+			{
+				PackageHudView hud = Object.FindFirstObjectByType<PackageHudView>();
+				LocalizedLabel label = Get<LocalizedLabel>(hud, "_notice");
+
+				return label.gameObject.activeInHierarchy ? Get<Text>(label, "_text").text : string.Empty;
+			}
+		}
+
+		public string PromptText => Get<Text>(Object.FindFirstObjectByType<InteractionPromptView>(), "_prompt").text;
 
 		public bool ResultVisible => Get<GameObject>(Warehouse, "_resultPanel").activeSelf;
 
