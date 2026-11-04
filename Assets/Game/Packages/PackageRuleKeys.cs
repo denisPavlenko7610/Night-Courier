@@ -21,6 +21,11 @@ namespace NightCourier.Packages
 			return NameKey(kind) + ".hint";
 		}
 
+		public static string BriefKey(PackageRuleKind kind)
+		{
+			return NameKey(kind) + ".brief";
+		}
+
 		public static string AdviceKey(PackageRuleKind kind)
 		{
 			return NameKey(kind) + ".advice";

@@ -73,6 +73,8 @@ Fragile (₡220, Do Not Drop, ladder) is the careful-handling variant between th
 
 ### 0.4 Win and fail criteria (current rules)
 
+**Sprint 03 implementation update (2026-11-04).** The battery was moved from the south hall behind the barricade (-5, 0.4, -9.5) to the far end of the dock (-14, 0.4, -5.5). Park the parcel under the work lamp, fetch the two-handed battery along the dock aisle, insert it and use the breaker. The maintenance route can then open without destroying the barricade. The intended blackout payout is now 260 without a property fine; Restricted Cargo can retain its 100-credit clean-run bonus without a mandatory property deduction. The integration helper no longer breaks the barricade and checks capsule clearance along the dock approach. This is a scene/test change, NOT VERIFIED in Play Mode after the editor connection failed. Older barricade-trip descriptions below and in historical logs describe the previous layout. The Express timing dilemma is still unresolved; deadlines and rewards are unchanged. See [NightCourierPlaytest.md](NightCourierPlaytest.md).
+
 - **Success:** the scanned package is delivered at the terminal. The payout is base pay plus met bonuses minus ammo, property, and death deductions, never below ₡0; the rating feeds the courier rank.
 - **Contract failure (no payout, the contract returns to Available):** the package is destroyed, the ladder reaches its fail step (violation 4 on Fragile, Lights Out, and Restricted Cargo), or the player aborts from the pause menu.
 - **Not a failure:** player death (respawn at the last locker, a ₡25 recovery fee, a dropped package counts as a Do Not Drop violation), an overdue Express (loses the bonus and grades time F), and property damage (a fine and a worse grade).
@@ -115,6 +117,39 @@ Labels: **Implemented in code** (compiles, covered by an EditMode or PlayMode te
 | Contract 04 shown to the player as "Rush Delivery" (the font draws X like H; the id stays `contract.express`) | Yes (text only) | | A font that draws X correctly |
 | Express with a real dilemma | Crawlers added to the Express data; a Play Mode test settles Express with both threats active | | The route is still not faster: a wall gap saves only about 4 m; a real shortcut or a slower lift is needed (Next-Sprint 2) |
 | One honest hand-played trip | | | Next-Sprint 1 |
+
+---
+
+### 0.8 v0.4 proposal: a playable vertical slice
+
+Status: proposed supplement to v0.2/v0.3, supplied on 2026-11-04. This section defines design intent and acceptance; it does not replace the existing GDD or certify scene configuration, balance, UX or human playtesting. Historical verification above belongs to its recorded pass; current evidence and failures live in [NightCourierPlaytest.md](NightCourierPlaytest.md).
+
+**Player promise:** I am a night courier carrying dangerous cargo. I must understand the order's restrictions, find a practical route, overcome obstacles and decide whether to risk time, money or the parcel's condition.
+
+Each contract should ask the player to manage one or two clear restrictions and make one meaningful route decision. Combat supports delivery. Module coverage is not a gameplay goal.
+
+| Existing contract | Intended experience | Player decision | Required feedback |
+|---|---|---|---|
+| Standard Delivery | Learn pickup, scan and delivery without penalties | Understand the sequence | Clear changing objective, scanner placement cue, understandable result |
+| Lights Out | Restore power while respecting light | Where to park the parcel and when to fetch the battery | Readable safe light, darkness warning, visible restoration |
+| Express | Deliver under time pressure with threats | Faster dangerous path versus slower safer bypass | Remaining time and immediate explanation of expiry or bonus outcome |
+
+Fragile and Restricted Cargo remain harder variations. Keep all five existing assets and their identities; do not add a sixth contract. Verify actual contract settings and alternative paths in Unity. Changing only names, time limits and enemy counts does not demonstrate a new tactic.
+
+**Route rule.** Aim for two legible solutions to the same spatial problem: fast with a visible danger, destruction or careful cargo manoeuvre; slower with less exposure and the possibility of avoiding combat and fines. Before changing the level, walk the existing route and draw its actual entrance, parcel, battery, generator, scanner, exit, hazards and safe light. Use existing assets first. Add compact geometry only when existing composition cannot provide a real choice. The current Express time gap and penalty-free blackout path are not verified; section 0.4 records the known blockers.
+
+**Design checks.** The player knows the goal and sees it change after an action. Every violation or deduction follows an observable event. Mistakes allow recovery or a deliberate risk decision. At least one different tactic is needed across the three selected contracts. A complete trip works with normal input, without debug teleports or direct method calls. Any penalty described as optional has a reachable penalty-free alternative.
+
+Verification order for Sprint 03:
+
+1. Play Standard Delivery, Lights Out and Express with keyboard/mouse; record time and each moment of confusion. Preserve the real unlock chain and isolate test saves.
+2. Fix blocking or prominent UX issues first: interaction prompts, scanner state, light safety, result explanation, pause and death recovery.
+3. Establish one meaningful route choice in the existing Warehouse if feasible without a new level. Test changed state and repeat a short human playtest.
+4. Only then proceed to visual/audio polish. A full second level and new mechanic categories are separate milestones.
+
+Outside this slice: open world, procedural locations, driving, twenty contracts, weapon expansion, a new NPC system, crafting, multiplayer, full narrative/dialogue, forced use of every RD module and a new UI framework. This does not remove approved later-tier design; it prevents it from expanding Sprint 03.
+
+**Completion gate.** A player starts without programmer coaching, completes three meaningfully different contracts, understands cargo rules, can avoid optional penalties, receives an honest result explanation and returns to the Depot with progress restored. Record PASS, FAIL or NOT VERIFIED separately for each item from real Unity execution. Automated state-driven integration and visual screenshots are separate evidence categories; neither establishes this human completion gate.
 
 ---
 

@@ -27,9 +27,7 @@ namespace NightCourier.PlayModeTests
 		private const string RestrictedCargo = "contract.restricted-cargo";
 		private const long LightsOutPay = 260;
 		private const long RestrictedCargoPay = 450;
-		private const long PropertyFine = 20;
 		private const long NoViolationsBonus = 100;
-		private const int PropertyDamageOnly = 1;
 		private const float StrangerObservationSeconds = 4.5f;
 		private const float DarkObservationSeconds = 6f;
 		private const float StrangerSize = 0.4f;
@@ -139,7 +137,7 @@ namespace NightCourier.PlayModeTests
 			GameDriver.Teleport(_driver.Player, BarricadeViewpoint);
 			_driver.Player.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
 
-			yield return GameDriver.WaitUntil(() => _driver.PromptText.Contains("Weak barricade"), "the barricade explanation on the prompt");
+			yield return GameDriver.WaitUntil(() => _driver.PromptText.Contains("crowbar"), "the barricade explanation on the prompt");
 
 			yield return new WaitForSeconds(DarkObservationSeconds / 2f);
 
@@ -149,7 +147,7 @@ namespace NightCourier.PlayModeTests
 
 			yield return GameDriver.WaitUntil(() => rule.DarkSeconds > 0.5d, "the dark timer to run in the hall");
 
-			Assert.That(_driver.NoticeText, Does.Contain("in the dark"));
+			Assert.That(_driver.NoticeText, Does.Contain("in darkness"));
 
 			GameDriver.MovePackage(package, parkedAt);
 
@@ -169,12 +167,12 @@ namespace NightCourier.PlayModeTests
 			yield return _driver.CarryPackageToTheVanAndDepart();
 			yield return _driver.PowerUpTheBlackout();
 
-			Assert.That(_driver.Run.ViolationCount, Is.EqualTo(PropertyDamageOnly), "Only the barricade fine is expected before the delivery.");
+			Assert.That(_driver.Run.ViolationCount, Is.Zero, "Restoring power must not require damage or a cargo violation.");
 
 			yield return _driver.ScanAndDeliver();
 
 			Assert.That(_driver.ResultText, Does.Contain("Base pay: " + LightsOutPay));
-			Assert.That(_driver.ResultText, Does.Contain("Property damage: -" + PropertyFine));
+			Assert.That(_driver.ResultText, Does.Not.Contain("Property damage: -"));
 			Assert.That(_driver.Campaign.Contracts.ActiveRun, Is.Null);
 		}
 
@@ -199,9 +197,9 @@ namespace NightCourier.PlayModeTests
 			yield return _driver.ScanAndDeliver();
 
 			Assert.That(_driver.ResultText, Does.Contain("Base pay: " + RestrictedCargoPay));
-			Assert.That(_driver.ResultText, Does.Contain("Property damage: -" + PropertyFine));
+			Assert.That(_driver.ResultText, Does.Not.Contain("Property damage: -"));
 			Assert.That(_driver.ResultText, Does.Contain("Rule violations: 0"), "Fetching the battery forced a rule violation.");
-			Assert.That(_driver.ResultText, Does.Contain("No violations: " + NoViolationsBonus), "The bonus was lost although only the barricade was broken.");
+			Assert.That(_driver.ResultText, Does.Contain("No violations: " + NoViolationsBonus), "The bonus was lost on a clean battery trip.");
 			Assert.That(_driver.Campaign.Contracts.ActiveRun, Is.Null, "The run was not settled.");
 		}
 

@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Text;
 using NightCourier.AI;
 using NightCourier.App;
 using NightCourier.Audio;
@@ -32,7 +31,6 @@ namespace NightCourier.UI
 		private const string ScanInterruptedKey = "notice.scan_interrupted";
 		private const string DarkStartedKey = "notice.dark_started";
 		private const string DarkClearedKey = "notice.dark_cleared";
-		private const string SaveFailedKey = "result.save_failed";
 		private const string SettlementFailedKey = "result.settlement_failed";
 
 		[SerializeField] private PlayerSession _player;
@@ -66,7 +64,7 @@ namespace NightCourier.UI
 		[SerializeField] private LocalizedLabel _resultTitle;
 		[SerializeField] private LocalizedLabel _contractTitle;
 		[SerializeField] private LocalizedLabel _timerLabel;
-		[SerializeField] private Text _breakdownText;
+		[SerializeField] private ResultPanelView _resultView;
 		[SerializeField] private LocalizedLabel _creditsLabel;
 		[SerializeField] private Button _returnButton;
 
@@ -485,7 +483,7 @@ namespace NightCourier.UI
 		{
 			_sounds.PlayFailed();
 			_resultTitle.SetKey("result.failed_title");
-			_breakdownText.text = _services.Localization.Get(reasonKey);
+			_resultView.ShowFailure(_services.Localization, _run.Spec, reasonKey);
 			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
 
 			_resultScope ??= _services.Input.PushMenu();
@@ -593,64 +591,12 @@ namespace NightCourier.UI
 
 		private void ShowResult(ContractSettlement settlement, ContractOutcome outcome, RankChange rankChange, bool saved)
 		{
-			ILocalizationService localization = _services.Localization;
-			StringBuilder text = new();
-
-			foreach (SettlementLine line in settlement.Lines)
-			{
-				text.AppendLine(localization.Get("result.line", localization.Get(line.LabelKey), line.Amount));
-			}
-
-			text.AppendLine(localization.Get("result.total", settlement.Total));
-			text.AppendLine();
-			text.AppendLine(localization.Get("result.rating", settlement.Rating.Overall));
-			text.AppendLine(localization.Get(
-				"result.rating_axes",
-				GradeText(settlement.Rating.DeliveryTime),
-				GradeText(settlement.Rating.CargoCondition),
-				GradeText(settlement.Rating.ProtocolCompliance),
-				GradeText(settlement.Rating.PropertyDamage)));
-			text.AppendLine(localization.Get(
-				"result.rank_xp",
-				localization.Get(_campaign.Rank.TitleKey),
-				rankChange.ExperienceGained));
-
-			if (rankChange.Promoted)
-			{
-				text.AppendLine(localization.Get("result.rank_promoted", localization.Get(_campaign.Rank.TitleKey)));
-			}
-
-			text.AppendLine();
-			text.AppendLine(localization.Get(
-				"result.stats",
-				outcome.PackageViolationCount,
-				Mathf.RoundToInt((float)outcome.CargoIntegrity * 100f),
-				outcome.PropertyDamageCount,
-				outcome.DeathCount));
-
-			text.AppendLine();
-
-			foreach (string key in SettlementAdvice.For(outcome))
-			{
-				text.AppendLine(localization.Get(key));
-			}
-
-			if (!saved)
-			{
-				text.AppendLine(localization.Get(SaveFailedKey));
-			}
-
 			_sounds.PlayDelivered();
-			_breakdownText.text = text.ToString().TrimEnd();
+			_resultView.ShowSuccess(_services.Localization, _run.Spec, settlement, outcome, _campaign.Rank, rankChange, saved);
 			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
 
 			_resultScope ??= _services.Input.PushMenu();
 			_resultPanel.SetActive(true);
-		}
-
-		private static string GradeText(ShiftGrade? grade)
-		{
-			return grade.HasValue ? grade.Value.ToString() : "-";
 		}
 
 		private async void Navigate(string sceneId)

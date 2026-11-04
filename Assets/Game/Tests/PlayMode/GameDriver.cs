@@ -33,6 +33,11 @@ namespace NightCourier.PlayModeTests
 		private const int MaxHoldSteps = 400;
 		private const float ScannerPackageLift = 0.45f;
 		private const float ScannerApproach = 2.5f;
+		private const float DockPathRadius = 0.35f;
+		private const float DockPathLowerHeight = 0.45f;
+		private const float DockPathUpperHeight = 1.5f;
+		private static readonly Vector3 DockAisleStart = new(-18f, 0f, -13f);
+		private static readonly Vector3 DockAisleEnd = new(-18f, 0f, -6.5f);
 
 		public const string TestSaveFolder = "Saves.PlayModeTests";
 
@@ -282,15 +287,14 @@ namespace NightCourier.PlayModeTests
 			WarehouseEntry warehouse = Warehouse;
 			PlayerSession player = Player;
 			WarehouseFacts facts = Get<WarehouseFacts>(warehouse, "_facts");
-			BreakableBarricade barricade = Get<BreakableBarricade>(warehouse, "_barricade");
 
 			Assert.That(facts.BatteryRequired, Is.True, "This contract has no blackout to power up.");
 
-			barricade.GetComponent<HealthCarrier>().ReceiveDamage(new DamageRequest(1000d, new DamageTypeId("test"), "playmode-test", true));
-
-			yield return WaitUntil(() => Run.PropertyDamageCount == 1, "the barricade to break");
-
 			Interactable battery = Get<Interactable>(Object.FindFirstObjectByType<BatteryCell>(), "_interactable");
+
+			AssertDockPathClear(player.transform.position, DockAisleStart);
+			AssertDockPathClear(DockAisleStart, DockAisleEnd);
+			AssertDockPathClear(DockAisleEnd, battery.transform.position + Vector3.back * PickUpDistance);
 
 			Teleport(player, battery.transform.position + new Vector3(0f, 0.1f, -PickUpDistance));
 			battery.Press();
@@ -307,6 +311,21 @@ namespace NightCourier.PlayModeTests
 			Get<Interactable>(Object.FindFirstObjectByType<PowerLever>(), "_interactable").Press();
 
 			Assert.That(facts.PowerOn, Is.True, "The breaker panel did not switch the power on after the battery.");
+		}
+
+		private static void AssertDockPathClear(Vector3 from, Vector3 to)
+		{
+			from.y = 0f;
+			to.y = 0f;
+			Vector3 offset = to - from;
+
+			bool blocked = Physics.CapsuleCast(
+				from + Vector3.up * DockPathLowerHeight,
+				from + Vector3.up * DockPathUpperHeight,
+				DockPathRadius, offset.normalized, offset.magnitude,
+				LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore);
+
+			Assert.That(blocked, Is.False, "The dock battery route is blocked by scene geometry.");
 		}
 
 		public IEnumerator StartContract(string contractId)
@@ -365,7 +384,7 @@ namespace NightCourier.PlayModeTests
 
 		public bool ResultVisible => Get<GameObject>(Warehouse, "_resultPanel").activeSelf;
 
-		public string ResultText => Get<Text>(Warehouse, "_breakdownText").text;
+		public string ResultText => Get<ResultPanelView>(Warehouse, "_resultView").Transcript;
 
 		public void DamagePackage(double amount)
 		{

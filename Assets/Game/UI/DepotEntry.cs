@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NightCourier.App;
 using NightCourier.Audio;
 using NightCourier.Contracts;
@@ -12,7 +10,6 @@ using NightCourier.Weapons;
 using RD.Audio;
 using RD.DependencyInjection;
 using RD.Foundation;
-using RD.Localization;
 using RD.Mechanics.Interactable;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,8 +19,6 @@ namespace NightCourier.UI
 	public sealed class DepotEntry : MonoBehaviour, ISceneEntry
 	{
 		private const string AcceptKey = "contract.accept";
-		private const string BriefingKey = "contract.briefing";
-		private const string ListSeparator = ", ";
 		private const float AmbienceFadeSeconds = 0.5f;
 
 		[SerializeField] private PlayerSession _player;
@@ -222,7 +217,13 @@ namespace NightCourier.UI
 			{
 				if (index < available.Count)
 				{
-					_slots[index].Show(available[index], available[index] == _selected, OnSelected);
+					bool selected = available[index] == _selected;
+
+					_slots[index].Show(
+						available[index],
+						selected,
+						ContractBriefing.SlotLabel(available[index], _services.Localization, selected),
+						OnSelected);
 				}
 				else
 				{
@@ -245,45 +246,8 @@ namespace NightCourier.UI
 			}
 
 			_detailsTitle.SetKey(spec.TitleKey);
-			_detailsBody.SetKey(spec.DescriptionKey);
-			_detailsInfo.SetKey(BriefingKey, BuildBriefing(spec));
-		}
-
-		private string BuildBriefing(ContractSpec spec)
-		{
-			ILocalizationService localization = _services.Localization;
-			StringBuilder text = new();
-
-			text.Append(localization.Get(
-				"contract.info",
-				localization.Get(ContractKeys.RiskKey(spec.Risk)),
-				spec.BaseReward,
-				localization.Get(ContractKeys.StateKey(spec.LocationState))));
-
-			text.Append('\n').Append(localization.Get(
-				"contract.rules",
-				spec.PackageRules.Count == 0
-					? localization.Get("contract.none")
-					: string.Join(ListSeparator, spec.PackageRules.Select(rule => localization.Get(PackageRuleKeys.NameKey(rule))))));
-
-			if (spec.HasTimeLimit)
-			{
-				text.Append('\n').Append(localization.Get("contract.time_limit", ClockText.Format(spec.TimeLimitSeconds)));
-			}
-
-			foreach (ContractObjectiveSpec objective in spec.Objectives)
-			{
-				text.Append('\n').Append(localization.Get("contract.bonus", localization.Get(objective.LabelKey), objective.BonusCredits));
-			}
-
-			if (spec.Encounters.Count > 0)
-			{
-				text.Append('\n').Append(localization.Get(
-					"contract.threats",
-					string.Join(ListSeparator, spec.Encounters.Select(threat => localization.Get(ContractKeys.ThreatKey(threat))))));
-			}
-
-			return text.ToString();
+			_detailsBody.SetRichText(ContractBriefing.Story(spec, _services.Localization));
+			_detailsInfo.SetRichText(ContractBriefing.Terms(spec, _services.Localization));
 		}
 
 		private void ShowAction(bool visible)

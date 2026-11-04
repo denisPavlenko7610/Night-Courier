@@ -5,6 +5,7 @@ using NightCourier.App;
 using NightCourier.Contracts;
 using NightCourier.Economy;
 using NightCourier.Packages;
+using NightCourier.UI;
 using NightCourier.Weapons;
 using NightCourier.World;
 using NUnit.Framework;
@@ -204,6 +205,10 @@ namespace NightCourier.Tests
 			{
 				Require(spec.TitleKey);
 				Require(spec.DescriptionKey);
+				Require(ContractKeys.OrderKey(spec.TitleKey));
+				Require(ContractKeys.NotesKey(spec.TitleKey));
+				Require(ContractKeys.MemoKey(spec.TitleKey));
+				Require(ContractKeys.LocationKey(spec.DestinationSceneId));
 
 				foreach (ContractObjectiveSpec objective in spec.Objectives)
 				{
@@ -214,6 +219,7 @@ namespace NightCourier.Tests
 				{
 					Require(PackageRuleKeys.NameKey(rule));
 					Require(PackageRuleKeys.HintKey(rule));
+					Require(PackageRuleKeys.BriefKey(rule));
 					Require(PackageRuleKeys.AdviceKey(rule));
 				}
 
@@ -249,9 +255,16 @@ namespace NightCourier.Tests
 
 			string[] hudKeys =
 			{
-				"contract.briefing", "contract.rules", "contract.none", "contract.time_limit", "contract.bonus", "contract.threats",
+				LocalizedLabel.PassthroughKey, "contract.none", "contract.site", "contract.slot_summary", "contract.field.risk",
+				"contract.field.pay", "contract.field.site", "contract.field.rules", "contract.field.deadline", "contract.field.bonus",
+				"contract.field.threats", "contract.field.notes", "hud.objective", "menu.tagline", "menu.footer",
+				"result.subtitle", "result.caption_settlement", "result.caption_rating", "result.caption_debrief", "result.total_label",
+				"result.failed_footer", "result.rank_line", "result.axis.time", "result.axis.cargo", "result.axis.protocol",
+				"result.axis.property", "result.stat.violations", "result.stat.cargo", "result.stat.property", "result.stat.deaths",
+				"controls.keyboard_header", "controls.gamepad_header", "controls.keyboard_keys", "controls.keyboard_actions",
+				"controls.gamepad_keys", "controls.gamepad_actions",
 				"notice.scan_first", "notice.scan_interrupted", "notice.dark_started", "notice.dark_cleared",
-				"result.stats", "result.save_failed", "result.settlement_failed", ObjectiveHints.ParkPackage,
+				"result.save_failed", "result.settlement_failed", ObjectiveHints.ParkPackage,
 				ObjectiveHints.RestorePower, ObjectiveHints.ScanPackage, ObjectiveHints.Scanning, ObjectiveHints.PickUpScanned,
 				ObjectiveHints.DeliverPackage, ObjectiveHints.PickUpPackage, ObjectiveHints.FindBattery, ObjectiveHints.InsertBattery,
 				ObjectiveHints.AcceptContract, ObjectiveHints.PickUpFromConveyor, ObjectiveHints.LoadVan,
@@ -272,6 +285,40 @@ namespace NightCourier.Tests
 			}
 
 			Assert.That(missing, Is.Empty, "Missing localization keys: " + string.Join(", ", missing));
+		}
+
+		[Test]
+		public void Localization_AvoidsTheLetterTheUiFontMisreads()
+		{
+			LocalizationTable table = JsonUtility.FromJson<LocalizationTable>(Load<TextAsset>(LocalizationPath).text);
+			List<string> offenders = new();
+
+			foreach (LocalizationEntry entry in table.Entries)
+			{
+				if (entry.Value.IndexOfAny(new[] { 'x', 'X' }) >= 0)
+				{
+					offenders.Add(entry.Key);
+				}
+			}
+
+			Assert.That(offenders, Is.Empty, "The UI font draws X like H: " + string.Join(", ", offenders));
+		}
+
+		[Test]
+		public void Localization_DoesNotShipTheShortContractTextsAsFillerTwice()
+		{
+			JsonLocalizationProvider table = new(Load<TextAsset>(LocalizationPath));
+			HashSet<string> seen = new();
+
+			foreach (ContractSpec spec in _book.All)
+			{
+				foreach (string key in new[] { spec.DescriptionKey, ContractKeys.NotesKey(spec.TitleKey), ContractKeys.MemoKey(spec.TitleKey) })
+				{
+					table.TryGet(key, null, out string value);
+
+					Assert.That(seen.Add(value), Is.True, "Duplicate contract copy at " + key);
+				}
+			}
 		}
 
 		[Test]

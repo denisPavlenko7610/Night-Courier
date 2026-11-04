@@ -34,13 +34,13 @@ scan → hatch → delivery terminal.
 
 | # | Step | What the player should see | Record: minutes | Record: confusion |
 |---|---|---|---|---|
-| A1 | Depot: open the terminal (E), read the briefing, accept (once) | Briefing lists risk, pay, site, `Package rules: none`; the objective says to pick up the package | | |
-| A2 | Take the package, load the van (E) | The objective changes to "Carry the package to the van." | | |
-| A3 | Warehouse: pick up the package | "Switch on the breaker panel. The scanner, the lift, and the maintenance door run on it." | | |
-| A4 | Look at the maintenance door before the power is on | The prompt reads "Locked: no power. Switch on the breaker panel." | | |
+| A1 | Depot: open the terminal (E), read the briefing, accept (once) | The terminal shows the work order, dispatch notes, risk estimate, base pay, site, and `Package rules: None`; the objective says to pick up the parcel | | |
+| A2 | Take the package, load the van (E) | The objective changes to "Carry the parcel to the van and load it." | | |
+| A3 | Warehouse: pick up the package | "Switch on the breaker panel. The scanner, lift and door run on it." | | |
+| A4 | Look at the maintenance door before the power is on | The prompt reads "No power. Switch on the breaker panel." | | |
 | A5 | Pull the breaker lever | The door opens; the objective says to set the package on the scanner plate | | |
-| A6 | Walk to the lift; look at the console before and after the power | No-power text before; "Use freight lift" after | | |
-| A7 | Set the package on the plate (G) | Indicator turns amber, "Scanning...", green after about 3 s, "Scan complete..." | | |
+| A6 | Walk to the lift; look at the console before and after the power | No-power text before; "Ride the freight lift" after | | |
+| A7 | Set the package on the plate (G) | Indicator turns amber, "Scanning. Leave the package on the plate...", green after about 3 s, "Scan complete..." | | |
 | A8 | Pick it up, pass the hatch, hold E at the terminal | One result panel: Base pay, total, rating, rank and XP, one improvement line | | |
 | A9 | Return to the Depot (click once), then Main Menu → Continue | Credits 150, the contract no longer offered | | |
 
@@ -55,11 +55,11 @@ without help.
 | # | Step | What the player should see | Record: minutes | Record: confusion |
 |---|---|---|---|---|
 | B1 | Arrive in the blackout dock | The hint says the rule and that the work lamp is the safe spot; the package sits lit on the crate | | |
-| B2 | Pick the package up and walk out of the lamp pool | "The package is in the dark. Move it into the light within 10 seconds." once | | |
+| B2 | Pick the package up and walk out of the lamp pool | "Cargo in darkness. Find light within 10 seconds." once | | |
 | B3 | Try the breaker panel, then the generator, without a battery | The prompts say the panel is dead and the generator needs a battery | | |
-| B4 | Find the way out | The only exit is the barricade; looking at it reads "Weak barricade. Equip the crowbar and hit it..." | | |
+| B4 | Find the way out | Find the battery at the far end of the dock. The barricade is optional and its prompt warns of a fine. | | |
 | B5 | With the package in hand, try to grab the battery | "Your hands are full." and the objective says to set the package down on the lit crate | | |
-| B6 | Break the barricade, carry the battery back (both hands), insert it, pull the lever | Lights come on, doors unlock, the property fine appears on the result | | |
+| B6 | Leave the barricade intact, fetch the dock battery (both hands), insert it, pull the lever | Lights come on, doors unlock, no property fine appears on the result | | |
 | B7 | Finish the delivery | Result lists Base pay and the ₡20 property fine | | |
 
 Record: did the tester park the package under the lamp on purpose? ___; violations ___; minutes ___; where the tester

@@ -6,17 +6,17 @@ namespace NightCourier.UI
 {
 	public sealed class ObjectiveView : MonoBehaviour
 	{
+		private const string CaptionKey = "hud.objective";
+
 		[SerializeField] private LocalizedLabel _label;
 
+		private ILocalizationService _localization;
 		private string _key;
 		private bool _hidden;
 
 		public void Bind(ILocalizationService localization)
 		{
-			if (localization == null)
-			{
-				throw new ArgumentNullException(nameof(localization));
-			}
+			_localization = localization ?? throw new ArgumentNullException(nameof(localization));
 
 			_label.Bind(localization);
 			_key = null;
@@ -50,7 +50,7 @@ namespace NightCourier.UI
 
 			if (visible)
 			{
-				_label.SetKey(_key);
+				_label.SetRichText(UiStyle.Heading(_localization.Get(CaptionKey)) + "\n" + _localization.Get(_key));
 			}
 		}
 	}

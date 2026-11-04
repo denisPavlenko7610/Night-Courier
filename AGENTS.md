@@ -144,7 +144,7 @@ PhysicsButton, Pendulum, RopeSwing.
   panel covers are hidden with a `CanvasGroup`, not left to show through. `UiLayoutPlayModeTests` captures 18 screens at
   seven resolutions (16:9, 16:10, 5:4, 4:3, 21:9) into `Temp/UiAudit` and fails on overlapping, clipped, or off-screen
   text; run it after any UI change and read the screenshots. The UI font draws the letter X like H (`XP`, `maximum`,
-  `Express` are misread), so keep player-facing strings free of X.
+  `Express` are misread), so keep player-facing strings free of X. Colors, money (`₡`), pips and grades come from `UiStyle`; rich text is composed in code (`ContractBriefing`, `ResultPanelView`) and passed through `LocalizedLabel.SetRichText`, never stored in `en.json`. Each contract's copy is data: `<contract>.title`, `.description`, `.order`, `.notes` (one dispatch note per line) and `.memo`, and `ContentDataTests` checks that every key exists and that no string contains X.
 
 ## Visuals and Assets
 

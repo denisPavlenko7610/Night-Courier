@@ -28,7 +28,7 @@ namespace NightCourier.UI
 			gameObject.SetActive(true);
 			_title.SetKey(spec.TitleKey);
 			_description.SetKey(spec.DescriptionKey);
-			_level.SetKey(LevelKey, level, spec.MaxLevel);
+			_level.SetKey(LevelKey, level, spec.MaxLevel, UiStyle.Tint(UiStyle.Pips(level, spec.MaxLevel), UiStyle.AccentColor));
 
 			if (level >= spec.MaxLevel)
 			{

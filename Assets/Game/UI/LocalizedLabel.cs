@@ -9,6 +9,8 @@ namespace NightCourier.UI
 	[RequireComponent(typeof(Text))]
 	public sealed class LocalizedLabel : MonoBehaviour
 	{
+		public const string PassthroughKey = "ui.text";
+
 		[SerializeField] private string _key;
 		[SerializeField, Assign] private Text _text;
 
@@ -45,6 +47,11 @@ namespace NightCourier.UI
 			_arguments = arguments ?? Array.Empty<object>();
 
 			Refresh();
+		}
+
+		public void SetRichText(string text)
+		{
+			SetKey(PassthroughKey, text);
 		}
 
 		private void Refresh()

@@ -4,6 +4,8 @@ namespace NightCourier.Contracts
 {
 	public static class ContractKeys
 	{
+		public const string TitleSuffix = ".title";
+
 		public static string RiskKey(ContractRisk risk)
 		{
 			return risk switch
@@ -23,6 +25,41 @@ namespace NightCourier.Contracts
 				LocationState.Blackout => "location_state.blackout",
 				_ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown location state.")
 			};
+		}
+
+		public static string OrderKey(string titleKey)
+		{
+			return Companion(titleKey, ".order");
+		}
+
+		public static string NotesKey(string titleKey)
+		{
+			return Companion(titleKey, ".notes");
+		}
+
+		public static string MemoKey(string titleKey)
+		{
+			return Companion(titleKey, ".memo");
+		}
+
+		public static string LocationKey(string sceneId)
+		{
+			if (string.IsNullOrEmpty(sceneId))
+			{
+				throw new ArgumentException("A scene id is required.", nameof(sceneId));
+			}
+
+			return "location." + sceneId;
+		}
+
+		private static string Companion(string titleKey, string suffix)
+		{
+			if (string.IsNullOrEmpty(titleKey) || !titleKey.EndsWith(TitleSuffix, StringComparison.Ordinal))
+			{
+				throw new ArgumentException("A contract title key must end with '" + TitleSuffix + "'.", nameof(titleKey));
+			}
+
+			return titleKey.Substring(0, titleKey.Length - TitleSuffix.Length) + suffix;
 		}
 
 		public static string ThreatKey(EncounterKind encounter)

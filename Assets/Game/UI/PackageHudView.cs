@@ -42,7 +42,7 @@ namespace NightCourier.UI
 			}
 
 			_rules.gameObject.SetActive(names.Count > 0);
-			_rules.SetKey(RulesKey, string.Join(RuleSeparator, names));
+			_rules.SetKey(RulesKey, UiStyle.Tint(string.Join(RuleSeparator, names), UiStyle.AccentColor));
 			_notice.gameObject.SetActive(false);
 
 			ShowIntegrity(1f);
@@ -50,7 +50,11 @@ namespace NightCourier.UI
 
 		public void ShowIntegrity(float fraction)
 		{
-			_integrity.SetKey(IntegrityKey, Mathf.RoundToInt(Mathf.Clamp01(fraction) * 100f));
+			float clamped = Mathf.Clamp01(fraction);
+
+			_integrity.SetKey(
+				IntegrityKey,
+				UiStyle.Tint(Mathf.RoundToInt(clamped * 100f) + "%", UiStyle.IntegrityColor(clamped)));
 		}
 
 		public void Notify(string key, params object[] arguments)
