@@ -9,6 +9,7 @@ using NightCourier.Player;
 using NightCourier.UI;
 using NightCourier.World;
 using NUnit.Framework;
+using RD.Mechanics.Interactable;
 using RD.Mechanics.PressurePlate;
 using UnityEngine;
 using UnityEngine.TestTools;

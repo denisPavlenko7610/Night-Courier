@@ -6,6 +6,7 @@ using NightCourier.Player;
 using NightCourier.Weapons;
 using RD.Equipment;
 using RD.Foundation;
+using RD.Mechanics.Interactable;
 using UnityEngine;
 using UnityEngine.UI;
 

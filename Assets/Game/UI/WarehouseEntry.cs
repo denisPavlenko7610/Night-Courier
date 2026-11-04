@@ -16,6 +16,7 @@ using RD.Foundation;
 using RD.Localization;
 using RD.Mechanics.ChaseTargetMemory;
 using RD.Mechanics.Checkpoint;
+using RD.Mechanics.Interactable;
 using RD.Mechanics.Spawner;
 using UnityEngine;
 using UnityEngine.UI;
@@ -140,6 +141,7 @@ namespace NightCourier.UI
 
 			_hud.alpha = covered ? 0f : 1f;
 			_objective.SetHidden(covered);
+			_vitalsView.SetHudHidden(covered);
 
 			if (_run == null || _run.IsFinished)
 			{

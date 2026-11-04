@@ -97,9 +97,10 @@ PhysicsButton, Pendulum, RopeSwing.
   switches maps only through `GameInput` (`PushGameplay`, `PushMenu`). Anything that opens a menu, terminal, or modal
   pushes a UI context and disposes it on close; never enable or disable action maps directly. Cursor lock follows the
   active map. The `Pause` action lives in the Gameplay map and `Cancel` in the UI map.
-- Interaction: world objects that the player uses carry an `Interactable` (prompt key, optional `HoldInteraction`);
-  the scene entry subscribes to `Interacted`. Existing mechanics (`Door`, `Lever`, …) are called from those handlers.
-  Do not add another interaction abstraction.
+- Interaction: world objects that the player uses carry the template `Interactable` (`RD.Mechanics.Interactable`:
+  prompt key, optional `HoldInteraction`, availability and blocked reason); the player carries an `InteractionFocus`,
+  which `PlayerSession` feeds from the `Interact` action. The scene entry subscribes to `Interacted`. Existing
+  mechanics (`Door`, `Lever`, …) are called from those handlers. Do not add another interaction abstraction.
 - Contract definitions are one small `ContractDefinition` asset each (authoring data) that builds an immutable
   `ContractSpec`; runtime state lives in `ContractRun`, `ContractBoard`, and `CampaignState`. Contract progress goes
   through `Quests`, payouts through `Rewards` and `Wallet`. New contract content is data, not code.

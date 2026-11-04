@@ -1,5 +1,6 @@
 using System;
 using NightCourier.Player;
+using RD.Mechanics.Interactable;
 using RD.Mechanics.Lever;
 using UnityEngine;
 
@@ -51,10 +52,11 @@ namespace NightCourier.World
 
 		private void Refresh()
 		{
-			_interactable.SetAvailable(_facts.LeverReady);
-			_interactable.SetBlockedKey(!_facts.PowerOn && _facts.BatteryRequired && !_facts.BatteryInserted
-				? BlockedReasons.BreakerNeedsBattery
-				: null);
+			_interactable.SetAvailable(
+				_facts.LeverReady,
+				!_facts.PowerOn && _facts.BatteryRequired && !_facts.BatteryInserted
+					? BlockedReasons.BreakerNeedsBattery
+					: null);
 		}
 
 		private void OnInteracted()

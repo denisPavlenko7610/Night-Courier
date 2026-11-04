@@ -3,6 +3,7 @@ using NightCourier.Player;
 using RD.Conditions;
 using RD.Mechanics.ConditionLock;
 using RD.Mechanics.Door;
+using RD.Mechanics.Interactable;
 using UnityEngine;
 
 namespace NightCourier.World
@@ -85,8 +86,7 @@ namespace NightCourier.World
 
 			if (_notice != null)
 			{
-				_notice.SetAvailable(false);
-				_notice.SetBlockedKey(_lock.IsUnlocked
+				_notice.SetAvailable(false, _lock.IsUnlocked
 					? null
 					: _facts.PowerOn
 						? BlockedReasons.DoorNotScanned

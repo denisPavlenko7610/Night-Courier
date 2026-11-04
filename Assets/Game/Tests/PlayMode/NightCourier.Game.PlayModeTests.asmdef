@@ -6,6 +6,7 @@
         "RD.Foundation",
         "RD.Health",
         "RD.Mechanics.Combat",
+        "RD.Mechanics.Interactable",
         "RD.Mechanics.PressurePlate",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",

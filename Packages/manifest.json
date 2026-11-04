@@ -11,7 +11,7 @@
     "com.rd.mechanics.demosupport": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Demo/Common",
     "com.rd.platformer": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Platformer",
     "com.rd.presentation": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Presentation",
-    "com.unity.addressables": "4.1.1",
+    "com.unity.addressables": "4.1.2",
     "com.unity.ai.assistant": "2.21.0-pre.2",
     "com.unity.ai.inference": "2.6.1",
     "com.unity.ai.navigation": "2.0.16",

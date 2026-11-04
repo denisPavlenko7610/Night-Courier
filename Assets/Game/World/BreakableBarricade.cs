@@ -1,6 +1,7 @@
 using System;
 using NightCourier.Player;
 using RD.Mechanics.BreakableObject;
+using RD.Mechanics.Interactable;
 using UnityEngine;
 
 namespace NightCourier.World
@@ -22,8 +23,7 @@ namespace NightCourier.World
 
 			_breakable.Broken += OnBroken;
 
-			_notice.SetAvailable(false);
-			_notice.SetBlockedKey(BlockedReasons.BarricadeIntact);
+			_notice.SetAvailable(false, BlockedReasons.BarricadeIntact);
 		}
 
 		private void OnDestroy()
@@ -41,7 +41,7 @@ namespace NightCourier.World
 
 		private void OnBroken()
 		{
-			_notice.SetBlockedKey(null);
+			_notice.SetAvailable(false);
 
 			foreach (Collider debris in GetComponentsInChildren<Collider>(true))
 			{

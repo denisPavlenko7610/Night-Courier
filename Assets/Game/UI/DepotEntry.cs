@@ -13,6 +13,7 @@ using RD.Audio;
 using RD.DependencyInjection;
 using RD.Foundation;
 using RD.Localization;
+using RD.Mechanics.Interactable;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -109,6 +110,7 @@ namespace NightCourier.UI
 
 			_header.alpha = covered ? 0f : 1f;
 			_objective.SetHidden(covered || _terminalScope != null);
+			_vitalsView.SetHudHidden(covered || _terminalScope != null);
 		}
 
 		private void OnDestroy()

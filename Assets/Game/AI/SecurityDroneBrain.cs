@@ -19,7 +19,6 @@ namespace NightCourier.AI
 		[SerializeField] private ChaseTargetMemory _memory;
 		[SerializeField] private Transform _muzzle;
 		[SerializeField] private Projectile _boltPrefab;
-		[SerializeField] private Transform[] _route;
 		[SerializeField] private LayerMask _sightMask = ~0;
 		[SerializeField, Min(1f)] private float _standoffDistance = 6f;
 		[SerializeField, Min(1f)] private float _fireRange = 14f;
@@ -161,21 +160,9 @@ namespace NightCourier.AI
 
 		private Transform NearestWaypoint()
 		{
-			Transform best = _route[0];
-			float bestDistance = float.MaxValue;
+			_patrol.SetTargetIndex(_patrol.NearestWaypointIndex(transform.position));
 
-			foreach (Transform waypoint in _route)
-			{
-				float distance = EnemyMath.PlanarDistance(transform.position, waypoint.position);
-
-				if (distance < bestDistance)
-				{
-					best = waypoint;
-					bestDistance = distance;
-				}
-			}
-
-			return best;
+			return _patrol.CurrentWaypoint;
 		}
 
 		private void Repath(Vector3 point)

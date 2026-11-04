@@ -4,6 +4,7 @@ using NightCourier.Audio;
 using NightCourier.Economy;
 using NightCourier.Player;
 using RD.Foundation;
+using RD.Mechanics.Interactable;
 using UnityEngine;
 using UnityEngine.UI;
 

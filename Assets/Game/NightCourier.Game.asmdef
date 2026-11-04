@@ -39,6 +39,7 @@
         "RD.Mechanics.AmmoReload",
         "RD.Mechanics.HitscanWeapon",
         "RD.Mechanics.HoldInteraction",
+        "RD.Mechanics.Interactable",
         "RD.Mechanics.Knockback",
         "RD.Mechanics.Lever",
         "RD.Mechanics.MeleeAttack",

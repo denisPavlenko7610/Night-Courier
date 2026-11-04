@@ -12,10 +12,16 @@ namespace NightCourier.UI
 		private const string HealthKey = "hud.health";
 
 		[SerializeField] private LocalizedLabel _health;
+		[SerializeField] private CanvasGroup _hud;
 		[SerializeField] private CanvasGroup _overlay;
 		[SerializeField] private LocalizedLabel _overlayMessage;
 
 		private PlayerVitals _vitals;
+
+		public void SetHudHidden(bool hidden)
+		{
+			_hud.alpha = hidden ? 0f : 1f;
+		}
 
 		public void Bind(ILocalizationService localization, PlayerVitals vitals)
 		{

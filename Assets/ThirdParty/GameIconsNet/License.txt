@@ -1,0 +1,16 @@
+Game-icons.net icons
+
+License: Creative Commons Attribution 3.0 (CC BY 3.0)
+https://creativecommons.org/licenses/by/3.0/
+
+Attribution is required. Credit line suggested by the site:
+Icons made by Delapouite, John Colburn, and Lorc. Available on https://game-icons.net
+
+Source (retrieved 2026-11-04, white on transparent PNG export from the site, 512x512):
+
+heart-beats.png    Delapouite  https://game-icons.net/1x1/delapouite/heart-beats.html
+first-aid-kit.png  Delapouite  https://game-icons.net/1x1/delapouite/first-aid-kit.html
+pistol-gun.png     John Colburn  https://game-icons.net/1x1/john-colburn/pistol-gun.html
+bullets.png        Lorc  https://game-icons.net/1x1/lorc/bullets.html
+
+Site terms: https://game-icons.net/about.html

@@ -1,5 +1,6 @@
 using System;
 using NightCourier.Player;
+using RD.Mechanics.Interactable;
 using RD.Mechanics.MovingPlatform;
 using UnityEngine;
 
@@ -62,8 +63,7 @@ namespace NightCourier.World
 
 		private void Refresh()
 		{
-			_console.SetAvailable(_facts.PowerOn && !_elevator.IsMoving);
-			_console.SetBlockedKey(_facts.PowerOn ? null : BlockedReasons.LiftNoPower);
+			_console.SetAvailable(_facts.PowerOn && !_elevator.IsMoving, _facts.PowerOn ? null : BlockedReasons.LiftNoPower);
 		}
 
 		private void OnRideStarted(int stop)

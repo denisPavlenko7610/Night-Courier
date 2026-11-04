@@ -2,6 +2,7 @@ using System;
 using NightCourier.Controls;
 using NightCourier.Player;
 using RD.Localization;
+using RD.Mechanics.Interactable;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -12,16 +13,27 @@ namespace NightCourier.UI
 	{
 		private const string PressKey = "prompt.press";
 		private const string HoldKey = "prompt.hold";
+		private const string PressGlyphKey = "prompt.press_glyph";
+		private const string HoldGlyphKey = "prompt.hold_glyph";
+		private const float GlyphGap = 14f;
 
 		[SerializeField] private Text _prompt;
 		[SerializeField] private GameObject _holdBar;
 		[SerializeField] private Image _holdFill;
+		[SerializeField] private Image _glyph;
+		[SerializeField] private PromptGlyphs _glyphs;
 
-		private PlayerInteractor _interactor;
+		private InteractionFocus _interactor;
 		private ILocalizationService _localization;
 		private PlayerInputActions _actions;
+		private Vector2 _promptHome;
 
-		public void Bind(PlayerInteractor interactor, ILocalizationService localization, PlayerInputActions actions)
+		private void Awake()
+		{
+			_promptHome = _prompt.rectTransform.anchoredPosition;
+		}
+
+		public void Bind(InteractionFocus interactor, ILocalizationService localization, PlayerInputActions actions)
 		{
 			Unbind();
 
@@ -78,15 +90,54 @@ namespace NightCourier.UI
 
 				_prompt.text = blocked != null ? _localization.Get(blocked.BlockedKey) : string.Empty;
 				_holdBar.SetActive(false);
+				ShowGlyph(blocked != null && _glyphs != null ? _glyphs.Lock : null);
 				return;
 			}
 
-			string key = _actions.Interact.GetBindingDisplayString(0);
 			string action = _localization.Get(target.PromptKey);
+			Sprite keyGlyph = _glyphs != null ? _glyphs.FindKey(_actions.Interact.bindings[0].effectivePath) : null;
 
-			_prompt.text = _localization.Get(target.RequiresHold ? HoldKey : PressKey, key, action);
+			if (keyGlyph != null)
+			{
+				_prompt.text = _localization.Get(target.RequiresHold ? HoldGlyphKey : PressGlyphKey, action);
+			}
+			else
+			{
+				string key = _actions.Interact.GetBindingDisplayString(0);
+
+				_prompt.text = _localization.Get(target.RequiresHold ? HoldKey : PressKey, key, action);
+			}
+
 			_holdFill.fillAmount = 0f;
 			_holdBar.SetActive(target.RequiresHold);
+			ShowGlyph(keyGlyph);
+		}
+
+		private void ShowGlyph(Sprite sprite)
+		{
+			if (_glyph == null)
+			{
+				return;
+			}
+
+			RectTransform promptRect = _prompt.rectTransform;
+
+			if (sprite == null)
+			{
+				_glyph.gameObject.SetActive(false);
+				promptRect.anchoredPosition = _promptHome;
+				return;
+			}
+
+			_glyph.sprite = sprite;
+			_glyph.gameObject.SetActive(true);
+
+			float glyphWidth = _glyph.rectTransform.rect.width;
+			float textWidth = Mathf.Min(_prompt.preferredWidth, promptRect.rect.width);
+			float shift = (glyphWidth + GlyphGap) / 2f;
+
+			promptRect.anchoredPosition = _promptHome + Vector2.right * shift;
+			_glyph.rectTransform.anchoredPosition = _promptHome + new Vector2(-textWidth / 2f - GlyphGap / 2f, 0f);
 		}
 	}
 }

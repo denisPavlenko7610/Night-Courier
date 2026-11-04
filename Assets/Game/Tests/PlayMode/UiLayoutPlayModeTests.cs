@@ -25,7 +25,8 @@ namespace NightCourier.PlayModeTests
 
 		private static readonly Vector2Int[] Resolutions =
 		{
-			new(1920, 1080), new(1280, 720), new(2560, 1440), new(1280, 1024), new(1600, 1200), new(2560, 1080), new(1280, 800)
+			new(1920, 1080), new(1280, 720), new(2560, 1440), new(1280, 1024), new(1600, 1200), new(2560, 1080),
+			new(1280, 800)
 		};
 
 		private GameDriver _driver;
@@ -63,11 +64,13 @@ namespace NightCourier.PlayModeTests
 
 			GameDriver.Get<Button>(Object.FindFirstObjectByType<MainMenuEntry>(), "_settingsButton").onClick.Invoke();
 
-			yield return null;
+			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
 			yield return audit.Capture("02_main_settings");
 
-			GameDriver.Get<Button>(Object.FindFirstObjectByType<MainMenuEntry>(), "_settingsBackButton").onClick.Invoke();
+			GameDriver.Get<Button>(Object.FindFirstObjectByType<MainMenuEntry>(), "_settingsBackButton").onClick
+				.Invoke();
 
+			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
 			yield return _driver.NewGameToDepot();
 			yield return audit.Capture("03_depot_hud");
 
@@ -76,6 +79,11 @@ namespace NightCourier.PlayModeTests
 			GameDriver.Invoke(depot, "OpenTerminal");
 
 			yield return null;
+
+			Assert.That(
+				GameDriver.Get<CanvasGroup>(Object.FindAnyObjectByType<PlayerVitalsView>(), "_hud").alpha,
+				Is.Zero
+			);
 			yield return audit.Capture("04_depot_terminal_one_contract");
 
 			GameDriver.Get<Button>(depot, "_closeButton").onClick.Invoke();
@@ -136,6 +144,11 @@ namespace NightCourier.PlayModeTests
 			pause.Open();
 
 			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
+
+			Assert.That(
+				GameDriver.Get<CanvasGroup>(Object.FindAnyObjectByType<PlayerVitalsView>(), "_hud").alpha,
+				Is.Zero
+			);
 			yield return audit.Capture("12_pause_menu");
 
 			GameDriver.Get<Button>(pause, "_settingsButton").onClick.Invoke();
@@ -155,6 +168,11 @@ namespace NightCourier.PlayModeTests
 			yield return _driver.PowerUpTheBlackout();
 			yield return _driver.ScanAndDeliver();
 			yield return null;
+
+			Assert.That(
+				GameDriver.Get<CanvasGroup>(Object.FindAnyObjectByType<PlayerVitalsView>(), "_hud").alpha,
+				Is.Zero
+			);
 			yield return audit.Capture("15_result_success");
 
 			yield return _driver.ReturnToDepotFromResult();

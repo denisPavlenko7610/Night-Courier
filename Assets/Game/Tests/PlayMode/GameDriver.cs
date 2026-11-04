@@ -11,6 +11,7 @@ using NightCourier.World;
 using NUnit.Framework;
 using RD.Health;
 using RD.Mechanics.Combat;
+using RD.Mechanics.Interactable;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;

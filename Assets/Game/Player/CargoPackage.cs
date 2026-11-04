@@ -1,5 +1,6 @@
 using System;
 using NightCourier.Packages;
+using RD.Mechanics.Interactable;
 using RD.Mechanics.PickupDrop;
 using UnityEngine;
 

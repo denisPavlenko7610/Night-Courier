@@ -1,5 +1,6 @@
 using System;
 using NightCourier.Player;
+using RD.Mechanics.Interactable;
 using UnityEngine;
 
 namespace NightCourier.World
@@ -58,8 +59,7 @@ namespace NightCourier.World
 
 			bool waitingForBattery = _facts.BatteryRequired && !_facts.BatteryInserted;
 
-			_interactable.SetAvailable(waitingForBattery && holdingBattery);
-			_interactable.SetBlockedKey(waitingForBattery && !holdingBattery ? BlockedReasons.GeneratorNeedsBattery : null);
+			_interactable.SetAvailable(waitingForBattery && holdingBattery, waitingForBattery && !holdingBattery ? BlockedReasons.GeneratorNeedsBattery : null);
 		}
 
 		private void OnInteracted()

@@ -5,14 +5,16 @@ using NightCourier.Controls;
 using NightCourier.Economy;
 using NightCourier.Weapons;
 using RD.Mechanics.DamageOverTime;
+using RD.Mechanics.Interactable;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace NightCourier.Player
 {
 	public sealed class PlayerSession : MonoBehaviour
 	{
 		[SerializeField] private PlayerMotor _motor;
-		[SerializeField] private PlayerInteractor _interactor;
+		[SerializeField] private InteractionFocus _interactor;
 		[SerializeField] private PlayerCarry _carry;
 		[SerializeField] private PlayerHeavyCarry _heavy;
 		[SerializeField] private PlayerVitals _vitals;
@@ -22,10 +24,11 @@ namespace NightCourier.Player
 		[SerializeField] private PlayerAudio _sounds;
 
 		private GameInput _input;
+		private InputAction _interact;
 		private IDisposable _gameplayScope;
 		private IDisposable _deathScope;
 
-		public PlayerInteractor Interactor => _interactor;
+		public InteractionFocus Interactor => _interactor;
 
 		public PlayerCarry Carry => _carry;
 
@@ -53,7 +56,7 @@ namespace NightCourier.Player
 			_input = services.Input;
 
 			_motor.Bind(services.Input.Actions, services.Settings);
-			_interactor.Bind(services.Input.Actions);
+			_interact = services.Input.Actions.Interact;
 			_carry.Bind(services.Input.Actions);
 			_heavy.Bind(services.Input.Actions);
 			_weapons.Bind(services.Input.Actions);
@@ -82,6 +85,41 @@ namespace NightCourier.Player
 			_vitals.SetMaximumHealth(stats.MaxHealth);
 			_motor.SetSpeedMultiplier(stats.MoveSpeedMultiplier);
 			_weapons.SetReserveBonus(stats.ReserveAmmoBonus);
+		}
+
+		private void Awake()
+		{
+			_interactor.enabled = false;
+		}
+
+		private void Update()
+		{
+			if (_interact == null)
+			{
+				return;
+			}
+
+			bool allowed = _interact.enabled;
+
+			if (_interactor.enabled != allowed)
+			{
+				_interactor.enabled = allowed;
+			}
+
+			if (!allowed)
+			{
+				return;
+			}
+
+			if (_interact.WasPressedThisFrame())
+			{
+				_interactor.Press();
+			}
+
+			if (_interact.WasReleasedThisFrame())
+			{
+				_interactor.Release();
+			}
 		}
 
 		private void OnDestroy()

@@ -1459,7 +1459,7 @@ Show the minimum the player needs and nothing more:
 - The relevant interaction prompt.
 - Weapon and ammo only while a weapon is usable.
 
-The delivery point and the key interactables are highlighted (17.1) so the player is not lost in the geometry.
+The delivery point and the key interactables are highlighted (17.1) so the player is not lost in the geometry. The gameplay HUD is hidden while a terminal, pause menu, or result panel is open. Briefings and contextual instructions keep the next action and handling consequences concise.
 
 ---
 
