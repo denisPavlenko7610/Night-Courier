@@ -67,7 +67,7 @@ No new contract is needed to cover the three archetypes. They already exist and 
 
 Fragile (₡220, Do Not Drop, ladder) is the careful-handling variant between the introduction and the blackout.
 
-**Known weakness (measured on the NavMesh, not played).** The "short, dangerous" Express route is not shorter and not more dangerous: from the dock spawn to the scanner area the maintenance route is about 57 m plus a lift ride and the barricade route is about 62 m plus a few crowbar hits and a ₡20 fine; Express uses the drone only, and the drone patrols the maintenance route. A scripted run of the safe route took about 24 s against a 300 s deadline and a 180 s bonus window. No timer value creates a dilemma without a geometry or encounter change; see Docs/NextSprint.md, task 2 and "Express blocker". Restricted Cargo is still not replayed end to end; Express is settled in a teleporting Play Mode test only.
+**Known weakness (measured on the NavMesh, not played).** The "short, dangerous" Express route is not shorter and not more dangerous: from the dock spawn to the scanner area the maintenance route is about 57 m plus a lift ride and the barricade route is about 62 m plus a few crowbar hits and a ₡20 fine; Express uses the drone only, and the drone patrols the maintenance route. A scripted run of the safe route took about 24 s against a 300 s deadline and a 180 s bonus window. No timer value creates a dilemma without a geometry or encounter change; see Docs/Next-Sprint.md, task 2 and "Express blocker". Restricted Cargo is still not replayed end to end; Express is settled in a teleporting Play Mode test only.
 
 **Lights Out now differs observably (implemented in code, confirmed in the scene by a Play Mode test).** The dock holds an always-on work lamp over the dock crate, which is also a safe surface for Do Not Drop. In a blackout the package starts lit on the crate; the battery needs both hands, so the player must set the package down in the lamp pool, break the barricade, fetch the battery, and power the hall. Carrying the package out into the dark starts the ten-second timer with a notice. In Restricted Cargo this also makes the no-violations bonus reachable: before, fetching the battery forced a Do Not Drop violation because the only safe surface was the scanner plate.
 
@@ -94,7 +94,7 @@ The road tier remains outside this work. The approved future scope in section 3.
 
 Verified: EditMode suite (221 tests) and a PlayMode suite of nine tests (`Assets/Game/Tests/PlayMode`; the first four items below plus the invalid-prefab test are in `GameLoopPlayModeTests`, the scanner, Lights Out, Express, and failed-save tests in `WarehouseRulesPlayModeTests`) that load the real `Boot` scene and run: Main Menu → New Game → Depot → accept (double click) → pickup → van → Warehouse → breaker → scan → deliver (double press) → result → Depot (double Return) → Main Menu → Continue, with credits paid once and the rank and save restored; a destroyed package failing without payout and the retry paying once; abort from the pause menu (the popup's confirm callback) returning to an unpaused Depot with the contract available; death in transit respawning the courier and charging the recovery fee. Also played through editor scripts: abort ignored while settling, Depot recovery from a stuck run, briefing and result layouts at 2560×1440, and the shipped Warehouse light field with power off and on across the hall.
 
-Not verified: real keyboard, mouse, or gamepad input (the PlayMode tests teleport the player, press interactables directly, read private fields by reflection, and click buttons; the manual script is Docs/PlaytestChecklist.md and has not been run by a person); Express, Lights Out, and Restricted Cargo played end to end (Lights Out is covered only up to the blackout state, the lamp, the dark notices, and the blocked prompts); a first-time-player playtest; a Depot with a lost package (no cancel path); resolutions other than 2560×1440; the blackout look in a standalone build (checked only in the editor).
+Not verified: real keyboard, mouse, or gamepad input (the PlayMode tests teleport the player, press interactables directly, read private fields by reflection, and click buttons; the manual script is Docs/Playtest-Checklist.md and has not been run by a person); Express, Lights Out, and Restricted Cargo played end to end (Lights Out is covered only up to the blackout state, the lamp, the dark notices, and the blocked prompts); a first-time-player playtest; a Depot with a lost package (no cancel path); resolutions other than 2560×1440; the blackout look in a standalone build (checked only in the editor).
 
 ### 0.7 Readable-run sprint: status by item
 
@@ -107,14 +107,14 @@ Labels: **Implemented in code** (compiles, covered by an EditMode or PlayMode te
 | Blocked objects explain themselves (locked doors, dead lift, dead breaker panel, generator, intact barricade) | Yes (`Interactable.BlockedKey`, `BlockedReasons`) | Yes: keys on every object in a blackout; the barricade text on the real prompt | |
 | Package-on-plate without power asks for power; carrying the package with a battery needed asks to park it | Yes (`ObjectiveHints`) | | |
 | Dark and scan-interrupted notices | Yes (`KeepInLightRule` events, `WarehouseEntry`) | Yes: dark and light-restored notices in the hall | |
-| Always-on work lamp and a safe crate in the dock | Yes (`WarehouseLighting._emergencyLights`, `PackageSafeSurface`) | Yes: lit at the crate, dark in the hall and at the breaker panel; the lamp reads in an editor render | Night sky or ceiling so the blackout reads dark from above (NextSprint 3) |
+| Always-on work lamp and a safe crate in the dock | Yes (`WarehouseLighting._emergencyLights`, `PackageSafeSurface`) | Yes: lit at the crate, dark in the hall and at the breaker panel; the lamp reads in an editor render | Night sky or ceiling so the blackout reads dark from above (Next-Sprint 3) |
 | Warehouse ambient light set to `Flat` (dark) instead of `Skybox` | Yes (scene setting) | Editor renders only: with `Skybox` the "blackout" hall was clearly lit | Check in a build |
 | Result screen says XP comes from the shift rating | Yes (text) | | |
 | A failed save keeps the payout in memory and warns the player | Yes (already) | Yes: blocked save folder, warning text, credits kept, no double payout | |
 | Readable UI at 16:9, 16:10, 5:4, 4:3, and 21:9: `Expand` scaling, HUD in three non-overlapping columns, notices at the bottom, covered HUD hidden, blocked prompt wraps | Yes (`UiLayoutPlayModeTests`, scene and prefab layouts) | Yes: 18 screens at 7 resolutions, zero overlapping, clipped, or off-screen text; screenshots read by eye | A hand check on a real monitor and a gamepad |
 | Contract 04 shown to the player as "Rush Delivery" (the font draws X like H; the id stays `contract.express`) | Yes (text only) | | A font that draws X correctly |
-| Express with a real dilemma | Crawlers added to the Express data; a Play Mode test settles Express with both threats active | | The route is still not faster: a wall gap saves only about 4 m; a real shortcut or a slower lift is needed (NextSprint 2) |
-| One honest hand-played trip | | | NextSprint 1 |
+| Express with a real dilemma | Crawlers added to the Express data; a Play Mode test settles Express with both threats active | | The route is still not faster: a wall gap saves only about 4 m; a real shortcut or a slower lift is needed (Next-Sprint 2) |
+| One honest hand-played trip | | | Next-Sprint 1 |
 
 ---
 
@@ -122,7 +122,7 @@ Labels: **Implemented in code** (compiles, covered by an EditMode or PlayMode te
 
 **The main goal of this project is to validate and exercise the existing `UnityTemplates` library in a real game.**
 
-Night Courier is built by composing the `Modules` and `Mechanics` from the sibling `UnityTemplates` repository (linked as local UPM packages, see [../TEMPLATE-PACKAGES.md](../TEMPLATE-PACKAGES.md)). The game must not grow a second framework on top of them.
+Night Courier is built by composing the `Modules` and `Mechanics` from the sibling `UnityTemplates` repository (linked as local UPM packages, see [Template-Packages.md](Template-Packages.md)). The game must not grow a second framework on top of them.
 
 Principles:
 
@@ -1446,7 +1446,7 @@ Pick up parcel → deliver to locker → door is locked → find keycard → ene
 
 Each mechanic is introduced through play. A single-line contextual hint on the first encounter (the scanner, a locked door, darkness, a cargo rule) is allowed through the HUD objective and notice lines when play alone does not teach it; there are no modal tutorial popups and no separate tutorial system.
 
-Working today: the contract terminal briefing lists the package rules, time limit, bonuses, and known threats before the job is accepted; the objective line says why the breaker panel matters ("the scanner, the lift, and the maintenance door run on it"), reacts to the scan ("Scanning... leave the package on the plate"), and tells the player to pick the scanned package up; each package rule announces itself in one line when the Warehouse loads; pressing the delivery terminal with an unscanned package explains what is missing instead of staying silent. Still unproven: that a first-time player understands all of this without help (task 1 in Docs/NightCourier_NextSteps.md).
+Working today: the contract terminal briefing lists the package rules, time limit, bonuses, and known threats before the job is accepted; the objective line says why the breaker panel matters ("the scanner, the lift, and the maintenance door run on it"), reacts to the scan ("Scanning... leave the package on the plate"), and tells the player to pick the scanned package up; each package rule announces itself in one line when the Warehouse loads; pressing the delivery terminal with an unscanned package explains what is missing instead of staying silent. Still unproven: that a first-time player understands all of this without help (task 1 in Docs/Next-Steps.md).
 
 ### 16.3 In-Run HUD
 

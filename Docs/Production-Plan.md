@@ -16,13 +16,13 @@ change is genuinely required, first identify the minimal reason, then change the
 
 ## Next Up (Recommended Order)
 
-The current ordered task list, with acceptance checks, is [NightCourier_NextSteps.md](NightCourier_NextSteps.md); the
+The current ordered task list, with acceptance checks, is [Next-Steps.md](Next-Steps.md); the
 status and M0–M4 roadmap are in [GDD.md](GDD.md) section 0. The last pass added the settlement guards, the shadow-aware
 light field (`LightReach`), the contract briefing, the scan and delivery hints, cause-naming damage notices, and the
 improvement lines on the result screen.
 
 All modules and mechanics are installed (10 RD packages: Foundation, seven kits, and two demo-support packages, see
-[../TEMPLATE-PACKAGES.md](../TEMPLATE-PACKAGES.md); Haptics sits inside the Presentation kit and stays unused); integration
+[Template-Packages.md](Template-Packages.md); Haptics sits inside the Presentation kit and stays unused); integration
 still goes one feature at a time.
 The Warehouse map, the package rules and ladder, the Lights Out battery, player health with respawn and checkpoints,
 the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Play Mode.
@@ -94,9 +94,9 @@ battery insert, barricade break, checkpoint locker, delivery jingle, purchase an
 `SecurityDroneBrain.BoltFired`.
 
 **Visual replacement, stage 1 (done).** One style family: Kenney. The Depot and Warehouse cubes use Kenney Prototype
-Textures through `Env_*` materials in `Assets/Game/Presentation/Materials`; the cube meshes were replaced by generated
-box meshes (`PH_BoxMeshes.asset`) with world-scale UVs, so the texel density is the same everywhere. Every `Text` uses
-Kenney Future Narrow (sizes scaled by 0.8, best fit on five labels), and all buttons and the dialog, contract, upgrade and
+Textures (later replaced by flat Kenney-palette colors, the pack removed) through `Env_*` materials in `Assets/Game/Presentation/Materials`; the cube meshes were replaced by generated
+box meshes (`PH_BoxMeshes.asset`) with world-scale UVs, so the texel density is the same everywhere. Every `Text` used
+Kenney Future Narrow, later replaced by the built-in UI font and the font file removed (sizes scaled by 0.8, best fit on five labels), and all buttons and the dialog, contract, upgrade and
 locker panels use the UI Pack Sci-Fi sprites. Hazard, interactable, delivery, and van placeholders keep their flat
 colors so the light language stays readable. Verified in stepped Play Mode with camera captures of the Depot, Warehouse,
 main menu, and contract terminal; EditMode 189 of 189. Not done: weapons, props and structure, effects, enemies, van
@@ -492,8 +492,8 @@ The slice is not done on a feature count. It is done when these also hold; each 
 | Every contract has its own goal, risk, and at least one differing player action, not only a different payout | Data and Play Mode runs per contract (Phase 13). A fresh playtester explaining in their own words how the five contracts differ is not yet done |
 | Cargo damage and rule violations are reproducible, explained, and shown honestly | Reproducibility was checked per rule in stepped Play Mode (Phase 4). Damage notices now name the cause (impact or electric floor) and size, and the result screen shows the deduction lines, the rating and axes, the violation count, final integrity, property damage, and deaths |
 | At least one contract can be finished without firing | Stowing the pistol in the Equipment Locker gives a no-shots run (Phase 10) |
-| Failure, death, abort, replay, and quitting never cause a double payout, a lost profile, or a blocked UI | EditMode (`ContractBoardTests`, `CampaignFlowTests`): a failed contract returns to Available with no reward and pays once on retry, a second delivery callback and concurrent settlements pay once, an abort during settlement is refused, and a save taken mid-run restores to a clean Depot. PlayMode (`Assets/Game/Tests/PlayMode`, four tests, state-driven input): double Accept, double delivery press, double Return, payout once, Continue restoring credits, rank, and contracts, a destroyed package failing without payout and the retry paying once, abort from the pause menu, death respawn with the recovery fee. Played through editor scripts: abort ignored while delivered, the Depot recovering from a stuck run. Not exercised: real keyboard, mouse, or gamepad input (manual script in NightCourier_NextSteps.md), a failed disk write |
-| The result screen tells the player what to change next time, not only the numbers | Done: up to three improvement lines from `SettlementAdvice` (per broken rule, overdue, cargo, property damage, death, or "clean run"). Whether players act on them is part of the first-time-player playtest (NightCourier_NextSteps.md task 1) |
+| Failure, death, abort, replay, and quitting never cause a double payout, a lost profile, or a blocked UI | EditMode (`ContractBoardTests`, `CampaignFlowTests`): a failed contract returns to Available with no reward and pays once on retry, a second delivery callback and concurrent settlements pay once, an abort during settlement is refused, and a save taken mid-run restores to a clean Depot. PlayMode (`Assets/Game/Tests/PlayMode`, four tests, state-driven input): double Accept, double delivery press, double Return, payout once, Continue restoring credits, rank, and contracts, a destroyed package failing without payout and the retry paying once, abort from the pause menu, death respawn with the recovery fee. Played through editor scripts: abort ignored while delivered, the Depot recovering from a stuck run. Not exercised: real keyboard, mouse, or gamepad input (manual script in Next-Steps.md), a failed disk write |
+| The result screen tells the player what to change next time, not only the numbers | Done: up to three improvement lines from `SettlementAdvice` (per broken rule, overdue, cargo, property damage, death, or "clean run"). Whether players act on them is part of the first-time-player playtest (Next-Steps.md task 1) |
 
 ---
 

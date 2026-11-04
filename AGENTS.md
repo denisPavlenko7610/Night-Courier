@@ -17,7 +17,7 @@ Read before working:
 2. [Docs/Template-Mapping.md](Docs/Template-Mapping.md) — which template owns each feature.
 3. [Docs/Production-Plan.md](Docs/Production-Plan.md) — phases, constraints, definition of done, open decisions.
 4. [Docs/Asset-Plan.md](Docs/Asset-Plan.md) — placeholder-first art plan and prefab rules.
-5. [TEMPLATE-PACKAGES.md](TEMPLATE-PACKAGES.md) — how the template packages are linked.
+5. [Docs/Template-Packages.md](Docs/Template-Packages.md) — how the template packages are linked.
 
 ## Communication
 
@@ -52,7 +52,7 @@ SceneManager wrappers · UIManager · SaveManager
 
 ### Modifying templates
 
-- `UnityTemplates` is linked live (see [TEMPLATE-PACKAGES.md](TEMPLATE-PACKAGES.md)); edits there affect every consumer.
+- `UnityTemplates` is linked live (see [Docs/Template-Packages.md](Docs/Template-Packages.md)); edits there affect every consumer.
 - Change a template only for a proven reusable-library deficiency that composition cannot solve. First state the minimal
   reason to the user and get agreement, then make the smallest API change **in the `UnityTemplates` repository**,
   following its `AGENTS.md`, and regenerate its package descriptions (`python Publish/generate_upm.py`).
