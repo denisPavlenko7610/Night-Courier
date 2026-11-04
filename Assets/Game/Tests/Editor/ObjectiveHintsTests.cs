@@ -17,7 +17,7 @@ namespace NightCourier.Tests
 		[Test]
 		public void Depot_WithoutContract_AsksForTerminal()
 		{
-			Assert.That(ObjectiveHints.ForDepot(null, false), Is.EqualTo(ObjectiveHints.AcceptContract));
+			Assert.That(DepotObjectiveHints.ForDepot(null, false), Is.EqualTo(DepotObjectiveHints.AcceptContract));
 		}
 
 		[Test]
@@ -25,8 +25,8 @@ namespace NightCourier.Tests
 		{
 			ContractRun run = Accepted();
 
-			Assert.That(ObjectiveHints.ForDepot(run, false), Is.EqualTo(ObjectiveHints.PickUpFromConveyor));
-			Assert.That(ObjectiveHints.ForDepot(run, true), Is.EqualTo(ObjectiveHints.PickUpFromConveyor));
+			Assert.That(DepotObjectiveHints.ForDepot(run, false), Is.EqualTo(DepotObjectiveHints.PickUpFromConveyor));
+			Assert.That(DepotObjectiveHints.ForDepot(run, true), Is.EqualTo(DepotObjectiveHints.PickUpFromConveyor));
 		}
 
 		[Test]
@@ -35,8 +35,8 @@ namespace NightCourier.Tests
 			ContractRun run = Accepted();
 			run.CollectPackage();
 
-			Assert.That(ObjectiveHints.ForDepot(run, true), Is.EqualTo(ObjectiveHints.LoadVan));
-			Assert.That(ObjectiveHints.ForDepot(run, false), Is.EqualTo(ObjectiveHints.PickUpFromConveyor));
+			Assert.That(DepotObjectiveHints.ForDepot(run, true), Is.EqualTo(DepotObjectiveHints.LoadVan));
+			Assert.That(DepotObjectiveHints.ForDepot(run, false), Is.EqualTo(DepotObjectiveHints.PickUpFromConveyor));
 		}
 
 		[Test]
@@ -46,7 +46,7 @@ namespace NightCourier.Tests
 			run.CollectPackage();
 			run.Depart();
 
-			Assert.That(ObjectiveHints.ForDepot(run, false), Is.Null);
+			Assert.That(DepotObjectiveHints.ForDepot(run, false), Is.Null);
 		}
 
 		[Test]
@@ -56,15 +56,15 @@ namespace NightCourier.Tests
 			run.CollectPackage();
 			run.Depart();
 
-			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(false, false, false)), Is.EqualTo(ObjectiveHints.PickUpPackage));
-			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(false, true, false)), Is.EqualTo(ObjectiveHints.PickUpPackage));
-			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(false, true, true)), Is.EqualTo(ObjectiveHints.PickUpScanned));
-			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(true, true, true)), Is.EqualTo(ObjectiveHints.DeliverPackage));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, new WarehouseProgress(false, false, false)), Is.EqualTo(WarehouseObjectiveHints.PickUpPackage));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, new WarehouseProgress(false, true, false)), Is.EqualTo(WarehouseObjectiveHints.PickUpPackage));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, new WarehouseProgress(false, true, true)), Is.EqualTo(WarehouseObjectiveHints.PickUpScanned));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, new WarehouseProgress(true, true, true)), Is.EqualTo(WarehouseObjectiveHints.DeliverPackage));
 
 			run.Deliver();
 
-			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(false, true, true)), Is.Null);
-			Assert.That(ObjectiveHints.ForLocation(null, new WarehouseProgress(false, false, false)), Is.Null);
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, new WarehouseProgress(false, true, true)), Is.Null);
+			Assert.That(WarehouseObjectiveHints.ForLocation(null, new WarehouseProgress(false, false, false)), Is.Null);
 		}
 
 		[Test]
@@ -74,9 +74,9 @@ namespace NightCourier.Tests
 			run.CollectPackage();
 			run.Depart();
 
-			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(true, false, false)), Is.EqualTo(ObjectiveHints.RestorePower));
-			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(true, true, false)), Is.EqualTo(ObjectiveHints.ScanPackage));
-			Assert.That(ObjectiveHints.ForLocation(run, new WarehouseProgress(true, true, true)), Is.EqualTo(ObjectiveHints.DeliverPackage));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, new WarehouseProgress(true, false, false)), Is.EqualTo(WarehouseObjectiveHints.RestorePower));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, new WarehouseProgress(true, true, false)), Is.EqualTo(WarehouseObjectiveHints.ScanPackage));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, new WarehouseProgress(true, true, true)), Is.EqualTo(WarehouseObjectiveHints.DeliverPackage));
 		}
 
 		[Test]
@@ -90,9 +90,9 @@ namespace NightCourier.Tests
 			WarehouseProgress interrupted = new(false, true, false);
 			WarehouseProgress carriedWhileScanFlagIsStale = new(true, true, false, scanInProgress: true);
 
-			Assert.That(ObjectiveHints.ForLocation(run, scanning), Is.EqualTo(ObjectiveHints.Scanning));
-			Assert.That(ObjectiveHints.ForLocation(run, interrupted), Is.EqualTo(ObjectiveHints.PickUpPackage));
-			Assert.That(ObjectiveHints.ForLocation(run, carriedWhileScanFlagIsStale), Is.EqualTo(ObjectiveHints.ScanPackage));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, scanning), Is.EqualTo(WarehouseObjectiveHints.Scanning));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, interrupted), Is.EqualTo(WarehouseObjectiveHints.PickUpPackage));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, carriedWhileScanFlagIsStale), Is.EqualTo(WarehouseObjectiveHints.ScanPackage));
 		}
 
 		[Test]
@@ -106,9 +106,9 @@ namespace NightCourier.Tests
 			WarehouseProgress holdingBattery = new(false, false, false, batteryRequired: true, carryingBattery: true);
 			WarehouseProgress inserted = new(true, false, false, batteryRequired: true, batteryInserted: true);
 
-			Assert.That(ObjectiveHints.ForLocation(run, needsBattery), Is.EqualTo(ObjectiveHints.FindBattery));
-			Assert.That(ObjectiveHints.ForLocation(run, holdingBattery), Is.EqualTo(ObjectiveHints.InsertBattery));
-			Assert.That(ObjectiveHints.ForLocation(run, inserted), Is.EqualTo(ObjectiveHints.RestorePower));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, needsBattery), Is.EqualTo(WarehouseObjectiveHints.FindBattery));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, holdingBattery), Is.EqualTo(WarehouseObjectiveHints.InsertBattery));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, inserted), Is.EqualTo(WarehouseObjectiveHints.RestorePower));
 		}
 
 		[Test]
@@ -121,8 +121,8 @@ namespace NightCourier.Tests
 			WarehouseProgress carrying = new(true, false, false, batteryRequired: true);
 			WarehouseProgress parked = new(false, false, false, batteryRequired: true);
 
-			Assert.That(ObjectiveHints.ForLocation(run, carrying), Is.EqualTo(ObjectiveHints.ParkPackage));
-			Assert.That(ObjectiveHints.ForLocation(run, parked), Is.EqualTo(ObjectiveHints.FindBattery));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, carrying), Is.EqualTo(WarehouseObjectiveHints.ParkPackage));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, parked), Is.EqualTo(WarehouseObjectiveHints.FindBattery));
 		}
 
 		[Test]
@@ -136,9 +136,9 @@ namespace NightCourier.Tests
 			WarehouseProgress powered = new(false, true, false, packageOnScanner: true);
 			WarehouseProgress elsewhere = new(false, false, false);
 
-			Assert.That(ObjectiveHints.ForLocation(run, unpowered), Is.EqualTo(ObjectiveHints.RestorePower));
-			Assert.That(ObjectiveHints.ForLocation(run, powered), Is.EqualTo(ObjectiveHints.PickUpPackage));
-			Assert.That(ObjectiveHints.ForLocation(run, elsewhere), Is.EqualTo(ObjectiveHints.PickUpPackage));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, unpowered), Is.EqualTo(WarehouseObjectiveHints.RestorePower));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, powered), Is.EqualTo(WarehouseObjectiveHints.PickUpPackage));
+			Assert.That(WarehouseObjectiveHints.ForLocation(run, elsewhere), Is.EqualTo(WarehouseObjectiveHints.PickUpPackage));
 		}
 	}
 }

@@ -15,6 +15,7 @@
         "RD.Rewards",
         "RD.Wallet",
         "RD.Timers",
+        "RD.Tutorials",
         "RD.Input",
         "RD.Pause",
         "RD.PrefabWindows",

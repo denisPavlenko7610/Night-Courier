@@ -138,7 +138,7 @@ are the GDD default (1 unstable, 2 enemy, 3 hazardous, 4 fail) for Fragile, Ligh
 for Standard Delivery and Express.
 Property damage (the barricade) counts toward the no-violations bonus through `RegisterPropertyDamage` but not toward
 the ladder. Verified in stepped Play Mode on Fragile (four floor drops: unstable at the first, failed at the fourth).
-Violation 2 now spawns an enemy: `EscalationEffect.SpawnEnemy` makes `WarehouseEntry` ask a scene `Spawner` (the Crawler
+Violation 2 now spawns an enemy: `EscalationEffect.SpawnEnemy` makes `EscalationResponder` ask a scene `Spawner` (the Crawler
 prefab, three alarm points on the NavMesh, at most 2 alive) for a Crawler and report the player to its
 `ChaseTargetMemory`, with a HUD notice. Verified in stepped Play Mode on Fragile (violation 2 spawns a chasing Crawler).
 The dock bay is a separate NavMesh region, so an alarm Crawler cannot reach a player still in the dock bay (its path is
@@ -320,7 +320,9 @@ progress. Do not serialize arbitrary active scene physics. Checkpoint/Respawn ha
 
 ### Phase 12 — Full Module Integration
 
-After the core game is fun, integrate deliberately: Analytics, Achievements, Tutorials, Audio, Addressables,
+First-delivery Tutorials integration is in the MVP objective HUD, advanced by gameplay actions.
+
+After the core game is fun, integrate deliberately: Analytics, Achievements, Audio, Addressables,
 StatusEffects, Collectibles. Every integration needs an actual gameplay or product purpose; never use a module just to
 claim coverage if that damages architecture.
 
@@ -428,7 +430,7 @@ Raised for the user; agents do not settle them alone.
 
 | Decision | Options | Notes |
 |---|---|---|
-| Who owns vehicle driving? | (a) minimal arcade controller in `Assets/Game/Vehicle`; (b) a new reusable mechanic in `UnityTemplates` | The library has none. (b) fits the project's purpose |
+| Who owns vehicle driving? | (a) minimal arcade controller in `Assets/Game/Gameplay/Vehicle`; (b) a new reusable mechanic in `UnityTemplates` | The library has none. (b) fits the project's purpose |
 | Fuel representation | `Wallet` currency committed per road segment; `Stats` value; `Stamina` | Settle in the audit |
 | Hinged vehicle/building doors | Keep `Door` slide-only; or extend the template | `Door` only slides |
 | **`SceneFlow.ChangeSceneAsync` defect** (UnityTemplates) | Fix in the template: skip `SetActiveScene` when the loaded scene is already active | In Unity 6000.6 `SceneManager.SetActiveScene` returns `false` for the scene that is already active, which is the case right after a `Single` load, so `SceneFlow` throws `InvalidOperationException: Failed to set scene ... as active` although the scene loaded. Night Courier avoids it through additive swapping and does not depend on the fix, but every other consumer of `ChangeSceneAsync` is affected. Not changed here because UnityTemplates is a separate repository with work in progress |

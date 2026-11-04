@@ -12,8 +12,6 @@ using NightCourier.World;
 using RD.Conditions;
 using RD.DependencyInjection;
 using RD.Foundation;
-using RD.Localization;
-using RD.Mechanics.ChaseTargetMemory;
 using RD.Mechanics.Checkpoint;
 using RD.Mechanics.Interactable;
 using RD.Mechanics.Spawner;
@@ -25,12 +23,8 @@ namespace NightCourier.UI
 	public sealed class WarehouseEntry : MonoBehaviour, ISceneEntry
 	{
 		private const int LockerAmmoRefill = 8;
-		private const float DamageNoticeCooldownSeconds = 1.5f;
-		private const float DarkNoticeCooldownSeconds = 3f;
 		private const string ScanFirstKey = "notice.scan_first";
 		private const string ScanInterruptedKey = "notice.scan_interrupted";
-		private const string DarkStartedKey = "notice.dark_started";
-		private const string DarkClearedKey = "notice.dark_cleared";
 		private const string SettlementFailedKey = "result.settlement_failed";
 
 		[SerializeField] private PlayerSession _player;
@@ -68,6 +62,7 @@ namespace NightCourier.UI
 		[SerializeField] private LocalizedLabel _creditsLabel;
 		[SerializeField] private Button _returnButton;
 
+		private FirstDeliveryTraining _training;
 		private GameServices _services;
 		private CampaignState _campaign;
 		private PlayerCarry _carry;
@@ -75,11 +70,10 @@ namespace NightCourier.UI
 		private WarehouseFacts _facts;
 		private CargoPackage _package;
 		private IDisposable _resultScope;
-		private KeepInLightRule _darkRule;
+		private PackageWatch _packageWatch;
+		private EscalationResponder _escalation;
 		private bool _wasScanning;
 		private bool _wasOnPlate;
-		private float _lastDamageNoticeAt = float.NegativeInfinity;
-		private float _lastDarkNoticeAt = float.NegativeInfinity;
 
 		public void Enter(GameServices services, IObjectResolver scene)
 		{
@@ -103,6 +97,12 @@ namespace NightCourier.UI
 
 			_promptView.Bind(_player.Interactor, services.Localization, services.Input.Actions);
 			_objective.Bind(services.Localization);
+
+			if (_run.Spec.Id == FirstDeliveryTraining.ContractId)
+			{
+				_training = new FirstDeliveryTraining(false);
+				_objective.SetTraining(_training);
+			}
 			_pauseMenu.Bind(services, "pause.abort_contract", OnAbort);
 			_vitalsView.Bind(services.Localization, _player.Vitals);
 			_weaponHud.Bind(services.Localization, _player.Weapons);
@@ -168,6 +168,7 @@ namespace NightCourier.UI
 
 		private void OnDestroy()
 		{
+			_training?.Dispose();
 			_resultScope?.Dispose();
 
 			if (_deliveryPoint != null)
@@ -214,25 +215,8 @@ namespace NightCourier.UI
 				_scanner.ScanInterrupted -= OnScanInterrupted;
 			}
 
-			if (_darkRule != null)
-			{
-				_darkRule.DarknessStarted -= OnPackageDark;
-				_darkRule.LightRestored -= OnPackageLit;
-			}
-
-			if (_run != null)
-			{
-				_run.PackageViolationRegistered -= OnPackageViolation;
-			}
-
-			if (_package != null)
-			{
-				_package.Rules.Violated -= OnRuleViolated;
-				_package.Integrity.Changed -= OnIntegrityChanged;
-				_package.Integrity.Damaged -= OnPackageDamaged;
-				_package.Integrity.Destroyed -= OnPackageDestroyed;
-			}
-
+			_packageWatch?.Dispose();
+			_escalation?.Dispose();
 			_returnButton.onClick.RemoveListener(OnReturn);
 		}
 
@@ -335,20 +319,18 @@ namespace NightCourier.UI
 			_package.Impact.Arm();
 			_package.Rules.Configure(_run.Spec.PackageRules, new PackageRuleContext(_run, _lighting));
 
-			_package.Rules.Violated += OnRuleViolated;
-			_run.PackageViolationRegistered += OnPackageViolation;
-			_package.Integrity.Changed += OnIntegrityChanged;
-			_package.Integrity.Damaged += OnPackageDamaged;
-			_package.Integrity.Destroyed += OnPackageDestroyed;
-
 			_packageHud.Bind(_services.Localization, _run.Spec.PackageRules);
 
-			if (_run.Spec.PackageRules.Contains(PackageRuleKind.KeepInLight))
-			{
-				_darkRule = _package.GetComponent<KeepInLightRule>();
-				_darkRule.DarknessStarted += OnPackageDark;
-				_darkRule.LightRestored += OnPackageLit;
-			}
+			_packageWatch = new PackageWatch(_run, _package, _packageHud, _sounds, _services.Localization, FailContract);
+			_escalation = new EscalationResponder(
+				_run,
+				_package,
+				_player,
+				_alarmSpawner,
+				_packageHud,
+				_sounds,
+				_services.Audio,
+				FailContract);
 		}
 
 		private void OnScanInterrupted()
@@ -359,101 +341,12 @@ namespace NightCourier.UI
 			}
 		}
 
-		private void OnPackageDark()
-		{
-			if (_run.Phase != ContractPhase.InTransit || Time.unscaledTime - _lastDarkNoticeAt < DarkNoticeCooldownSeconds)
-			{
-				return;
-			}
-
-			_lastDarkNoticeAt = Time.unscaledTime;
-			_packageHud.Notify(DarkStartedKey, Mathf.RoundToInt(_darkRule.DarkLimitSeconds));
-		}
-
-		private void OnPackageLit()
-		{
-			if (_run.Phase == ContractPhase.InTransit)
-			{
-				_packageHud.Notify(DarkClearedKey);
-			}
-		}
-
 		private void AnnounceRules()
 		{
 			foreach (PackageRuleKind kind in _run.Spec.PackageRules)
 			{
 				_packageHud.Announce(PackageRuleKeys.HintKey(kind));
 			}
-		}
-
-		private void OnPackageDamaged(string damageType, float fractionLost)
-		{
-			if (_run.Phase != ContractPhase.InTransit || Time.unscaledTime - _lastDamageNoticeAt < DamageNoticeCooldownSeconds)
-			{
-				return;
-			}
-
-			_lastDamageNoticeAt = Time.unscaledTime;
-			_packageHud.Notify(PackageDamageKeys.NoticeKey(damageType), Mathf.Max(1, Mathf.RoundToInt(fractionLost * 100f)));
-		}
-
-		private void OnRuleViolated(PackageRuleKind kind)
-		{
-			_sounds.PlayViolation();
-			_packageHud.Notify("notice.rule_violated", _services.Localization.Get(PackageRuleKeys.NameKey(kind)));
-			_run.RegisterViolation(kind);
-		}
-
-		private void OnPackageViolation(int count)
-		{
-			foreach (EscalationEffect effect in _run.Spec.GetEscalation(count))
-			{
-				switch (effect)
-				{
-					case EscalationEffect.PackageUnstable:
-						_package.Unstable.Activate();
-						_sounds.PlayUnstable();
-						_packageHud.Notify("notice.package_unstable");
-						break;
-					case EscalationEffect.SpawnEnemy:
-						SpawnAlarmEnemy();
-						break;
-					case EscalationEffect.PackageHazardous:
-						_package.Hazard.Activate(_player.Contamination);
-						_sounds.PlayHazard(_package.transform.position);
-						_packageHud.Notify("notice.package_hazardous");
-						break;
-					case EscalationEffect.FailContract:
-						FailContract("result.too_many_violations");
-						break;
-					default:
-						throw new ArgumentOutOfRangeException(nameof(effect), effect, "Unknown escalation effect.");
-				}
-			}
-		}
-
-		private void SpawnAlarmEnemy()
-		{
-			if (!_alarmSpawner.TrySpawn(out GameObject enemy))
-			{
-				return;
-			}
-
-			enemy.GetComponent<EnemyAlert>().Bind(_player.transform);
-			enemy.GetComponent<ChaseTargetMemory>().ReportTarget(_player.transform);
-			enemy.GetComponent<EnemyAudio>().Bind(_services.Audio);
-			_sounds.PlayAlarm(enemy.transform.position);
-			_packageHud.Notify("notice.enemy_spawned");
-		}
-
-		private void OnIntegrityChanged()
-		{
-			_packageHud.ShowIntegrity(_package.Integrity.Fraction);
-		}
-
-		private void OnPackageDestroyed()
-		{
-			FailContract("result.package_destroyed");
 		}
 
 		private void FailContract(string reasonKey)
@@ -496,7 +389,8 @@ namespace NightCourier.UI
 			bool inTransit = _run.Phase == ContractPhase.InTransit;
 
 			_deliveryPoint.SetAvailable(carrying && inTransit);
-			_objective.Show(ObjectiveHints.ForLocation(
+			_training?.ObserveLocation(new WarehouseProgress(carrying, _facts.PowerOn, _facts.CargoScanned), _run.Phase == ContractPhase.Delivered);
+			_objective.Show(WarehouseObjectiveHints.ForLocation(
 				_run,
 				new WarehouseProgress(
 					carrying,

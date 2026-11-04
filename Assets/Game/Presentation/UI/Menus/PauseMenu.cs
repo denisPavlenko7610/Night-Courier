@@ -82,6 +82,11 @@ namespace NightCourier.UI
 			_root.SetActive(false);
 		}
 
+		public void SetLeaveAvailable(bool available)
+		{
+			_leaveButton.gameObject.SetActive(available && _leaveAction != null);
+		}
+
 		public void Open()
 		{
 			if (IsOpen || _services == null)

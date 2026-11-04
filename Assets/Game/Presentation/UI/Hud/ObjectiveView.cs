@@ -13,6 +13,7 @@ namespace NightCourier.UI
 		private ILocalizationService _localization;
 		private string _key;
 		private bool _hidden;
+		private FirstDeliveryTraining _training;
 
 		public void Bind(ILocalizationService localization)
 		{
@@ -21,6 +22,11 @@ namespace NightCourier.UI
 			_label.Bind(localization);
 			_key = null;
 			Apply();
+		}
+
+		public void SetTraining(FirstDeliveryTraining training)
+		{
+			_training = training;
 		}
 
 		public void Show(string key)
@@ -50,7 +56,12 @@ namespace NightCourier.UI
 
 			if (visible)
 			{
-				_label.SetRichText(UiStyle.Heading(_localization.Get(CaptionKey)) + "\n" + _localization.Get(_key));
+				bool training = _training != null && _training.StepNumber > 0;
+				string caption = training
+					? _localization.Get(FirstDeliveryTraining.CaptionKey, _training.StepNumber, _training.StepCount)
+					: _localization.Get(CaptionKey);
+				string key = training ? "training." + _key : _key;
+				_label.SetRichText(UiStyle.Heading(caption) + "\n" + _localization.Get(key));
 			}
 		}
 	}

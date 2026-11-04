@@ -79,7 +79,7 @@ PhysicsButton, Pendulum, RopeSwing.
 ### Library gaps and newly added mechanics
 
 - **Vehicle driving has no template owner.** Do not start a vehicle controller on your own. Ownership (a minimal
-  controller in `Assets/Game/Vehicle`, or a new mechanic in `UnityTemplates`) is an open decision for the user
+  controller in `Assets/Game/Gameplay/Vehicle`, or a new mechanic in `UnityTemplates`) is an open decision for the user
   ([Docs/Production-Plan.md](Docs/Production-Plan.md)). Whatever the controller is, it stays arcade; vehicle health,
   stats, equipment, and input come from the existing modules.
 - Additional mechanics are now linked into this project (`PushPullObject`, `ResponsiveJump`, `Ladder`,
@@ -90,9 +90,10 @@ PhysicsButton, Pendulum, RopeSwing.
 
 ## Game Layer
 
-- All game code and content live under `Assets/Game/`. Create folders when first needed (`Application`, `Contracts`,
-  `Economy`, `Controls`, `Packages`, `Player`, `AI`, `World`, `UI`, `Presentation`, `Content`, `Scenes`, `Tests`,
-  `Demo`).
+- All game code and content live under `Assets/Game/`. Organize by responsibility: `Bootstrap` (composition and startup),
+  `Infrastructure` (input, persistence, localization, settings), `Gameplay` (domain and reusable game behavior),
+  `Features` (scene flows and training), `Presentation` (UI, audio, effects), `Content`, `Scenes`, and `Tests`.
+  See [Docs/Project-Structure.md](Docs/Project-Structure.md) before adding a folder.
 - Input: gameplay code reads actions from `PlayerInputActions` (an owned clone of `NightCourier.inputactions`) and
   switches maps only through `GameInput` (`PushGameplay`, `PushMenu`). Anything that opens a menu, terminal, or modal
   pushes a UI context and disposes it on close; never enable or disable action maps directly. Cursor lock follows the
@@ -110,7 +111,7 @@ PhysicsButton, Pendulum, RopeSwing.
 - `Boot` is a persistent base scene that owns `GameHost` (the composition root). Content scenes are swapped additively
   by `GameHost`, and each content scene has exactly one `ISceneEntry` that receives `GameServices` and its scene scope. Do not call
   `SceneFlow.ChangeSceneAsync` (known defect, see [Docs/Production-Plan.md](Docs/Production-Plan.md) Open Decisions).
-- Startup steps live in `Assets/Game/Application/Steps`; add a service by adding a step and a `GameServices` property,
+- Startup steps live in `Assets/Game/Bootstrap/Steps`; add a service by adding a step and a `GameServices` property,
   never a static accessor.
 - Game assemblies reference template assemblies explicitly. Templates never reference game code.
 - **No singletons and no service locator.** The Startup pipeline builds application services; they are passed explicitly

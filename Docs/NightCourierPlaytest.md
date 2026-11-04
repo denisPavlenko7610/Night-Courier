@@ -143,3 +143,28 @@ An editor hierarchy query and top-down render inspected the original layout befo
 Post-change compilation, Console inspection and PlayMode tests: NOT RUN / NOT VERIFIED. MCP scene reload and run_tests requests disconnected across reload, followed repeatedly by "ping not answered". The desktop helper also failed twice with "native pipe ... not found". No post-change test job id or result was returned. Earlier passing tests do not validate this change.
 
 Required rerun after reconnect: ContentDataTests; WarehouseRulesPlayModeTests (all six); GameLoopPlayModeTests; UiLayoutPlayModeTests (all seven resolutions because objective text changed). Then perform checklist Run B with real controls: park cargo under lamp, walk around dock crates to battery, carry it to generator, restore power, walk maintenance route, scan/deliver, verify 260 base and no property deduction, return and Continue. For Restricted Cargo verify 450 +100 before optional costs and no mandatory damage. Inspect the new objective at 16:9 and 5:4. If capsule clearance fails, fix actual scene composition instead of removing the assertion.
+
+## Compiler-error repair and post-change verification
+
+PackageWatch.cs failed compilation with CS7036 at PackageRules.Contains after extraction from WarehouseEntry. Added the missing System.Linq import; no gameplay logic was changed by this repair.
+
+- WarehouseRulesPlayModeTests: PASS, 6/6, 0 failed, 0 skipped (ef81dd01898f4be286a7cabcd8006451); a subsequent run also passed 6/6 (81af7f7b6a644835a490c7f9d3e35ecd). This now verifies the dock battery clearance assertions and both blackout settlement scenarios through the scripted driver.
+- GameLoopPlayModeTests: PASS, 5/5, 0 failed, 0 skipped (50b3b8e17c8c43b4813693acf9fb0d33), including save/Continue and single payout.
+- ContentDataTests: PASS, 19/19, 0 failed, 0 skipped (47f39f14bad448898e8c23ca792a466c).
+- Compilation: completed and the tests executed; CS7036 no longer appears in the final Console query. The remaining Console error is the existing Version Control unityplastic.dll / Mono.Posix dependency failure, outside game code. Earlier Unity AI NoSubscription and CrashReporter errors were also observed; they were not test failures in these successful runs.
+- Expected save-failure IOException is deliberately asserted by FailedSave_KeepsTheProgressInMemory_TellsThePlayer_AndPaysOnce; it does not indicate a production save was touched.
+- UI-layout suite was not rerun in this repair pass. Keyboard/mouse playtesting remains NOT VERIFIED. These runs supersede the earlier post-battery-change NOT RUN status for the three named fixtures only.
+
+## First-sprint baseline recheck - 2026-11-04
+
+Scope: validate the existing folder migration before input-driven usability work. The worktree already contained extensive staged and unstaged changes. No runtime code, scene, prefab, package, engine version or save schema was changed in this pass.
+
+- Connected editor and ProjectVersion.txt both report 7000.0.0a12. The documented 6000.6 target remains a version decision; this pass did not downgrade or migrate the project.
+- All 146 tracked GUIDs from deleted old asset paths still exist under Assets/Game. No duplicate GUIDs were found there. No old runtime folder or moved prefab path literals were found in Assets or ProjectSettings. These static checks do not prove every serialized reference.
+- EditMode: NightCourier.Game.Tests passed 252/252, zero failed or skipped. Job 57f7c09466024601bcee67936bca866e.
+- PlayMode: GameLoopPlayModeTests, WarehouseRulesPlayModeTests and UiLayoutPlayModeTests passed 19/19, zero failed or skipped, in 161.98 s. Job 2367395573bd47c5b22bcfdade68a879. These are scripted integration scenarios, not ordinary player traversal.
+- UI audit: all seven resolutions passed. Overview sheets of all 126 captures were visually inspected, plus the full-size 1920x1080 blackout arrival capture. No obvious clipping or overlap was seen at overview scale. This is not a full-size readability review of every image. The result capture shows Lights Out base pay 260 without property damage; the arrival objective names the dock battery.
+- Final Console: the existing collab-proxy unityplastic.dll dependency error remains. The invalid cargo-prefab and blocked save-path exceptions are asserted negative test scenarios. No C# compiler errors were returned.
+- Corrected Playtest-Checklist Run B7 to expect no property deduction when no property was damaged. Marked the already implemented blackout settlement integration task as scripted-complete in Next-Sprint; live-enemy Restricted Cargo traversal remains open.
+
+Ordinary keyboard/mouse traversal could not start: the Windows Computer Use helper returned native pipe unavailable / os error 2 on the initial attempt, retry and retry after resetting its JavaScript session. No input-driven playthrough or first-time-player observation is claimed. Do not infer usability, route timing, false-violation counts or player comprehension from the passing automated suite. The next dependent step is Runs A and B with normal controls in an isolated save profile; then fix observed blockers before changing Express geometry or adding HUD features.

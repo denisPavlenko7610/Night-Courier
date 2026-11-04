@@ -153,25 +153,25 @@ namespace NightCourier.Tests
 		[Test]
 		public void PlayerPrefab_HasEveryAudioReferenceAssigned()
 		{
-			Prefab("Assets/Game/Content/Prefabs/Player.prefab", root =>
+			Prefab("Assets/Game/Content/Prefabs/Player/Player.prefab", root =>
 				AssertNoMissingReferences(root.GetComponentInChildren<PlayerAudio>(true), "Player"));
 		}
 
 		[Test]
 		public void CrawlerPrefab_HasEveryAudioReferenceAssigned()
 		{
-			Prefab("Assets/Game/Content/Prefabs/Crawler.prefab", root =>
+			Prefab("Assets/Game/Content/Prefabs/Enemies/Crawler.prefab", root =>
 				AssertNoMissingReferences(root.GetComponentInChildren<EnemyAudio>(true), "Crawler", "_drone", "_hum", "_bolt"));
 		}
 
 		[Test]
 		public void DronePrefab_HasEveryAudioReferenceAssigned()
 		{
-			Prefab("Assets/Game/Content/Prefabs/SecurityDrone.prefab", root =>
+			Prefab("Assets/Game/Content/Prefabs/Enemies/SecurityDrone.prefab", root =>
 				AssertNoMissingReferences(root.GetComponentInChildren<EnemyAudio>(true), "Drone", "_melee", "_attack"));
 		}
 
-		[TestCase("Assets/Game/Content/Prefabs/PauseMenu.prefab")]
+		[TestCase("Assets/Game/Content/UI/PauseMenu.prefab")]
 		[TestCase("Assets/Game/Content/UI/ConfirmWindow.prefab")]
 		public void MenuPrefabs_HaveEveryUiSoundAssigned(string path)
 		{

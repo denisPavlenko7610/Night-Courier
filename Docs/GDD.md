@@ -41,14 +41,14 @@ Night Courier is a game about delivering hard cargo into dangerous industrial bu
 |---|---|---|
 | Loop: Main Menu → Depot → contract terminal → package pickup → van → Warehouse → power → scan → deliver → result → Depot | Working, played | Standard Delivery and Fragile end to end; Fragile failure at the fourth violation and its retry; Lights Out start and power-on |
 | Contracts | 5 data assets on the Warehouse | `Assets/Game/Content/Contracts` (ids `contract.standard-delivery`, `.fragile`, `.lights-out`, `.express`, `.restricted-cargo`) |
-| Package rules | `DoNotDrop`, `KeepInLight`, `DeliveryDeadline`, violation ladder 1 unstable / 2 enemy / 3 hazardous / 4 fail | `Assets/Game/Packages`, contract assets |
+| Package rules | `DoNotDrop`, `KeepInLight`, `DeliveryDeadline`, violation ladder 1 unstable / 2 enemy / 3 hazardous / 4 fail | `Assets/Game/Gameplay/Packages`, contract assets |
 | Location states | Normal and Blackout (battery, generator, breaker lever) | `WarehouseFacts`, `WarehouseLighting`, `BatteryCell`, `GeneratorSocket`, `PowerLever` |
-| Threats | Crawler (melee, alarm spawn) and Security Drone (patrol, bolts); both react to being shot | `Assets/Game/AI`, `EncounterGroup` |
-| Player tools | Stun Pistol, Crowbar, Medkit; emergency lockers as checkpoints; electric floor | `Assets/Game/Weapons`, `CourierLocker`, `PlayerVitals` |
+| Threats | Crawler (melee, alarm spawn) and Security Drone (patrol, bolts); both react to being shot | `Assets/Game/Gameplay/AI`, `EncounterGroup` |
+| Player tools | Stun Pistol, Crowbar, Medkit; emergency lockers as checkpoints; electric floor | `Assets/Game/Gameplay/Weapons`, `CourierLocker`, `PlayerVitals` |
 | Economy | Base pay, bonuses, ammo, property, and death deductions; shift rating (four axes); courier rank; three upgrades; equipment locker | `SettlementCalculator`, `ShiftRatingCalculator`, `CourierRank`, `CourierUpgrades`, `CourierLoadout` |
 | Save | One campaign slot: credits, quests, reward ledger, upgrades, loadout, rank; New Game confirms before replacing a save | `CampaignState`, `CampaignRepository` |
 | Briefing | The contract terminal lists risk, pay, site, package rules, time limit, bonuses, and known threats | `DepotEntry.BuildBriefing` |
-| In-run guidance | Objective line per step (including power and scanning states), rule announcement at the start, violation and damage notices with cause, refused delivery of an unscanned package, a reason on the prompt when a locked or dead object is looked at, dark and interrupted-scan notices (section 0.7) | `ObjectiveHints`, `WarehouseEntry`, `PackageHudView`, `Interactable.BlockedKey` |
+| In-run guidance | Objective line per step (including power and scanning states), rule announcement at the start, violation and damage notices with cause, refused delivery of an unscanned package, a reason on the prompt when a locked or dead object is looked at, dark and interrupted-scan notices (section 0.7) | `DepotObjectiveHints` / `WarehouseObjectiveHints`, `WarehouseEntry`, `PackageWatch`, `PackageHudView`, `Interactable.BlockedKey` |
 | Result report | Settlement lines, rating and axes, rank change, violations, integrity, property damage, deaths, up to three improvement lines | `WarehouseEntry.ShowResult`, `SettlementAdvice` |
 
 Settlement safety (working, covered by EditMode tests and played): a payout is granted once per completion (grant id includes the completion count), a repeated delivery callback is rejected, an abort during settlement is ignored, a settlement or save failure still shows a panel and leaves the Depot enterable, and a Depot that finds an unfinished contract abandons it with a warning instead of failing to start.
@@ -107,8 +107,8 @@ Labels: **Implemented in code** (compiles, covered by an EditMode or PlayMode te
 | PlayMode saves isolated from the real profile (`GameHost._saveFolder`, folder `Saves.PlayModeTests`) | Yes | Yes: the full-loop test finds its save file in the test folder | |
 | Scanner accepts only the bound package, ignores a held package, aborts and says so when it leaves | Yes (`CargoScanner`, `CargoPackage.IsHeld`) | Yes: a stray `Cargo`-layer cube, the pickup mid-scan, and the final scan; the test fails when the identity check is removed | |
 | Blocked objects explain themselves (locked doors, dead lift, dead breaker panel, generator, intact barricade) | Yes (`Interactable.BlockedKey`, `BlockedReasons`) | Yes: keys on every object in a blackout; the barricade text on the real prompt | |
-| Package-on-plate without power asks for power; carrying the package with a battery needed asks to park it | Yes (`ObjectiveHints`) | | |
-| Dark and scan-interrupted notices | Yes (`KeepInLightRule` events, `WarehouseEntry`) | Yes: dark and light-restored notices in the hall | |
+| Package-on-plate without power asks for power; carrying the package with a battery needed asks to park it | Yes (`DepotObjectiveHints` / `WarehouseObjectiveHints`) | | |
+| Dark and scan-interrupted notices | Yes (`KeepInLightRule` events, `PackageWatch`, `WarehouseEntry`) | Yes: dark and light-restored notices in the hall | |
 | Always-on work lamp and a safe crate in the dock | Yes (`WarehouseLighting._emergencyLights`, `PackageSafeSurface`) | Yes: lit at the crate, dark in the hall and at the breaker panel; the lamp reads in an editor render | Night sky or ceiling so the blackout reads dark from above (Next-Sprint 3) |
 | Warehouse ambient light set to `Flat` (dark) instead of `Skybox` | Yes (scene setting) | Editor renders only: with `Skybox` the "blackout" hall was clearly lit | Check in a build |
 | Result screen says XP comes from the shift rating | Yes (text) | | |
@@ -1479,7 +1479,9 @@ The first delivery teaches by play, without constant popups:
 Pick up parcel → deliver to locker → door is locked → find keycard → enemy appears → return
 ```
 
-Each mechanic is introduced through play. A single-line contextual hint on the first encounter (the scanner, a locked door, darkness, a cargo rule) is allowed through the HUD objective and notice lines when play alone does not teach it; there are no modal tutorial popups and no separate tutorial system.
+Each mechanic is introduced through play. A single-line contextual hint on the first encounter (the scanner, a locked door, darkness, a cargo rule) is allowed through the HUD objective and notice lines when play alone does not teach it; there are no modal tutorial popups. The existing Tutorials module tracks the first delivery through the objective HUD.
+
+First-delivery training guides the depot and warehouse with action-driven steps from `RD.Tutorials`. The HUD explains movement, interaction and hold prompts, van travel, power, scanner placement, scan cancellation, and hand-in. Training repeats after an abandoned first job; saved contract completion ends onboarding without separate PlayerPrefs state. Controls remain available from Pause. The Depot pause menu offers Abort Contract only while a job is active; confirmation reloads the Depot so lost cargo cannot trap the campaign. Runtime tutorial definitions are scene-owned and destroyed on unload.
 
 Working today: the contract terminal briefing lists the package rules, time limit, bonuses, and known threats before the job is accepted; the objective line says why the breaker panel matters ("the scanner, the lift, and the maintenance door run on it"), reacts to the scan ("Scanning... leave the package on the plate"), and tells the player to pick the scanned package up; each package rule announces itself in one line when the Warehouse loads; pressing the delivery terminal with an unscanned package explains what is missing instead of staying silent. Still unproven: that a first-time player understands all of this without help (task 1 in Docs/Next-Steps.md).
 
@@ -1648,7 +1650,7 @@ Detailed mapping is in [Template-Mapping.md](Template-Mapping.md). Short version
 - **Persistent world flags** through Save and Conditions; no world simulation.
 - **Placeholder-first visuals.** Every gameplay prefab keeps logic, colliders, and anchors on a stable root and art under a replaceable `Visual` child (see [Asset-Plan.md](Asset-Plan.md)).
 - **Van as two halves of the character.** The van uses the same modules as the courier: `Health` (condition, cargo stability), `Stats` (acceleration, top speed, grip, headlight range, cargo protection), `Equipment` (van slots), `Inventory` (parts), `Wallet` (repairs, upgrades, possibly fuel), `Save` (persistent condition), `Input` (vehicle context).
-- **Driving has no template owner.** The library contains no vehicle controller. Options: (a) a minimal arcade controller in `Assets/Game/Vehicle` as game glue, or (b) a new reusable mechanic added to `UnityTemplates` (which fits the project's purpose). This is an open decision for the user; it is not made by an agent on its own. Either way the controller must be small and arcade (8.9), and the vehicle's health, stats, equipment, and input come from the existing modules.
+- **Driving has no template owner.** The library contains no vehicle controller. Options: (a) a minimal arcade controller in `Assets/Game/Gameplay/Vehicle` as game glue, or (b) a new reusable mechanic added to `UnityTemplates` (which fits the project's purpose). This is an open decision for the user; it is not made by an agent on its own. Either way the controller must be small and arcade (8.9), and the vehicle's health, stats, equipment, and input come from the existing modules.
 - **Fuel representation** is decided in the audit (candidates: a `Wallet` currency committed once per road segment, a `Stats` value, or the `Stamina` mechanic if its API fits).
 
 ---

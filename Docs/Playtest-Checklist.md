@@ -41,7 +41,7 @@ scan → hatch → delivery terminal.
 | A5 | Pull the breaker lever | The door opens; the objective says to set the package on the scanner plate | | |
 | A6 | Walk to the lift; look at the console before and after the power | No-power text before; "Ride the freight lift" after | | |
 | A7 | Set the package on the plate (G) | Indicator turns amber, "Scanning. Leave the package on the plate...", green after about 3 s, "Scan complete..." | | |
-| A8 | Pick it up, pass the hatch, hold E at the terminal | One result panel: Base pay, total, rating, rank and XP, one improvement line | | |
+| A8 | Pick it up, pass the hatch, hold E at the terminal | One result panel: Base pay, total, rating, rank points, and relevant improvement advice | | |
 | A9 | Return to the Depot (click once), then Main Menu → Continue | Credits 150, the contract no longer offered | | |
 
 Record for the whole run: total time to the first delivery ___; every place the tester stood still for more than 20 s ___;
@@ -60,7 +60,7 @@ without help.
 | B4 | Find the way out | Find the battery at the far end of the dock. The barricade is optional and its prompt warns of a fine. | | |
 | B5 | With the package in hand, try to grab the battery | "Your hands are full." and the objective says to set the package down on the lit crate | | |
 | B6 | Leave the barricade intact, fetch the dock battery (both hands), insert it, pull the lever | Lights come on, doors unlock, no property fine appears on the result | | |
-| B7 | Finish the delivery | Result lists Base pay and the ₡20 property fine | | |
+| B7 | Finish the delivery without damaging property | Result lists 260 base pay and no property deduction; optional costs must match actual actions | | |
 
 Record: did the tester park the package under the lamp on purpose? ___; violations ___; minutes ___; where the tester
 did not know what to do ___.

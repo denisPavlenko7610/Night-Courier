@@ -82,6 +82,7 @@ namespace NightCourier.PlayModeTests
 			yield return _driver.BootToMainMenu();
 			yield return _driver.NewGameToDepot();
 
+			Assert.That(GameDriver.Get<FirstDeliveryTraining>(_driver.Depot, "_training").StepNumber, Is.EqualTo(1));
 			Assert.That(_driver.Campaign.Credits, Is.EqualTo(0));
 			Assert.That(_driver.Campaign.Contracts.ActiveRun, Is.Null);
 
@@ -91,6 +92,7 @@ namespace NightCourier.PlayModeTests
 			yield return _driver.CarryPackageToTheVanAndDepart();
 
 			Assert.That(_driver.Run.Phase, Is.EqualTo(ContractPhase.InTransit));
+			Assert.That(GameDriver.Get<FirstDeliveryTraining>(_driver.Warehouse, "_training").StepNumber, Is.EqualTo(1));
 
 			yield return _driver.ScanAndDeliver();
 
@@ -101,6 +103,8 @@ namespace NightCourier.PlayModeTests
 			Assert.That(File.Exists(Path.Combine(GameDriver.SaveRoot, CampaignRepository.SlotId + ".json")), Is.True, "The result was not saved.");
 
 			yield return _driver.ReturnToDepotFromResult();
+
+			Assert.That(GameDriver.Get<FirstDeliveryTraining>(_driver.Depot, "_training"), Is.Null);
 
 			Assert.That(_driver.Campaign.Contracts.ActiveRun, Is.Null);
 			Assert.That(_driver.Campaign.Credits, Is.EqualTo(StandardDeliveryPay));
@@ -167,6 +171,36 @@ namespace NightCourier.PlayModeTests
 			Assert.That(_driver.Campaign.Credits, Is.EqualTo(0));
 			Assert.That(_driver.Campaign.Contracts.GetAvailable().Count, Is.EqualTo(1));
 			Assert.That(_driver.Campaign.Contracts.GetAvailable()[0].Id, Is.EqualTo(GameDriver.StandardDelivery));
+		}
+
+		[UnityTest, Timeout(TestTimeoutMilliseconds)]
+		public IEnumerator LostDepotPackage_CanBeAborted_AndTrainingRestartsForRetry()
+		{
+			yield return _driver.BootToMainMenu();
+			yield return _driver.NewGameToDepot();
+			PauseMenu pause = Object.FindFirstObjectByType<PauseMenu>();
+			Assert.That(GameDriver.Get<UnityEngine.UI.Button>(pause, "_leaveButton").gameObject.activeSelf, Is.False);
+
+			yield return _driver.AcceptInTerminal(GameDriver.StandardDelivery);
+			Assert.That(GameDriver.Get<FirstDeliveryTraining>(_driver.Depot, "_training").StepNumber, Is.EqualTo(2));
+			yield return _driver.PickUpPackage();
+			Assert.That(GameDriver.Get<FirstDeliveryTraining>(_driver.Depot, "_training").StepNumber, Is.EqualTo(3));
+			Assert.That(_driver.Player.Carry.Drop(), Is.True);
+			GameDriver.MovePackage(Object.FindFirstObjectByType<NightCourier.Player.CargoPackage>(), new Vector3(0f, -100f, 0f));
+			DepotEntry previous = _driver.Depot;
+			pause.Open();
+			Assert.That(GameDriver.Get<UnityEngine.UI.Button>(pause, "_leaveButton").gameObject.activeSelf, Is.True);
+			GameDriver.Invoke(pause, "ConfirmLeave");
+			yield return GameDriver.WaitUntil(() => previous == null && _driver.Depot != null, "a fresh depot after the abort");
+			yield return _driver.WaitForDepot("the initialized depot after the abort");
+			Assert.That(Time.timeScale, Is.EqualTo(1f));
+			Assert.That(_driver.Campaign.Contracts.ActiveRun, Is.Null);
+			Assert.That(_driver.Campaign.Credits, Is.Zero);
+			Assert.That(GameDriver.Get<FirstDeliveryTraining>(_driver.Depot, "_training").StepNumber, Is.EqualTo(1));
+			yield return _driver.AcceptInTerminal(GameDriver.StandardDelivery);
+			yield return _driver.CarryPackageToTheVanAndDepart();
+			yield return _driver.ScanAndDeliver();
+			Assert.That(_driver.Campaign.Credits, Is.EqualTo(StandardDeliveryPay));
 		}
 
 		[UnityTest, Timeout(TestTimeoutMilliseconds)]

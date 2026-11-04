@@ -124,6 +124,9 @@ namespace NightCourier.PlayModeTests
 			yield return new WaitForSeconds(0.5f);
 			yield return audit.Capture("09_warehouse_start_blackout");
 
+			Vector3 dockPosition = _driver.Player.transform.position;
+			Quaternion dockRotation = _driver.Player.transform.rotation;
+
 			GameDriver.Teleport(_driver.Player, new Vector3(-13.5f, 0.1f, -8f));
 			_driver.Player.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
 
@@ -164,6 +167,9 @@ namespace NightCourier.PlayModeTests
 
 			GameDriver.Get<Button>(pause, "_controlsBackButton").onClick.Invoke();
 			pause.Close();
+
+			GameDriver.Teleport(_driver.Player, dockPosition);
+			_driver.Player.transform.rotation = dockRotation;
 
 			yield return _driver.PowerUpTheBlackout();
 			yield return _driver.ScanAndDeliver();

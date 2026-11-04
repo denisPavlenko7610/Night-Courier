@@ -50,6 +50,7 @@ namespace NightCourier.UI
 		[SerializeField] private Button _actionButton;
 		[SerializeField] private LocalizedLabel _actionLabel;
 
+		private FirstDeliveryTraining _training;
 		private GameServices _services;
 		private CampaignState _campaign;
 		private PlayerCarry _carry;
@@ -77,9 +78,15 @@ namespace NightCourier.UI
 
 			_promptView.Bind(_player.Interactor, services.Localization, services.Input.Actions);
 			_objective.Bind(services.Localization);
+
+			if (_campaign.Contracts.CompletedCount == 0)
+			{
+				_training = new FirstDeliveryTraining(true);
+				_objective.SetTraining(_training);
+			}
 			_vitalsView.Bind(services.Localization, _player.Vitals);
 			_weaponHud.Bind(services.Localization, _player.Weapons);
-			_pauseMenu.Bind(services);
+			_pauseMenu.Bind(services, "pause.abort_contract", OnAbort);
 			_upgradeTerminal.Bind(services, _campaign, _player);
 			_equipmentLocker.Bind(services, _campaign);
 			_medkitHud.Bind(services.Localization, _player.Medkits);
@@ -103,13 +110,14 @@ namespace NightCourier.UI
 		{
 			bool covered = _pauseMenu.IsOpen || _upgradeTerminal.IsOpen || _equipmentLocker.IsOpen;
 
-			_header.alpha = covered ? 0f : 1f;
+			_header.alpha = covered || _terminalScope != null ? 0f : 1f;
 			_objective.SetHidden(covered || _terminalScope != null);
 			_vitalsView.SetHudHidden(covered || _terminalScope != null);
 		}
 
 		private void OnDestroy()
 		{
+			_training?.Dispose();
 			_terminalScope?.Dispose();
 			_ambienceVoice.TryStop(AmbienceFadeSeconds);
 
@@ -178,8 +186,18 @@ namespace NightCourier.UI
 			ContractRun run = _campaign.Contracts.ActiveRun;
 			bool carrying = _carry.IsCarrying;
 
+			_pauseMenu.SetLeaveAvailable(run != null);
+
+			if (_training != null && _campaign.Contracts.CompletedCount > 0)
+			{
+				_objective.SetTraining(null);
+				_training.Dispose();
+				_training = null;
+			}
+
 			_van.SetAvailable(run != null && run.Phase == ContractPhase.PackageCollected && carrying);
-			_objective.Show(ObjectiveHints.ForDepot(run, carrying));
+			_training?.ObserveDepot(run);
+			_objective.Show(DepotObjectiveHints.ForDepot(run, carrying));
 		}
 
 		private void RefreshTerminal()
@@ -342,8 +360,28 @@ namespace NightCourier.UI
 			{
 				_carry.ConsumeHeld();
 				run.Depart();
+				_training?.ObserveDepot(run);
 
 				await _services.Navigator.GoToAsync(run.Spec.DestinationSceneId);
+			}
+			catch (Exception exception)
+			{
+				UnityLogger.LogException(exception, this);
+			}
+		}
+
+		private async void OnAbort()
+		{
+			if (!_campaign.Contracts.Fail())
+			{
+				return;
+			}
+
+			_van.SetAvailable(false);
+
+			try
+			{
+				await _services.Navigator.GoToAsync(SceneIds.Depot);
 			}
 			catch (Exception exception)
 			{

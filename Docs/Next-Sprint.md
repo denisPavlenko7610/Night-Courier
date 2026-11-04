@@ -2,7 +2,7 @@
 
 This list replaces the task table in [Next-Steps.md](Next-Steps.md). It does not repeat finished
 work: scanner identity, blocked-object prompts, the emergency lamp, dark and scan notices, test-save isolation, and the
-save-failure test are done (see GDD section 0.7). The ordered tasks below each end in a run, not a code reading.
+save-failure test are done (see GDD section 0.7). The ordered tasks below each end in a run, not a code reading. Newer results live in [NightCourierPlaytest.md](NightCourierPlaytest.md); scripted scenarios do not close human acceptance.
 
 Sizes: S under half a day, M about a day.
 
@@ -12,8 +12,8 @@ Sizes: S under half a day, M about a day.
 | 2 | Give Express a real dilemma | M | Decision first (see "Express blocker" below). After the change, timed runs of both routes by a bot or a person give a short-route time `R` and a safe-route time `S` with `R` at least 25% below `S` at the same carry state, and the deadline plus the on-time bonus sit between them (`Contract04_Express.asset`). The EditMode content tests still pass. A Play Mode test reaches a settled Express result by each route |
 | 3 | Make the Warehouse night read as night | S | The default skybox is replaced (a night sky, or a ceiling plane on the `Visual` child) so the sky above the walls is not bright during a blackout. Screenshots from Play Mode at the dock and the hall, powered and unpowered, show a clear difference, and the emergency-lamp pool is visible against the dark. The ambient colour stays `Flat` |
 | 4 | Highlight the scanner plate and the delivery terminal | S | The plate and the terminal carry an emissive accent that follows the light language (green for destination, yellow for interactables, GDD 17.1). A tester finds the delivery room without the objective line. Placeholder visuals only, on a `Visual` child, with the `_BaseColor` rule |
-| 5 | Lights Out and Restricted Cargo end to end in Play Mode | S | `GameLoopPlayModeTests` gains two tests: Lights Out (park the package, break the barricade, battery, generator, breaker, delivery) and Restricted Cargo (same, with Do Not Drop; no violation if the package is parked on the crate, so the no-violations bonus is paid). Each reaches a settled result with asserted credits |
-| 6 | Depot lost-package safety | S | Check whether the package can leave the Depot floor or be thrown out of reach. Either give the Depot pause menu a "Cancel Contract" action (confirmation, then `ContractBoard.Fail`) or respawn the package at its spawn point. A Play Mode run where the package is lost still lets the player continue |
+| 5 | Lights Out and Restricted Cargo settlement integration | Done (scripted) | `WarehouseRulesPlayModeTests` covers both settlements using the dock battery without mandatory barricade damage. Restricted Cargo disables encounters, so live-enemy traversal and ordinary input remain open acceptance items |
+| 6 | Depot lost-package safety | Done | The pause menu offers Abort Contract while a job is active. Confirmation fails the job and reloads the Depot, removing lost cargo and restarting first-delivery training. A PlayMode regression loses the parcel, aborts, retries, and checks payment |
 | 7 | Settlement failure recovery | S | A decision from the user: retry the grant on the failure panel, or restore the campaign from the last save. Then implement it with an EditMode test using a failing reward handler. Today a failed grant leaves the quest completed without payout |
 
 ## Express blocker (task 2)
