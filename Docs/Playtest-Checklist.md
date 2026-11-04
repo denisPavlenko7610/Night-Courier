@@ -13,7 +13,7 @@ and no teleports, console, or debug calls.
 | A parked package stays lit in a blackout, the dark is announced once, blocked objects carry a reason, the barricade prompt appears when looked at | Yes (state and prompt text; the camera is turned by setting the player rotation) | Whether the text is read in time |
 | The route is walkable, doors and the lift behave, interaction rays reach their targets | **No.** `GameDriver` teleports the player next to each target, calls `Interactable.Press` directly, and reads private fields by reflection | Yes |
 | Whether the hints are understood, how long a run takes, where a player stalls | **No** | Yes |
-| Input from a real keyboard, mouse, or gamepad, and a pause menu opened mid-action | **No** | Yes |
+| Input from a real keyboard, mouse, or gamepad, and a pause menu opened mid-action | **No.** A synthetic keyboard regression covers forward motion, terminal focus/E, movement blocking while the terminal is open, and Escape restoring gameplay; it does not cover real devices or a complete route | Yes |
 
 Static measurements only (not a playthrough): the NavMesh walking distance from the start to the scanner area is about 57 m
 by the maintenance route and about 62 m by the barricade route (see "Express" in [Next-Sprint.md](Next-Sprint.md)).

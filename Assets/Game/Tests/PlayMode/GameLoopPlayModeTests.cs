@@ -4,9 +4,12 @@ using System.IO;
 using NightCourier.App;
 using NightCourier.Contracts;
 using NightCourier.UI;
+using RD.Mechanics.Interactable;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 using Object = UnityEngine.Object;
 
 namespace NightCourier.PlayModeTests
@@ -18,6 +21,9 @@ namespace NightCourier.PlayModeTests
 		private const long FragilePayWithBonus = 320;
 		private const long DeathFee = 25;
 		private const long StandardDeliveryExperience = 120;
+		private const float InputObservationSeconds = 0.2f;
+		private const float TerminalApproachDistance = 1.8f;
+		private const float MinimumInputMovement = 0.1f;
 
 		private GameDriver _driver;
 
@@ -41,6 +47,84 @@ namespace NightCourier.PlayModeTests
 			yield return _driver.NewGameToDepot();
 			yield return _driver.AcceptInTerminal(contractId);
 			yield return _driver.CarryPackageToTheVanAndDepart();
+		}
+
+		[UnityTest, Timeout(TestTimeoutMilliseconds)]
+		public IEnumerator KeyboardInput_MovesThePlayer_OpensTheFocusedTerminal_AndCancelRestoresGameplay()
+		{
+			var background = InputSystem.settings.backgroundBehavior;
+			var editorInput = InputSystem.settings.editorInputBehaviorInPlayMode;
+			Keyboard keyboard = null;
+
+			try
+			{
+				InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+				InputSystem.settings.editorInputBehaviorInPlayMode =
+					InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+				yield return _driver.BootToMainMenu();
+				yield return _driver.NewGameToDepot();
+
+				keyboard = InputSystem.AddDevice<Keyboard>();
+				Vector3 initialPosition = _driver.Player.transform.position;
+				InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.W));
+				yield return new WaitForSeconds(InputObservationSeconds);
+
+				InputSystem.QueueStateEvent(keyboard, new KeyboardState());
+				yield return null;
+
+				Assert.That(
+					Vector3.Dot(_driver.Player.transform.position - initialPosition, _driver.Player.transform.forward),
+					Is.GreaterThan(MinimumInputMovement)
+				);
+
+				Interactable terminal = GameDriver.Get<Interactable>(_driver.Depot, "_terminal");
+				GameObject panel = GameDriver.Get<GameObject>(_driver.Depot, "_terminalPanel");
+				Vector3 target = terminal.GetComponent<Collider>().bounds.center;
+				Vector3 approach = target - Vector3.forward * TerminalApproachDistance;
+				approach.y = _driver.Player.transform.position.y;
+				GameDriver.Teleport(_driver.Player, approach);
+				_driver.Player.transform.rotation = Quaternion.identity;
+				Transform origin = GameDriver.Get<Transform>(_driver.Player.Interactor, "_origin");
+				origin.rotation = Quaternion.LookRotation(target - origin.position);
+				Physics.SyncTransforms();
+				yield return null;
+				yield return null;
+
+				Assert.That(_driver.Player.Interactor.Target, Is.EqualTo(terminal));
+
+				InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.E));
+				yield return GameDriver.WaitUntil(() => panel.activeSelf, "keyboard interaction opening the terminal");
+
+				Assert.That(_driver.Services.Input.Actions.Gameplay.enabled, Is.False);
+				Assert.That(_driver.Services.Input.Actions.Ui.enabled, Is.True);
+				Vector3 menuPosition = _driver.Player.transform.position;
+				InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.W));
+				yield return new WaitForSeconds(InputObservationSeconds);
+				Assert.That(Vector3.Distance(menuPosition, _driver.Player.transform.position), Is.LessThan(MinimumInputMovement));
+				Assert.That(_driver.Player.Interactor.enabled, Is.False);
+				Assert.That(_driver.Player.Interactor.Target, Is.Null);
+				InputSystem.QueueStateEvent(keyboard, new KeyboardState());
+				yield return null;
+
+				InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.Escape));
+				yield return GameDriver.WaitUntil(() => !panel.activeSelf, "keyboard cancel closing the terminal");
+
+				Assert.That(_driver.Services.Input.Actions.Gameplay.enabled, Is.True);
+				InputSystem.QueueStateEvent(keyboard, new KeyboardState());
+				yield return new WaitForSeconds(InputObservationSeconds);
+				Assert.That(_driver.Services.Input.Actions.Ui.enabled, Is.False);
+				Assert.That(_driver.Services.Input.Actions.Gameplay.enabled, Is.True);
+				Assert.That(Time.timeScale, Is.EqualTo(1f));
+			}
+			finally
+			{
+				if (keyboard != null)
+				{
+					InputSystem.RemoveDevice(keyboard);
+				}
+				InputSystem.settings.backgroundBehavior = background;
+				InputSystem.settings.editorInputBehaviorInPlayMode = editorInput;
+			}
 		}
 
 		[UnityTest, Timeout(TestTimeoutMilliseconds)]
