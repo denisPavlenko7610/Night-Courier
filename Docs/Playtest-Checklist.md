@@ -20,11 +20,15 @@ by the maintenance route and about 62 m by the barricade route (see "Express" in
 
 ## Setup
 
-1. Open the `Boot` scene and enter Play Mode (or run a build). Start with **New Game**; if a save exists, confirm the popup.
+1. In the Unity Editor, open `Assets/Game/Scenes/PlaytestBoot.unity` and enter Play Mode. This scene uses the separate
+   `Saves.Playtest` campaign folder. Start with **New Game**; if a playtest save exists, the confirmation replaces only
+   that playtest campaign. The normal `Boot` scene and a normal build use the real `Saves` folder: do not use them for
+   a fresh-user session unless that profile is intentionally selected.
 2. Keys: move WASD, look mouse, interact E (hold where the prompt says Hold), drop G, fire left mouse, switch weapon Q / 1 / 2,
    medkit H, pause Esc. Gamepad: A interact, B drop, Start pause.
 3. Keep a stopwatch. Do not give the tester any hint. Note the commit hash, the date, and the input device.
-4. Test PlayMode runs use the folder `Saves.PlayModeTests`; your real `Saves` folder is never touched by them.
+4. `Saves.Playtest` persists between manual sessions and is never deleted by automated tests. Test PlayMode runs use
+   `Saves.PlayModeTests`. Settings and input bindings are shared with the normal game profile.
 
 ## Run A: Standard Delivery (the introduction, one honest trip)
 

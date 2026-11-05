@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Game/Scenes/Warehouse.unity
     guid: bc38d26aed3f3834da8dc47d6387efc6
+  - enabled: 1
+    path: Assets/Game/Scenes/PlaytestBoot.unity
+    guid: ddaa4557e0174604892a60d333fb0c3c
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

@@ -57,7 +57,7 @@ Assets/Game/
 - `Gameplay` owns game-specific policies and components composed from UnityTemplates. Each existing domain keeps its own folder. Cross-domain contracts remain in their owning domain.
 - `Features` connects domains into concrete scene flows. MainMenuEntry, DepotEntry, and WarehouseEntry are composition entry points, not UI widgets. Warehouse reactions (PackageWatch and EscalationResponder) stay beside WarehouseEntry. FirstDeliveryTraining is shared by Depot and Warehouse and lives under Training.
 - `Presentation` owns reusable views, HUD formatting, audio listeners, visual effects, and visual resources. Scene entry points may reference these views; views receive their dependencies explicitly. UI is grouped into Common, Depot, Hud, Menus, and Results. SettlementAdvice belongs to Results because it selects presentation copy from an already computed outcome.
-- `Content` holds authored assets and prefab instances. `Scenes` holds the existing Boot, MainMenu, Depot, and Warehouse scenes. Scene paths remain stable; prefab paths are grouped by owner, with menu and HUD prefabs under Content/UI.
+- `Content` holds authored assets and prefab instances. `Scenes` holds Boot, MainMenu, Depot, Warehouse, and the isolated Editor entry scene PlaytestBoot. Scene paths remain stable; prefab paths are grouped by owner, with menu and HUD prefabs under Content/UI.
 - `Tests` mirrors the existing EditMode and PlayMode boundaries.
 
 The reusable framework is supplied by the linked UnityTemplates packages. Do not create a second game-side Framework layer. Add folders only when they have an actual owner and content; future vehicle glue belongs in `Gameplay/Vehicle` if that ownership is approved.

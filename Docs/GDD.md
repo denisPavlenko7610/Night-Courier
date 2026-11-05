@@ -73,7 +73,7 @@ Fragile (₡220, Do Not Drop, ladder) is the careful-handling variant between th
 
 ### 0.4 Win and fail criteria (current rules)
 
-**Sprint 03 implementation update (2026-11-04).** The battery was moved from the south hall behind the barricade (-5, 0.4, -9.5) to the far end of the dock (-14, 0.4, -5.5). Park the parcel under the work lamp, fetch the two-handed battery along the dock aisle, insert it and use the breaker. The maintenance route can then open without destroying the barricade. The intended blackout payout is now 260 without a property fine; Restricted Cargo can retain its 100-credit clean-run bonus without a mandatory property deduction. The integration helper no longer breaks the barricade and checks capsule clearance along the dock approach. This is a scene/test change, NOT VERIFIED in Play Mode after the editor connection failed. Older barricade-trip descriptions below and in historical logs describe the previous layout. The Express timing dilemma is still unresolved; deadlines and rewards are unchanged. See [NightCourierPlaytest.md](NightCourierPlaytest.md).
+**Sprint 03 implementation update (2026-11-04).** The battery was moved from the south hall behind the barricade (-5, 0.4, -9.5) to the far end of the dock (-14, 0.4, -5.5). Park the parcel under the work lamp, fetch the two-handed battery along the dock aisle, insert it and use the breaker. The maintenance route can then open without destroying the barricade. The intended blackout payout is now 260 without a property fine; Restricted Cargo can retain its 100-credit clean-run bonus without a mandatory property deduction. The integration helper no longer breaks the barricade and checks capsule clearance along the dock approach. This is a scene/test change, NOT VERIFIED in Play Mode after the editor connection failed. Older barricade-trip descriptions below and in historical logs describe the previous layout. The Express timing dilemma is still unresolved; deadlines and rewards are unchanged. See [Next-Sprint.md](Next-Sprint.md).
 
 - **Success:** the scanned package is delivered at the terminal. The payout is base pay plus met bonuses minus ammo, property, and death deductions, never below ₡0; the rating feeds the courier rank.
 - **Contract failure (no payout, the contract returns to Available):** the package is destroyed, the ladder reaches its fail step (violation 4 on Fragile, Lights Out, and Restricted Cargo), or the player aborts from the pause menu.
@@ -84,7 +84,7 @@ Fragile (₡220, Do Not Drop, ladder) is the careful-handling variant between th
 
 | Milestone | Goal | State |
 |---|---|---|
-| **Stage 1 ? Full-loop stability** | Several deliveries, settlement and save recovery, cancellation, scene transition failure, cargo loss, repeated input, checkpoint recovery | Automated coverage includes malformed-prefab rejection, failed-save feedback, single payout, lost-Depot-cargo abort/retry and isolated test saves. Dated results live in NightCourierPlaytest.md. Reward-grant recovery and scene-transition failure acceptance remain open |
+| **Stage 1 ? Full-loop stability** | Several deliveries, settlement and save recovery, cancellation, scene transition failure, cargo loss, repeated input, checkpoint recovery | Automated coverage includes malformed-prefab rejection, failed-save feedback, single payout, lost-Depot-cargo abort/retry and isolated test saves. Reward-grant recovery and scene-transition failure acceptance remain open |
 | **Stage 2 ? Existing Warehouse variety** | Use Normal/Blackout, scanner, generator, battery, doors and threats to offer meaningful choices | Implemented archetypes are listed in 0.3; full playthrough coverage of all five contracts remains incomplete |
 | **Stage 3 ? Visual and audio polish** | Readable paths and interactions, blackout lighting, state feedback, cargo warnings and sound | Partially implemented; real keyboard, mouse and gamepad verification remains required |
 | **Stage 4 ? Contract and progression balance** | Timed human runs, reward and upgrade costs, risk versus route choice | Planned; Express timing is a known tuning candidate, not a verified balance defect |
@@ -94,7 +94,7 @@ The road tier remains outside this work. The approved future scope in section 3.
 
 ### 0.6 Verified and not verified
 
-Dated execution evidence and exact test totals live in [NightCourierPlaytest.md](NightCourierPlaytest.md). Earlier status tables describe their recorded passes; they are not evidence of a new run after later changes.
+Exact test totals are not kept in the docs; run the suites for current results. Earlier status tables describe their recorded passes; they are not evidence of a new run after later changes.
 
 Automated integration has exercised settlement, single payout, Continue, abort/retry, lost Depot cargo, death, scanner identity, both blackout settlement scenarios, Express encounters and the on-time bonus, and a failed save retaining in-memory progress. A synthetic-keyboard test covers movement and terminal input-map transitions. A delivery-hold test covers release, looking away and pause cancellation before a successful payout. Restricted Cargo's clean-settlement helper disables threats; it does not verify enemy balance. World-space scanner/delivery accents were inspected from close approaches in Play Mode with power off/on.
 
@@ -124,7 +124,7 @@ Labels: **Implemented in code** (compiles, covered by an EditMode or PlayMode te
 
 ### 0.8 v0.4 proposal: a playable vertical slice
 
-Status: proposed supplement to v0.2/v0.3, supplied on 2026-11-04. This section defines design intent and acceptance; it does not replace the existing GDD or certify scene configuration, balance, UX or human playtesting. Historical verification above belongs to its recorded pass; current evidence and failures live in [NightCourierPlaytest.md](NightCourierPlaytest.md).
+Status: proposed supplement to v0.2/v0.3, supplied on 2026-11-04. This section defines design intent and acceptance; it does not replace the existing GDD or certify scene configuration, balance, UX or human playtesting. Historical verification above belongs to its recorded pass; current evidence comes from running the EditMode and PlayMode suites.
 
 **Player promise:** I am a night courier carrying dangerous cargo. I must understand the order's restrictions, find a practical route, overcome obstacles and decide whether to risk time, money or the parcel's condition.
 
@@ -1485,7 +1485,7 @@ Each mechanic is introduced through play. A single-line contextual hint on the f
 
 First-delivery training guides the depot and warehouse with action-driven steps from `RD.Tutorials`. The HUD explains movement, interaction and hold prompts, van travel, power, scanner placement, scan cancellation, and hand-in. Training repeats after an abandoned first job; saved contract completion ends onboarding without separate PlayerPrefs state. Controls remain available from Pause. The Depot pause menu offers Abort Contract only while a job is active; confirmation reloads the Depot so lost cargo cannot trap the campaign. Runtime tutorial definitions are scene-owned and destroyed on unload.
 
-Working today: the contract terminal briefing lists the package rules, time limit, bonuses, and known threats before the job is accepted; the objective line says why the breaker panel matters ("the scanner, the lift, and the maintenance door run on it"), reacts to the scan ("Scanning... leave the package on the plate"), and tells the player to pick the scanned package up; each package rule announces itself in one line when the Warehouse loads; pressing the delivery terminal with an unscanned package explains what is missing instead of staying silent. Still unproven: that a first-time player understands all of this without help (task 1 in Docs/Next-Steps.md).
+Working today: the contract terminal briefing lists the package rules, time limit, bonuses, and known threats before the job is accepted; the objective line says why the breaker panel matters ("the scanner, the lift, and the maintenance door run on it"), reacts to the scan ("Scanning... leave the package on the plate"), and tells the player to pick the scanned package up; each package rule announces itself in one line when the Warehouse loads; pressing the delivery terminal with an unscanned package explains what is missing instead of staying silent. Still unproven: that a first-time player understands all of this without help (task 1 in Docs/Next-Sprint.md).
 
 ### 16.3 In-Run HUD
 

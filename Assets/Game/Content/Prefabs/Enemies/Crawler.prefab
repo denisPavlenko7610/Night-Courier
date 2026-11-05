@@ -53,6 +53,7 @@ GameObject:
   - component: {fileID: 4397288926509962454}
   - component: {fileID: 4144111024060757772}
   - component: {fileID: 1341478662034837602}
+  - component: {fileID: 1111195002029574484}
   m_Layer: 11
   m_Name: Crawler
   m_TagString: Untagged
@@ -312,6 +313,25 @@ MonoBehaviour:
   _death: {fileID: 3543141050450496848}
   _hitSparks: {fileID: 4758149403715208174}
   _deathSmoke: {fileID: 7928122389592533496}
+--- !u!114 &1111195002029574484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2185428066492792797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 049dca5359ddf9d4da65b2d9d86401cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Presentation.EnemyAnimation
+  _animator: {fileID: 3334880954481299309}
+  _health: {fileID: 2049563298713044744}
+  _death: {fileID: 3543141050450496848}
+  _agent: {fileID: 3685980677962444577}
+  _melee: {fileID: 1540671224465429939}
+  _drone: {fileID: 0}
+  _speedDampSeconds: 0.1
 --- !u!1 &2299576493458831499
 GameObject:
   m_ObjectHideFlags: 0

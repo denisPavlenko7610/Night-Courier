@@ -40,7 +40,7 @@
 
 		{ "Key": "hud.objective", "Value": "Objective" },
 		{"Key": "training.caption", "Value": "MANDATORY TRAINING 4-B | {0}/{1}"},
-		{"Key": "training.objective.accept_contract", "Value": "Welcome, courier. Move with WASD, look with the mouse. Use the yellow contract terminal; read and accept the first job. Esc opens controls."},
+		{"Key": "training.objective.accept_contract", "Value": "Welcome, courier. Move with WASD, look with the mouse. Use the yellow contract terminal; read and accept the first job. Esc opens pause."},
 		{"Key": "training.objective.pick_up_from_conveyor", "Value": "Collect your parcel from the conveyor. Aim at it and follow the interaction prompt; hold until the bar fills when shown."},
 		{"Key": "training.objective.load_van", "Value": "Carry the parcel to the van and use its yellow loading point to travel. G puts cargo down. You do not drive on this shift."},
 		{"Key": "training.objective.pick_up_package", "Value": "Collect the parcel beside the van. Aim at yellow equipment for prompts. Find the breaker panel to power the delivery route."},
@@ -84,7 +84,7 @@
 		{ "Key": "controls.gamepad_actions", "Value": "Move\nLook\nInteract\nDrop the package\nFire\nReload\nUse medkit\nSwitch weapon\nSprint\nPause" },
 
 		{ "Key": "depot.title", "Value": "Courier Depot" },
-		{ "Key": "depot.credits", "Value": "Credits: в‚Ў{0}" },
+		{ "Key": "depot.credits", "Value": "Credits: \u20A1{0}" },
 		{ "Key": "depot.rank", "Value": "Rank: {0}  ({1} / {2} points)" },
 		{ "Key": "depot.rank_max", "Value": "Rank: {0}  ({1} points)" },
 		{ "Key": "rank.trainee", "Value": "Trainee" },
@@ -102,7 +102,7 @@
 		{ "Key": "loadout.stow", "Value": "Stow" },
 		{ "Key": "loadout.medkit_stock", "Value": "Medkits" },
 		{ "Key": "loadout.medkit_status", "Value": "In stock: {0}    Carried: {1}" },
-		{ "Key": "loadout.buy", "Value": "Buy for в‚Ў{0}" },
+		{ "Key": "loadout.buy", "Value": "Buy for \u20A1{0}" },
 		{ "Key": "loadout.full", "Value": "Full" },
 		{ "Key": "loadout.medkit", "Value": "Medkit" },
 		{ "Key": "loadout.empty", "Value": "Empty" },
@@ -113,7 +113,7 @@
 
 		{ "Key": "upgrades.title", "Value": "Upgrade Terminal" },
 		{ "Key": "upgrades.level", "Value": "Level {0} / {1}   {2}" },
-		{ "Key": "upgrades.buy", "Value": "Buy for в‚Ў{0}" },
+		{ "Key": "upgrades.buy", "Value": "Buy for \u20A1{0}" },
 		{ "Key": "upgrades.maxed", "Value": "Top level" },
 		{ "Key": "upgrade.vest.title", "Value": "Reinforced Vest" },
 		{ "Key": "upgrade.vest.description", "Value": "Adds 25 health per level." },
@@ -133,7 +133,7 @@
 		{ "Key": "contract.field.threats", "Value": "Known threats" },
 		{ "Key": "contract.field.notes", "Value": "Dispatch notes" },
 		{ "Key": "contract.site", "Value": "{0}, {1}" },
-		{ "Key": "contract.slot_summary", "Value": "{0}  В·  в‚Ў{1}" },
+		{ "Key": "contract.slot_summary", "Value": "{0}  \u00B7  \u20A1{1}" },
 		{ "Key": "threat.crawlers", "Value": "Crawlers" },
 		{ "Key": "threat.security_drone", "Value": "Security drone" },
 
@@ -228,7 +228,7 @@
 		{ "Key": "result.failed_footer", "Value": "No payout. The contract stays on the board, so you can try again." },
 
 		{ "Key": "result.title", "Value": "Delivery Complete" },
-		{ "Key": "result.subtitle", "Value": "{0}  В·  {1}" },
+		{ "Key": "result.subtitle", "Value": "{0}  \u00B7  {1}" },
 		{ "Key": "result.caption_settlement", "Value": "Settlement" },
 		{ "Key": "result.caption_rating", "Value": "Shift rating" },
 		{ "Key": "result.caption_debrief", "Value": "Debrief" },
@@ -241,7 +241,7 @@
 		{ "Key": "result.axis.cargo", "Value": "Cargo" },
 		{ "Key": "result.axis.protocol", "Value": "Protocol" },
 		{ "Key": "result.axis.property", "Value": "Property" },
-		{ "Key": "result.rank_line", "Value": "{0}  В·  +{1} rank points" },
+		{ "Key": "result.rank_line", "Value": "{0}  \u00B7  +{1} rank points" },
 		{ "Key": "result.rank_promoted", "Value": "Promoted to {0}!" },
 		{ "Key": "result.stat.violations", "Value": "Rule violations" },
 		{ "Key": "result.stat.cargo", "Value": "Cargo integrity" },

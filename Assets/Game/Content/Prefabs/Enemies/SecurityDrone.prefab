@@ -4803,6 +4803,7 @@ GameObject:
   - component: {fileID: 3891110254281792511}
   - component: {fileID: 1418339943843133519}
   - component: {fileID: 8233478560442115086}
+  - component: {fileID: 2327883185024445432}
   m_Layer: 11
   m_Name: SecurityDrone
   m_TagString: Untagged
@@ -5025,6 +5026,25 @@ MonoBehaviour:
   _death: {fileID: 4717384330745886468}
   _hitSparks: {fileID: 8232722778885937556}
   _deathSmoke: {fileID: 837564205370516677}
+--- !u!114 &2327883185024445432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6092305741487052010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 049dca5359ddf9d4da65b2d9d86401cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NightCourier.Game::NightCourier.Presentation.EnemyAnimation
+  _animator: {fileID: 9066277729388293861}
+  _health: {fileID: 2745630131921722914}
+  _death: {fileID: 4717384330745886468}
+  _agent: {fileID: 0}
+  _melee: {fileID: 0}
+  _drone: {fileID: 7790340175561399753}
+  _speedDampSeconds: 0.1
 --- !u!1001 &4861104975859841842
 PrefabInstance:
   m_ObjectHideFlags: 0

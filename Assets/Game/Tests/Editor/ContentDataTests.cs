@@ -288,6 +288,17 @@ namespace NightCourier.Tests
 		}
 
 		[Test]
+		public void Localization_FormatsCreditsAndSeparatorsFromTheImportedAsset()
+		{
+			JsonLocalizationProvider table = new(Load<TextAsset>(LocalizationPath));
+
+			Assert.That(table.TryGet("depot.credits", new object[] { 150 }, out string credits), Is.True);
+			Assert.That(credits, Is.EqualTo("Credits: \u20A1150"));
+			Assert.That(table.TryGet("contract.slot_summary", new object[] { "LOW", 150 }, out string summary), Is.True);
+			Assert.That(summary, Is.EqualTo("LOW  \u00B7  \u20A1150"));
+		}
+
+		[Test]
 		public void Localization_AvoidsTheLetterTheUiFontMisreads()
 		{
 			LocalizationTable table = JsonUtility.FromJson<LocalizationTable>(Load<TextAsset>(LocalizationPath).text);
