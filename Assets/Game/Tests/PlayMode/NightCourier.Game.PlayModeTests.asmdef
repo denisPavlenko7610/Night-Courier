@@ -4,6 +4,7 @@
     "references": [
         "NightCourier.Game",
         "RD.Foundation",
+        "RD.Localization",
         "RD.Health",
         "RD.Mechanics.Combat",
         "RD.Mechanics.Interactable",

@@ -28,19 +28,19 @@ namespace NightCourier.UI
 		{
 			StringBuilder text = new();
 
-			text.Append(UiStyle.Caption(localization.Get(ContractKeys.OrderKey(spec.TitleKey)))).Append(LineBreak);
+			text.Append(UiStyle.Tint(localization.Get(ContractKeys.OrderKey(spec.TitleKey)).ToUpperInvariant(), UiStyle.DocumentMuted)).Append(LineBreak);
 			text.Append(localization.Get(spec.DescriptionKey));
 
 			text.Append(LineBreak).Append(LineBreak);
-			text.Append(UiStyle.Heading(localization.Get("contract.field.notes")));
+			text.Append(UiStyle.Tint(localization.Get("contract.field.notes").ToUpperInvariant(), UiStyle.DocumentAccent));
 
 			foreach (string note in localization.Get(ContractKeys.NotesKey(spec.TitleKey)).Split(LineBreak))
 			{
-				text.Append(LineBreak).Append(UiStyle.Tint(UiStyle.BulletSymbol, UiStyle.AccentColor)).Append(' ').Append(note);
+				text.Append(LineBreak).Append(UiStyle.Tint(UiStyle.BulletSymbol, UiStyle.DocumentAccent)).Append(' ').Append(note);
 			}
 
 			text.Append(LineBreak).Append(LineBreak);
-			text.Append(UiStyle.Tint(UiStyle.Italic(localization.Get(ContractKeys.MemoKey(spec.TitleKey))), UiStyle.MutedColor));
+			text.Append(UiStyle.Tint(UiStyle.Italic(localization.Get(ContractKeys.MemoKey(spec.TitleKey))), UiStyle.DocumentMuted));
 
 			return text.ToString();
 		}

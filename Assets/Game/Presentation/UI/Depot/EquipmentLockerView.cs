@@ -2,7 +2,6 @@ using System;
 using NightCourier.App;
 using NightCourier.Audio;
 using NightCourier.Loadout;
-using NightCourier.Player;
 using NightCourier.Weapons;
 using RD.Equipment;
 using RD.Foundation;

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using UnityEngine;
 using NightCourier.Contracts;
 using NightCourier.Economy;
 using NightCourier.Loadout;
@@ -94,8 +96,37 @@ namespace NightCourier.App
 			state.Upgrades.Restore(save.Upgrades);
 			state.Loadout.Restore(save.Loadout);
 			state.Rank.Restore(save.Rank);
+			if (save.HasPendingSettlement)
+			{
+				if (save.PendingSettlement == null)
+				{
+					throw new InvalidSaveDataException("The pending settlement is missing.");
+				}
+				state.Contracts.RestoreSettlement(save.PendingSettlement);
+			}
 
 			return state;
+		}
+
+		public ContractSettlement PrepareSettlement()
+		{
+			return Contracts.PrepareSettlement(Rank.TotalExperience);
+		}
+
+		public async Awaitable<RankChange> CompleteSettlementAsync(CancellationToken cancellationToken = default)
+		{
+			PendingSettlement pending = Contracts.PendingSettlement ?? throw new InvalidOperationException("There is no pending settlement.");
+			long gained = CourierRank.ExperienceFor(pending.Rating.Overall);
+			long expected = checked(pending.RankBefore + gained);
+			if (Rank.TotalExperience != pending.RankBefore && Rank.TotalExperience != expected)
+			{
+				throw new InvalidSaveDataException("The pending settlement does not match courier rank.");
+			}
+			await Contracts.PayPendingSettlementAsync(cancellationToken);
+			int previous = Rank.Level;
+			RankChange change = Rank.TotalExperience == pending.RankBefore ? Rank.Apply(pending.Rating) : new RankChange(0, previous, previous);
+			Contracts.ClearSettlement();
+			return change;
 		}
 
 		public CampaignSave Capture()
@@ -107,7 +138,9 @@ namespace NightCourier.App
 				Rewards = _rewardLedger.CaptureSnapshot(),
 				Upgrades = Upgrades.Capture(),
 				Loadout = Loadout.Capture(),
-				Rank = Rank.Capture()
+				Rank = Rank.Capture(),
+				HasPendingSettlement = Contracts.PendingSettlement != null,
+				PendingSettlement = Contracts.PendingSettlement?.Copy()
 			};
 		}
 	}

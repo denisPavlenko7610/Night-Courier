@@ -54,6 +54,63 @@ namespace NightCourier.PlayModeTests
 			GameDriver.DeleteTestSaves();
 		}
 
+		private const float HoldObservationSeconds = 0.2f;
+		private const float DeliveryApproachDistance = 0.9f;
+
+		[UnityTest, Timeout(TestTimeoutMilliseconds)]
+		public IEnumerator DeliveryHold_ReleaseLookAwayAndPauseCancel_ThenCompletionPaysOnce()
+		{
+			yield return _driver.StartContract(GameDriver.StandardDelivery);
+			yield return _driver.PickUpPackage();
+			WarehouseFacts facts = GameDriver.Get<WarehouseFacts>(_driver.Warehouse, "_facts");
+			facts.SetPower(true);
+			facts.SetCargoScanned(true);
+			Interactable delivery = GameDriver.Get<Interactable>(_driver.Warehouse, "_deliveryPoint");
+			InteractionFocus focus = _driver.Player.Interactor;
+			Transform origin = GameDriver.Get<Transform>(focus, "_origin");
+			Vector3 target = delivery.GetComponent<Collider>().bounds.center;
+			GameDriver.Teleport(_driver.Player, target + Vector3.left * DeliveryApproachDistance - Vector3.up);
+			_driver.Player.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+			Vector3 aim = target - origin.position;
+			GameDriver.Set(_driver.Player.GetComponent<PlayerMotor>(), "_pitch", -Mathf.Atan2(aim.y, new Vector2(aim.x, aim.z).magnitude) * Mathf.Rad2Deg);
+			Physics.SyncTransforms();
+			yield return null;
+			yield return null;
+			Physics.Raycast(origin.position, origin.forward, out RaycastHit focusHit, 2.5f, GameDriver.Get<LayerMask>(focus, "_mask"), QueryTriggerInteraction.Ignore);
+			Assert.That(focus.Target, Is.EqualTo(delivery), focusHit.collider != null ? focusHit.collider.name : origin.position.ToString());
+			Assert.That(focus.Press(), Is.True);
+			yield return new WaitForSeconds(HoldObservationSeconds);
+			Assert.That(delivery.HoldProgress, Is.GreaterThan(0f));
+			focus.Release();
+			Assert.That(delivery.HoldProgress, Is.Zero);
+			Assert.That(_driver.Run.Phase, Is.EqualTo(ContractPhase.InTransit));
+			Assert.That(focus.Press(), Is.True);
+			yield return new WaitForSeconds(HoldObservationSeconds);
+			_driver.Player.transform.rotation = Quaternion.Euler(0f, 270f, 0f);
+			yield return null;
+			yield return null;
+			Assert.That(delivery.IsHolding, Is.False);
+			Assert.That(_driver.Campaign.Credits, Is.Zero);
+			_driver.Player.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+			Assert.That(focus.Press(), Is.True);
+			yield return new WaitForSeconds(HoldObservationSeconds);
+			PauseMenu pause = Object.FindFirstObjectByType<PauseMenu>();
+			pause.Open();
+			yield return null;
+			yield return null;
+			Assert.That(delivery.IsHolding, Is.False);
+			Assert.That(delivery.HoldProgress, Is.Zero);
+			Assert.That(_driver.ResultVisible, Is.False);
+			pause.Close();
+			yield return null;
+			yield return null;
+			Assert.That(focus.Press(), Is.True);
+			yield return GameDriver.WaitUntil(() => _driver.ResultVisible, "completed delivery hold");
+			Assert.That(_driver.Campaign.Credits, Is.EqualTo(StandardDeliveryPay));
+			Assert.That(delivery.Press(), Is.False);
+			Assert.That(_driver.Campaign.Credits, Is.EqualTo(StandardDeliveryPay));
+		}
+
 		[UnityTest, Timeout(TestTimeoutMilliseconds)]
 		public IEnumerator Scanner_IgnoresStrangers_ScansOnlyThePackage_AndAbortsWhenItLeavesThePlate()
 		{
@@ -232,28 +289,32 @@ namespace NightCourier.PlayModeTests
 		}
 
 		[UnityTest, Timeout(TestTimeoutMilliseconds)]
-		public IEnumerator FailedSave_KeepsTheProgressInMemory_TellsThePlayer_AndPaysOnce()
+		public IEnumerator FailedCheckpoint_DelaysPayment_ThenReturnRetriesAndPaysOnce()
 		{
-			string blocker = Path.Combine(Application.persistentDataPath, BlockedSaveFolder);
+			string blocker = Path.Combine(GameDriver.SaveRoot, BlockedSaveFolder);
 
+			Directory.CreateDirectory(GameDriver.SaveRoot);
 			File.WriteAllText(blocker, "this file stands where the save folder would be");
 
 			try
 			{
-				yield return _driver.BootToMainMenu(BlockedSaveFolder + "/inner");
+				yield return _driver.BootToMainMenu(GameDriver.TestSaveFolder + "/" + BlockedSaveFolder + "/inner");
 				yield return _driver.NewGameToDepot();
 				yield return _driver.AcceptInTerminal(GameDriver.StandardDelivery);
 				yield return _driver.CarryPackageToTheVanAndDepart();
 
 				LogAssert.Expect(LogType.Exception, new Regex("Cannot create .* same name already exists"));
+				LogAssert.Expect(LogType.Exception, new Regex("Cannot create .* same name already exists"));
 
 				yield return _driver.ScanAndDeliver();
 
-				Assert.That(_driver.ResultText, Does.Contain("could not be saved"));
-				Assert.That(_driver.ResultText, Does.Contain("Base pay: " + StandardDeliveryPay));
-				Assert.That(_driver.Campaign.Credits, Is.EqualTo(StandardDeliveryPay), "The payout was lost or doubled when the save failed.");
-				Assert.That(_driver.Campaign.Contracts.ActiveRun, Is.Null);
-				Assert.That(_driver.Services.Campaign.HasSave, Is.False, "A save that never reached the disk was reported as written.");
+				Assert.That(_driver.ResultText, Does.Contain("Payment is pending"));
+				Assert.That(_driver.Campaign.Credits, Is.Zero);
+				Assert.That(_driver.Campaign.Rank.TotalExperience, Is.Zero);
+				Assert.That(_driver.Campaign.Contracts.PendingSettlement, Is.Not.Null);
+				Assert.That(_driver.Campaign.Contracts.GetAvailable(), Is.Empty);
+				Assert.That(_driver.Services.Campaign.HasSave, Is.False);
+				File.Delete(blocker);
 
 				yield return _driver.ReturnToDepotFromResult();
 
@@ -261,7 +322,10 @@ namespace NightCourier.PlayModeTests
 			}
 			finally
 			{
-				File.Delete(blocker);
+				if (File.Exists(blocker))
+				{
+					File.Delete(blocker);
+				}
 			}
 		}
 

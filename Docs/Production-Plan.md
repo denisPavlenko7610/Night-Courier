@@ -313,10 +313,10 @@ and credits, and the Warehouse showed the HUD and healed 40 on H. The Shotgun, R
 ### Phase 11 — Persistence (remaining)
 
 Credits, quest progress, completed contracts, the reward ledger, purchased upgrade levels, the loadout (equipment snapshot,
-medkit stock, next medkit instance), and the courier rank experience are saved (`CampaignSave` version 5; versions 2 to 4
+medkit stock, next medkit instance), and the courier rank experience are saved (`CampaignSave` version 6; versions 2 to 5
 still load with no upgrades, the default loadout, and the Trainee rank; unknown upgrade ids are ignored and levels are
 clamped to the current maximum). A loadout snapshot that fails to restore falls back to the default. Remaining: collectible
-progress. Do not serialize arbitrary active scene physics. Checkpoint/Respawn handles temporary level death.
+progress. Version 6 also records pending settlement totals, ratings, grant identity and rank baseline; payment is checkpointed before grant and resumed on Continue or Return to Depot through the existing Rewards/Wallet ledgers. Do not serialize arbitrary active scene physics. Checkpoint/Respawn handles temporary level death.
 
 ### Phase 12 — Full Module Integration
 

@@ -226,10 +226,7 @@ remain unchanged; installation does not promote candidates or unplanned mechanic
 
 ## 4. Installed Mechanics Awaiting Gameplay Integration
 
-All ten mechanics below are now installed as individual local UPM packages. Their reserved roles remain pending gameplay
-integration. At installation, HoldInteraction and RopeSwing had runtime source and demo scripts but no module README;
-review their completed documentation and demos before gameplay integration. Package compilation is checked separately
-from behavior.
+These ten mechanics ship through the linked kit packages (see Template-Packages.md). HoldInteraction is integrated for delivery and ConveyorBelt for the Depot conveyor; their remaining reserved roles and the other mechanics await gameplay integration. Read the current README, public runtime API and demo before each new use. Package compilation is checked separately from behavior.
 
 | #  | Mechanic                 | Priority        | Reserved role                                                                                                                                                                                                                                                                                   |
 |----|--------------------------|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -325,7 +322,7 @@ that the data model treats a shift as a list of contracts.
 | Persistent van condition, installed modules, shift state at the van | `Save`                                                                                                                           | Shift saved only at the van between deliveries                                                                                         |
 | Cargo placement adjacency (heat, cold, electronics)                 | `Conditions`                                                                                                                     | Rules over cargo-point occupancy                                                                                                       |
 | Route unlocks (security pass, rank)                                 | `Conditions`                                                                                                                     |                                                                                                                                        |
-| Cargo loading                                                       | `PickupDrop`, `CarryObject`, `PushPullObject`, `MovingPlatform` (tail-lift), `ConveyorBelt` (pending integration)                | Flat dock or tail-lift; no ramp                                                                                                        |
+| Cargo loading                                                       | `PickupDrop`, `CarryObject`, `PushPullObject`, `MovingPlatform` (tail-lift), `ConveyorBelt` (Depot integrated; van use pending)                | Flat dock or tail-lift; no ramp                                                                                                        |
 | Cargo securing, roadside and garage repair                          | `HoldInteraction` (pending integration)                                                                                          | Instant interaction until its gameplay integration is verified                                                                         |
 | Van doors                                                           | `Door`                                                                                                                           | Slide-only; verify fit for a van door in the audit                                                                                     |
 | Driving versus on-foot input                                        | `Input` contexts                                                                                                                 | Vehicle context                                                                                                                        |
@@ -348,3 +345,8 @@ van door is needed (`Door` only slides).
 - Update this file in the same change that adds, removes, or re-purposes a template usage.
 - A template marked **Not planned** or **N/A** stays that way until the design document says otherwise.
 - If a template turns out not to fit its mapped role, record the reason here before changing the mapping.
+
+
+### Pending settlement recovery
+
+The game-owned PendingSettlement snapshot freezes payment identity, total, rating axes and rank baseline. CampaignRepository checkpoints and resumes it through Save; ContractBoard reuses Rewards grant ids and WalletCreditRewardHandler's Wallet.ApplyGrant entry keys. CampaignState finalizes courier rank against the stored baseline. This is game settlement policy, not a second reward or save system. No UnityTemplates API changes were required.

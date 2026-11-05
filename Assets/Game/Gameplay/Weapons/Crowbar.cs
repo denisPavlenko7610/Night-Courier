@@ -19,8 +19,6 @@ namespace NightCourier.Weapons
 
 		private Quaternion _restRotation;
 
-		public bool IsSwinging => _melee.IsAttacking;
-
 		public event Action Swung;
 
 		public event Action<HealthCarrier> Hit;

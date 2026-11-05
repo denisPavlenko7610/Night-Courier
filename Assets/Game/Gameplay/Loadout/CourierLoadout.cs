@@ -18,6 +18,10 @@ namespace NightCourier.Loadout
 	public sealed class CourierLoadout
 	{
 		private static readonly EquipmentSlotId[] UtilitySlots = { LoadoutIds.UtilityFirst, LoadoutIds.UtilitySecond };
+		private static readonly EquipmentSlotId[] AllSlots =
+		{
+			LoadoutIds.Primary, LoadoutIds.Tool, LoadoutIds.UtilityFirst, LoadoutIds.UtilitySecond
+		};
 
 		private readonly IWallet _wallet;
 		private int _nextMedkitInstance = 1;
@@ -27,7 +31,7 @@ namespace NightCourier.Loadout
 			_wallet = wallet ?? throw new ArgumentNullException(nameof(wallet));
 
 			Equipment = new EquipmentLoadout(
-				new[] { LoadoutIds.Primary, LoadoutIds.Tool, LoadoutIds.UtilityFirst, LoadoutIds.UtilitySecond },
+				AllSlots,
 				new[]
 				{
 					new EquipmentDefinition(LoadoutIds.StunPistol, new[] { LoadoutIds.Primary }),
@@ -190,7 +194,7 @@ namespace NightCourier.Loadout
 
 		private void ResetToDefaults()
 		{
-			foreach (EquipmentSlotId slot in new[] { LoadoutIds.Primary, LoadoutIds.Tool, LoadoutIds.UtilityFirst, LoadoutIds.UtilitySecond })
+			foreach (EquipmentSlotId slot in AllSlots)
 			{
 				Require(Equipment.Unequip(slot));
 			}

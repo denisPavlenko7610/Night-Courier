@@ -11,8 +11,6 @@ namespace NightCourier.Packages
 
 		public float Fraction => (float)_health.Pool.State.Normalized;
 
-		public bool IsDestroyed => !_health.Pool.State.IsAlive;
-
 		public event Action Changed;
 
 		public event Action<string, float> Damaged;

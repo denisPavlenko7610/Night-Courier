@@ -20,8 +20,6 @@ namespace NightCourier.Packages
 
 		public bool IsActive => enabled;
 
-		public float Radius => _radius;
-
 		public void Activate(DamageOverTime target)
 		{
 			if (enabled)

@@ -199,6 +199,14 @@ namespace NightCourier.PlayModeTests
 			yield return null;
 			yield return audit.Capture("18_result_failed");
 
+			GameDriver.Get<LocalizedLabel>(_driver.Warehouse, "_resultTitle").SetKey("result.pending_title");
+			GameDriver.Get<ResultPanelView>(_driver.Warehouse, "_resultView").ShowFailure(
+				_driver.Services.Localization,
+				GameDriver.Get<ContractRun>(_driver.Warehouse, "_run").Spec,
+				"result.settlement_failed",
+				true);
+			yield return audit.Capture("19_payment_pending");
+
 			audit.Save();
 
 			if (FailOnProblems)

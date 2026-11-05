@@ -1,5 +1,4 @@
 using System;
-using NightCourier.Player;
 using RD.Mechanics.Checkpoint;
 using RD.Mechanics.Interactable;
 using UnityEngine;

@@ -27,6 +27,8 @@ namespace NightCourier.Contracts
 
 		public ContractRun ActiveRun { get; private set; }
 
+		public PendingSettlement PendingSettlement { get; private set; }
+
 		public int CompletedCount
 		{
 			get
@@ -49,7 +51,7 @@ namespace NightCourier.Contracts
 		{
 			List<ContractSpec> available = new();
 
-			if (ActiveRun != null)
+			if (ActiveRun != null || PendingSettlement != null)
 			{
 				return available;
 			}
@@ -67,7 +69,7 @@ namespace NightCourier.Contracts
 
 		public ContractRun Accept(string contractId)
 		{
-			if (ActiveRun != null)
+			if (ActiveRun != null || PendingSettlement != null)
 			{
 				throw new InvalidOperationException("A contract is already active.");
 			}
@@ -98,19 +100,89 @@ namespace NightCourier.Contracts
 		{
 			ContractRun run = ActiveRun;
 
-			if (run == null || run.Phase != ContractPhase.Delivered)
+			if (PendingSettlement != null || run == null || run.Phase != ContractPhase.Delivered)
 			{
 				throw new InvalidOperationException("There is no delivered contract to settle.");
 			}
 
 			ContractSettlement settlement = SettlementCalculator.Calculate(run.Spec, run.CaptureOutcome());
 
+			_quests.TryGet(run.Spec.Id, out QuestState state);
+			await GrantSettlementAsync(settlement, state.CompletionCount, cancellationToken);
+
+			run.MarkCompleted();
+			ActiveRun = null;
+
+			return settlement;
+		}
+
+
+		internal ContractSettlement PrepareSettlement(long rankBefore)
+		{
+			if (PendingSettlement != null)
+			{
+				throw new InvalidOperationException("A settlement is already pending.");
+			}
+			ContractRun run = ActiveRun;
+			if (run == null || run.Phase != ContractPhase.Delivered)
+			{
+				throw new InvalidOperationException("There is no delivered contract to settle.");
+			}
+			ContractSettlement settlement = SettlementCalculator.Calculate(run.Spec, run.CaptureOutcome());
+			_quests.TryGet(run.Spec.Id, out QuestState state);
+			PendingSettlement = new PendingSettlement
+			{
+				ContractId = run.Spec.Id,
+				CompletionCount = state.CompletionCount,
+				Total = settlement.Total,
+				DeliveryGrade = settlement.Rating.DeliveryTime.HasValue ? (int)settlement.Rating.DeliveryTime.Value : -1,
+				CargoGrade = settlement.Rating.CargoCondition,
+				ProtocolGrade = settlement.Rating.ProtocolCompliance,
+				PropertyGrade = settlement.Rating.PropertyDamage,
+				RankBefore = rankBefore
+			};
+			return settlement;
+		}
+
+		internal void RestoreSettlement(PendingSettlement pending)
+		{
+			if (pending == null)
+			{
+				return;
+			}
+			pending.Validate();
+			if (!_quests.TryGet(pending.ContractId, out QuestState state) || state.Status != QuestStatus.Completed
+				|| state.CompletionCount != pending.CompletionCount)
+			{
+				throw new RD.Save.InvalidSaveDataException("The pending settlement does not match the completed contract.");
+			}
+			PendingSettlement = pending.Copy();
+		}
+
+		internal async Awaitable PayPendingSettlementAsync(CancellationToken cancellationToken)
+		{
+			PendingSettlement pending = PendingSettlement ?? throw new InvalidOperationException("There is no pending settlement.");
+			ContractSettlement settlement = new(pending.ContractId,
+				new[] { new SettlementLine(SettlementLineKind.BasePay, SettlementCalculator.BasePayLabelKey, pending.Total) }, pending.Rating);
+			await GrantSettlementAsync(settlement, pending.CompletionCount, cancellationToken);
+			if (ActiveRun != null)
+			{
+				ActiveRun.MarkCompleted();
+				ActiveRun = null;
+			}
+		}
+
+		internal void ClearSettlement()
+		{
+			PendingSettlement = null;
+		}
+
+		private async Awaitable GrantSettlementAsync(ContractSettlement settlement, int completionCount, CancellationToken cancellationToken)
+		{
 			if (settlement.Total > 0)
 			{
-				_quests.TryGet(run.Spec.Id, out QuestState state);
-
 				RewardBundle bundle = new(
-					new RewardBundleId($"payout.{run.Spec.Id}"),
+					new RewardBundleId($"payout.{settlement.ContractId}"),
 					new IRewardEntry[]
 					{
 						new RewardEntry<long>(
@@ -120,7 +192,7 @@ namespace NightCourier.Contracts
 					});
 
 				RewardGrantResult result = await _rewards.GrantAsync(
-					new RewardGrantId($"payout.{run.Spec.Id}.{state.CompletionCount}"),
+					new RewardGrantId($"payout.{settlement.ContractId}.{completionCount}"),
 					bundle,
 					cancellationToken);
 
@@ -130,10 +202,6 @@ namespace NightCourier.Contracts
 				}
 			}
 
-			run.MarkCompleted();
-			ActiveRun = null;
-
-			return settlement;
 		}
 
 		public int AbandonUnfinished()

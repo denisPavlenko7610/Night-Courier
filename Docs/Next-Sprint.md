@@ -10,11 +10,11 @@ Sizes: S under half a day, M about a day.
 |---|---|---|---|
 | 1 | First honest playtest of Runs A and B | M | Three people who have not seen the game complete [Playtest-Checklist.md](Playtest-Checklist.md) Runs A and B with the keyboard and mouse, no teleports, no console. The session log is filled in. Record the time to the first delivery, every stall over 20 s, and the false violations. Fix the worst blocker found or file it here. Until this is done nothing in the game is "playtested" |
 | 2 | Give Express a real dilemma | M | Decision first (see "Express blocker" below). After the change, timed runs of both routes by a bot or a person give a short-route time `R` and a safe-route time `S` with `R` at least 25% below `S` at the same carry state, and the deadline plus the on-time bonus sit between them (`Contract04_Express.asset`). The EditMode content tests still pass. A Play Mode test reaches a settled Express result by each route |
-| 3 | Make the Warehouse night read as night | S | The default skybox is replaced (a night sky, or a ceiling plane on the `Visual` child) so the sky above the walls is not bright during a blackout. Screenshots from Play Mode at the dock and the hall, powered and unpowered, show a clear difference, and the emergency-lamp pool is visible against the dark. The ambient colour stays `Flat` |
-| 4 | Highlight the scanner plate and the delivery terminal | S | The plate and the terminal carry an emissive accent that follows the light language (green for destination, yellow for interactables, GDD 17.1). A tester finds the delivery room without the objective line. Placeholder visuals only, on a `Visual` child, with the `_BaseColor` rule |
+| 3 | Make the Warehouse night read as night | Sky implemented (`Sky_Night`, 2026-11-05); blackout captures open | The default skybox is replaced (a night sky, or a ceiling plane on the `Visual` child) so the sky above the walls is not bright during a blackout. Screenshots from Play Mode at the dock and the hall, powered and unpowered, show a clear difference, and the emergency-lamp pool is visible against the dark. The ambient colour stays `Flat` |
+| 4 | Highlight the scanner plate and the delivery terminal | Implemented; human acceptance open | Yellow scanner frame and green terminal strips under Visual use self-lit materials with no colliders or lights. Close-approach Play Mode captures inspected in blackout and powered states. Still verify that a tester finds the destination without the objective line and that carried cargo does not hide the cues |
 | 5 | Lights Out and Restricted Cargo settlement integration | Done (scripted) | `WarehouseRulesPlayModeTests` covers both settlements using the dock battery without mandatory barricade damage. Restricted Cargo disables encounters, so live-enemy traversal and ordinary input remain open acceptance items |
 | 6 | Depot lost-package safety | Done | The pause menu offers Abort Contract while a job is active. Confirmation fails the job and reloads the Depot, removing lost cargo and restarting first-delivery training. A PlayMode regression loses the parcel, aborts, retries, and checks payment |
-| 7 | Settlement failure recovery | S | A decision from the user: retry the grant on the failure panel, or restore the campaign from the last save. Then implement it with an EditMode test using a failing reward handler. Today a failed grant leaves the quest completed without payout |
+| 7 | Settlement failure recovery | Implemented | Save a pending payment before granting credits; retry on Return to Depot or Continue with the original grant id and frozen total/rating. Keep money and rank idempotent, block new orders while pending, and retain recovery after a failed final save. See the dated verification log |
 
 ## Express blocker (task 2)
 
@@ -60,8 +60,21 @@ Do not rely on moving the drone alone: it changes only the danger, not the time.
 ## Decisions waiting for the user
 
 - Task 2: which option above.
-- Task 7: retry the grant or restore from the save.
+- Task 7 resolved: resume the existing grant through Return to Depot and Continue.
 - Whether finished contracts become repeatable or new contracts come from combining states, rules, and encounters (the
   combination test, GDD 22). The finished campaign still ends at "No contracts are available right now."
 - Vehicle ownership for the road tier ([Production-Plan.md](Production-Plan.md), Open Decisions). The road tier stays
   blocked until the MVP loop is fun, which tasks 1 and 2 measure.
+
+
+## Settlement recovery - 2026-11-05
+
+Chosen policy: retry the same payment. Implemented through the existing Rewards, Wallet and Save modules; no template changes.
+
+CampaignSave version 6 adds an explicit pending flag and a detached pending-payment record: contract id, completion count, frozen total, rating axes and rank baseline. Versions 2-5 remain supported. Unity JsonUtility can materialize an empty nested object for null, so the explicit flag determines whether the record is meaningful.
+
+Before payment, CampaignRepository writes a checkpoint. If that fails, no credits or rank are granted. Return to Depot retries from the pending-payment panel; Continue automatically recovers a saved pending operation. A failure after wallet mutation resumes with the same grant and entry keys. Rank finalization checks its stored baseline and expected final value, preventing repeated experience. Failed final recovery saves retain the operation in memory for another attempt. New contracts remain unavailable while payment is pending.
+
+Normal delivery still shows its receipt. The payment-error panel explains that delivery is complete and payment is pending. A successful payment whose final save fails retains the existing save warning; the pre-payment checkpoint remains on disk for Continue recovery. Disk failure before the first checkpoint cannot provide restart recovery: keep the session open and retry once storage is writable.
+
+Verification and limitations are recorded in NightCourierPlaytest.md. This recovery does not migrate already lost payouts from older completed saves, which contain no pending-payment record.

@@ -33,8 +33,6 @@ namespace NightCourier.AI
 		private bool _pursuing;
 		private float _repathRemaining;
 
-		public bool IsPursuing => _pursuing;
-
 		public event System.Action BoltFired;
 
 		private void Awake()

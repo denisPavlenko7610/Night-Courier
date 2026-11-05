@@ -375,12 +375,10 @@ namespace NightCourier.UI
 		private void ShowFailure(string reasonKey)
 		{
 			_sounds.PlayFailed();
-			_resultTitle.SetKey("result.failed_title");
-			_resultView.ShowFailure(_services.Localization, _run.Spec, reasonKey);
-			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
-
-			_resultScope ??= _services.Input.PushMenu();
-			_resultPanel.SetActive(true);
+			bool pending = _campaign.Contracts.PendingSettlement != null;
+			_resultTitle.SetKey(pending ? "result.pending_title" : "result.failed_title");
+			_resultView.ShowFailure(_services.Localization, _run.Spec, reasonKey, pending);
+			OpenResultPanel();
 		}
 
 		private void RefreshWorld()
@@ -430,8 +428,8 @@ namespace NightCourier.UI
 				_carry.ConsumeHeld();
 
 				ContractOutcome outcome = _run.CaptureOutcome();
-				ContractSettlement settlement = await _campaign.Contracts.SettleAsync();
-				RankChange rankChange = _campaign.Rank.Apply(settlement.Rating);
+				ContractSettlement settlement = _campaign.PrepareSettlement();
+				RankChange rankChange = await _services.Campaign.CompleteSettlementAsync();
 				bool saved = await TrySaveAsync();
 
 				if (this == null)
@@ -448,7 +446,11 @@ namespace NightCourier.UI
 				if (this != null)
 				{
 					_campaign.Contracts.AbandonUnfinished();
-					ShowFailure(SettlementFailedKey);
+					await TrySaveAsync();
+					if (this != null)
+					{
+						ShowFailure(SettlementFailedKey);
+					}
 				}
 			}
 		}
@@ -478,15 +480,41 @@ namespace NightCourier.UI
 			Navigate(SceneIds.Depot);
 		}
 
-		private void OnReturn()
+		private async void OnReturn()
 		{
-			Navigate(SceneIds.Depot);
+			if (!_returnButton.interactable)
+			{
+				return;
+			}
+			_returnButton.interactable = false;
+			try
+			{
+				await _services.Campaign.RecoverSettlementAsync();
+				if (this != null)
+				{
+					Navigate(SceneIds.Depot);
+				}
+			}
+			catch (Exception exception)
+			{
+				UnityLogger.LogException(exception, this);
+				if (this != null)
+				{
+					_returnButton.interactable = true;
+					ShowFailure(SettlementFailedKey);
+				}
+			}
 		}
 
 		private void ShowResult(ContractSettlement settlement, ContractOutcome outcome, RankChange rankChange, bool saved)
 		{
 			_sounds.PlayDelivered();
 			_resultView.ShowSuccess(_services.Localization, _run.Spec, settlement, outcome, _campaign.Rank, rankChange, saved);
+			OpenResultPanel();
+		}
+
+		private void OpenResultPanel()
+		{
 			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
 
 			_resultScope ??= _services.Input.PushMenu();

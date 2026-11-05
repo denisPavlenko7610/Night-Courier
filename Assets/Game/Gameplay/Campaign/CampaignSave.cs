@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NightCourier.Economy;
+using NightCourier.Contracts;
 using NightCourier.Loadout;
 using RD.Progression;
 using RD.Quests;
@@ -12,7 +13,7 @@ namespace NightCourier.App
 	[Serializable]
 	public sealed class CampaignSave
 	{
-		public const int CurrentVersion = 5;
+		public const int CurrentVersion = 6;
 		public const int OldestSupportedVersion = 2;
 
 		public int Version = CurrentVersion;
@@ -22,5 +23,7 @@ namespace NightCourier.App
 		public List<UpgradeLevelSave> Upgrades = new();
 		public LoadoutSave Loadout;
 		public ProgressionSnapshot Rank;
+		public bool HasPendingSettlement;
+		public PendingSettlement PendingSettlement;
 	}
 }

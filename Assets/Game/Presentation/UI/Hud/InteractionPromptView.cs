@@ -1,6 +1,5 @@
 using System;
 using NightCourier.Controls;
-using NightCourier.Player;
 using RD.Localization;
 using RD.Mechanics.Interactable;
 using UnityEngine;

@@ -11,14 +11,6 @@ namespace NightCourier.Contracts
 		private readonly CountdownTimer _deadline;
 		private readonly Dictionary<PackageRuleKind, int> _ruleViolations = new();
 
-		private double _transitSeconds;
-		private int _violationCount;
-		private int _packageViolationCount;
-		private int _deathCount;
-		private int _shotsFired;
-		private int _propertyDamageCount;
-		private double _cargoIntegrity = 1d;
-
 		public ContractRun(ContractSpec spec, QuestService quests)
 		{
 			Spec = spec ?? throw new ArgumentNullException(nameof(spec));
@@ -42,19 +34,19 @@ namespace NightCourier.Contracts
 
 		public event Action<int> PackageViolationRegistered;
 
-		public double TransitSeconds => _transitSeconds;
+		public double TransitSeconds { get; private set; }
 
-		public int ViolationCount => _violationCount;
+		public int ViolationCount { get; private set; }
 
-		public int PackageViolationCount => _packageViolationCount;
+		public int PackageViolationCount { get; private set; }
 
-		public int DeathCount => _deathCount;
+		public int DeathCount { get; private set; }
 
-		public int ShotsFired => _shotsFired;
+		public int ShotsFired { get; private set; }
 
-		public int PropertyDamageCount => _propertyDamageCount;
+		public int PropertyDamageCount { get; private set; }
 
-		public double CargoIntegrity => _cargoIntegrity;
+		public double CargoIntegrity { get; private set; } = 1d;
 
 		public bool HasDeadline => _deadline != null;
 
@@ -98,7 +90,7 @@ namespace NightCourier.Contracts
 				return;
 			}
 
-			_transitSeconds += deltaSeconds;
+			TransitSeconds += deltaSeconds;
 			_deadline?.Tick(deltaSeconds);
 		}
 
@@ -109,9 +101,9 @@ namespace NightCourier.Contracts
 				return;
 			}
 
-			_violationCount++;
-			_packageViolationCount++;
-			PackageViolationRegistered?.Invoke(_packageViolationCount);
+			ViolationCount++;
+			PackageViolationCount++;
+			PackageViolationRegistered?.Invoke(PackageViolationCount);
 		}
 
 		public void RegisterViolation(PackageRuleKind kind)
@@ -129,7 +121,7 @@ namespace NightCourier.Contracts
 		{
 			if (Phase == ContractPhase.InTransit)
 			{
-				_shotsFired++;
+				ShotsFired++;
 			}
 		}
 
@@ -137,7 +129,7 @@ namespace NightCourier.Contracts
 		{
 			if (Phase == ContractPhase.InTransit)
 			{
-				_cargoIntegrity = Math.Clamp(fraction, 0d, 1d);
+				CargoIntegrity = Math.Clamp(fraction, 0d, 1d);
 			}
 		}
 
@@ -145,7 +137,7 @@ namespace NightCourier.Contracts
 		{
 			if (Phase == ContractPhase.InTransit)
 			{
-				_deathCount++;
+				DeathCount++;
 			}
 		}
 
@@ -153,21 +145,21 @@ namespace NightCourier.Contracts
 		{
 			if (Phase == ContractPhase.InTransit)
 			{
-				_violationCount++;
-				_propertyDamageCount++;
+				ViolationCount++;
+				PropertyDamageCount++;
 			}
 		}
 
 		public ContractOutcome CaptureOutcome()
 		{
 			return new ContractOutcome(
-				_violationCount,
-				_transitSeconds,
+				ViolationCount,
+				TransitSeconds,
 				IsOverdue,
-				_deathCount,
-				_shotsFired,
-				_propertyDamageCount,
-				_cargoIntegrity,
+				DeathCount,
+				ShotsFired,
+				PropertyDamageCount,
+				CargoIntegrity,
 				RuleViolationCount.Rank(_ruleViolations));
 		}
 

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading;
 using RD.Foundation;
 using RD.Localization;
-using RD.Settings;
 using RD.Startup;
 using UnityEngine;
 

@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NightCourier.App;
 using NightCourier.Audio;
 using NightCourier.Contracts;
 using NightCourier.Economy;
-using NightCourier.Packages;
 using NightCourier.Player;
-using NightCourier.Weapons;
 using RD.Audio;
 using RD.DependencyInjection;
 using RD.Foundation;
@@ -108,11 +107,11 @@ namespace NightCourier.UI
 
 		private void Update()
 		{
-			bool covered = _pauseMenu.IsOpen || _upgradeTerminal.IsOpen || _equipmentLocker.IsOpen;
+			bool covered = _pauseMenu.IsOpen || _upgradeTerminal.IsOpen || _equipmentLocker.IsOpen || _terminalScope != null;
 
-			_header.alpha = covered || _terminalScope != null ? 0f : 1f;
-			_objective.SetHidden(covered || _terminalScope != null);
-			_vitalsView.SetHudHidden(covered || _terminalScope != null);
+			_header.alpha = covered ? 0f : 1f;
+			_objective.SetHidden(covered);
+			_vitalsView.SetHudHidden(covered);
 		}
 
 		private void OnDestroy()
@@ -226,7 +225,7 @@ namespace NightCourier.UI
 		{
 			IReadOnlyList<ContractSpec> available = _campaign.Contracts.GetAvailable();
 
-			if (_selected == null || !Contains(available, _selected))
+			if (_selected == null || !available.Contains(_selected))
 			{
 				_selected = available.Count > 0 ? available[0] : null;
 			}
@@ -387,19 +386,6 @@ namespace NightCourier.UI
 			{
 				UnityLogger.LogException(exception, this);
 			}
-		}
-
-		private static bool Contains(IReadOnlyList<ContractSpec> list, ContractSpec spec)
-		{
-			foreach (ContractSpec item in list)
-			{
-				if (item == spec)
-				{
-					return true;
-				}
-			}
-
-			return false;
 		}
 	}
 }

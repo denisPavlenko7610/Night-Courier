@@ -178,3 +178,47 @@ The test sends synthetic KeyboardState events through the real Input Actions and
 Verification: compilation completed with no C# compiler errors returned. Initial input scenario passed 1/1 (0555a8b2498a40a180c92175e2472d73). After adding menu movement/focus assertions, the full GameLoopPlayModeTests fixture passed 7/7, zero failed or skipped, 24.19 s (65436b936d694f75a39f39a8d4baa373). Runtime code, UI, scene and prefab content are unchanged; the prior UI audit was not repeated for this test-only change.
 
 Console observations during recompilation include native ManagedReferencesTransferState assertions and missing SerializeReference entries, alongside the existing unityplastic.dll dependency error. Their source is not established by these messages and they remain an editor diagnostic to investigate; passing tests do not certify a clean Console. The first-person playtest gate remains open.
+
+## Managed-reference reload investigation - 2026-11-05
+
+The initial Unity MCP endpoint at localhost:8080 was unavailable and no Unity editor was running. Opened this project with its installed 7000.0.0a12 editor through Unity CLI 1.0.0-beta.16; the existing Pipeline package became reachable after startup. No package install, engine migration, asset reserialization or settings change was performed.
+
+Evidence:
+
+- No SerializeReference attribute was found in Assets game code or the linked UnityTemplates C# sources. A static per-object scan of Assets scene/prefab/asset YAML found one managed-reference table (UniversalRenderPipelineGlobalSettings) and no unresolved rid entries in that table. This does not validate package assets or transient editor state.
+- On clean startup, the Pipeline console buffer had no missing-reference errors. A later command-discovery mistake generated an unrelated console error; it is not a project failure.
+- Calling UnityEditor.EditorUtility.RequestScriptReload through Pipeline reproduced native ManagedReferencesTransferState assertions and missing SerializeReference entries without changing game code. A second reload also produced native errors. Script recompile separately reported up_to_date, so no changed-code compilation reproduction was performed.
+- UnityEditor.SerializationUtility.HasManagedReferencesWithMissingTypes returned no affected loaded ScriptableObjects after the first reload. This API detects absent types; it does not rule out missing transfer entries.
+- Captured managed-reference owner/property/id data from loaded ScriptableObjects. Owners include URP settings/debug state, UIElements, Package Manager, Build Profile, Grid Settings and Unity AI session persistence. The failed transfer ids could not be matched conclusively to an owner, including a snapshot before another reload. No individual package or asset is proven responsible.
+
+Status: REPRODUCED, NOT FIXED. The evidence narrows the failure to script-reload state transfer but does not establish the root cause. Do not delete managed references, regenerate URP settings or change game serialization as a speculative fix. Next isolation step: compare a normal domain reload with Code Reload In Place under the same editor/package set, preserving user settings; if needed reduce editor-package involvement in a disposable project. No game PlayMode or test suite was run in this investigation. The editor remains open for follow-up work.
+
+
+## Warehouse landmarks and delivery hold - 2026-11-05
+
+Added seven collider-free visual strips and two game-owned URP Unlit materials: a yellow scanner plate frame and a green delivery-terminal frame, each under Visual. No gameplay code or package change is part of this feature. Self-lit strips deliberately add no Light source and do not affect KeepInLight.
+
+Visual verification: opened Warehouse in Play Mode without Boot/GameHost for an isolated visual inspection; bound WarehouseLighting to a temporary Blackout facts instance and rendered both destinations with power off/on. Inspected all four final 1280x720 captures, stored outside the repository in the OS temp folder NightCourier-Landmarks. Frame counts advanced from 801 to 917 in separate commands. Yellow edges stay visible in darkness and powered light; green terminal edges stay visible alongside its existing bright panel. These close-up camera renders do not prove route discovery, visibility with carried cargo, or keyboard/mouse traversal. The lighting setup was temporary and Play Mode was stopped afterwards.
+
+Added DeliveryHold_ReleaseLookAwayAndPauseCancel_ThenCompletionPaysOnce to WarehouseRulesPlayModeTests. It uses the real scene terminal and InteractionFocus with a held package. It arranges power/scan facts and player position/aim directly, cancels through release, looking away and pause, then waits for normal per-frame hold completion and asserts 150 credits exactly once. It does not simulate keyboard events or scan traversal. The final targeted run passed 1/1, 3.88 s; early setup attempts failed because of camera pitch/approach and are not gameplay failures. Compiler status reported completed, failed=false, errors=[]. Final full WarehouseRulesPlayModeTests rerun passed 7/7, zero failed/skipped, 34.18 s, including this hold regression, scanner identity, both blackout settlements, Express settlement and save-failure behavior.
+
+Concurrent worktree changes outside these visual/test files appeared during this session and were preserved. Existing editor reload serialization errors remain unresolved. A returned UI-layout result reported 6/7 with one Unity AI Toolkit EditorTask.DelayCall exception; it is not a clean UI audit and is not evidence about these world-space strips. No UI layout was changed here. Restricted Cargo with live threats and a human first-person run remain unverified.
+
+
+## Pending-payment recovery - 2026-11-05
+
+Implemented checkpointed settlement recovery using existing Save, Rewards and Wallet APIs. CampaignSave version 6 records a detached pending-payment DTO and explicit presence flag, while accepting versions 2-5. The frozen record contains contract identity/completion count, total, rating axes and the rank baseline. Empty nested objects produced by JsonUtility are ignored when the presence flag is false; marked records are validated against completed quest state.
+
+Warehouse delivery prepares the record, saves it before granting, then completes payment/rank and attempts the final save. Return to Depot retries a failed payment; Continue resumes a saved one automatically. New orders remain blocked while payment is pending. Rewards and Wallet reuse the original grant/entry identity after a partial mutation. Rank finalization accepts only its saved baseline or expected final experience. Recovery whose final save fails reinstates its pending record in memory for another retry. The existing result layout now distinguishes Payment Pending from Contract Failed, without a new button or input-map path.
+
+The save-failure PlayMode scenario now blocks a path beneath Saves.PlayModeTests, confirms zero credits/rank before a successful checkpoint, makes storage writable, presses Return to Depot and checks payment. It no longer writes a sibling test-save directory. All test profiles remain isolated from real Saves.
+
+Verification:
+
+- Final EditMode run: 259/259 passed, no failed/skipped tests. New cases cover failed grants before and after wallet mutation, snapshot restore, rank already applied, invalid/detached pending data, Continue twice, failed initial checkpoint, and failed final recovery save followed by in-memory and restarted recovery.
+- Initial combined PlayMode pass: 18/21 passed. Abort and death scenarios failed on CrashReporter::UploadInsightsStackTraceContent main-thread assertions; the Lights Out full run failed on a Unity AI Toolkit exception. The new pending-payment scenario passed. No exceptions were suppressed to make the suite pass.
+- After the final recovery-save fix, GameLoopPlayModeTests passed 7/7 (23.58 s) and WarehouseRulesPlayModeTests passed 7/7 (34.48 s). This includes single payout, Continue, abort/death, hold cancellation and failed-checkpoint Return recovery.
+- UiLayoutPlayModeTests passed all seven resolutions in the combined run. It now captures 19 states per resolution, including 19_payment_pending. Overview sheets of all 133 captures were inspected, plus full-size pending screens at 1280x720 and 1280x1024; no obvious clipping or overlap was seen. Pending UI is an arranged visual state; recovery itself is exercised by the warehouse scenario.
+- Final source compilation completed with failed=false and errors=[]. Native editor serialization/CrashReporter/AI diagnostics remain a separate unresolved issue; this is not a clean-editor claim.
+
+Limitations: storage failure before the first checkpoint cannot provide restart recovery; payment stays pending in the current session until storage is writable. A successful payment whose final save fails retains the existing warning and its on-disk pre-payment checkpoint. Older already-completed saves without pending records cannot reconstruct historically lost payouts. No human keyboard/mouse campaign or standalone build was performed. Concurrent scene/art/worktree edits were preserved and are not attributed to settlement recovery.

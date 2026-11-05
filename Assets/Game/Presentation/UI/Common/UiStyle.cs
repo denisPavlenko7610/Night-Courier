@@ -6,8 +6,13 @@ namespace NightCourier.UI
 {
 	public static class UiStyle
 	{
-		public const string AccentColor = "#F2A640";
-		public const string MutedColor = "#8A98A8";
+		public const string AccentColor = "#D5A16B";
+		public const string MutedColor = "#A8AAA0";
+		public const string DocumentInk = "#282D26";
+		public const string DocumentMuted = "#64695E";
+		public const string DocumentAccent = "#8F4B2A";
+		public const string DocumentGood = "#2B613E";
+		public const string DocumentDanger = "#9E3E2B";
 		public const string GoodColor = "#6FD08C";
 		public const string WarningColor = "#F2C14E";
 		public const string DangerColor = "#EF6B5B";

@@ -18,6 +18,7 @@ namespace NightCourier.UI
 		private const string PromotedKey = "result.rank_promoted";
 		private const string SaveFailedKey = "result.save_failed";
 		private const string FailedFooterKey = "result.failed_footer";
+		private const string PendingFooterKey = "result.pending_footer";
 		private const string StatGap = "     ";
 		private const string AxisGap = "    ";
 		private const int AxesPerLine = 4;
@@ -49,7 +50,8 @@ namespace NightCourier.UI
 			ContractOutcome outcome,
 			CourierRank rank,
 			RankChange rankChange,
-			bool saved)
+			bool saved
+		)
 		{
 			StringBuilder transcript = new();
 
@@ -57,11 +59,14 @@ namespace NightCourier.UI
 			_failureGroup.SetActive(false);
 			_subtitle.text = Subtitle(localization, spec);
 
-			_receiptCaption.text = UiStyle.Caption(localization.Get("result.caption_settlement"));
+			_receiptCaption.text = UiStyle.Tint(
+				localization.Get("result.caption_settlement").ToUpperInvariant(),
+				UiStyle.DocumentMuted
+			);
 			BuildReceipt(localization, settlement, transcript);
 
 			_totalLabel.text = localization.Get("result.total_label");
-			_totalValue.text = UiStyle.Tint(UiStyle.Money(settlement.Total), UiStyle.GoodColor);
+			_totalValue.text = UiStyle.Tint(UiStyle.Money(settlement.Total), UiStyle.DocumentGood);
 			transcript.AppendLine(localization.Get(TotalKey, settlement.Total));
 
 			ShiftRating rating = settlement.Rating;
@@ -88,14 +93,19 @@ namespace NightCourier.UI
 			Transcript = transcript.ToString().TrimEnd();
 		}
 
-		public void ShowFailure(ILocalizationService localization, ContractSpec spec, string reasonKey)
+		public void ShowFailure(
+			ILocalizationService localization,
+			ContractSpec spec,
+			string reasonKey,
+			bool paymentPending = false
+		)
 		{
 			_successGroup.SetActive(false);
 			_failureGroup.SetActive(true);
 			_subtitle.text = Subtitle(localization, spec);
 
 			string reason = localization.Get(reasonKey);
-			string footer = localization.Get(FailedFooterKey);
+			string footer = localization.Get(paymentPending ? PendingFooterKey : FailedFooterKey);
 
 			_failureMessage.text = reason;
 			_failureFooter.text = UiStyle.Tint(footer, UiStyle.MutedColor);
@@ -109,11 +119,17 @@ namespace NightCourier.UI
 				localization.Get(
 					SubtitleKey,
 					localization.Get(spec.TitleKey),
-					localization.Get(ContractKeys.LocationKey(spec.DestinationSceneId))),
-				UiStyle.MutedColor);
+					localization.Get(ContractKeys.LocationKey(spec.DestinationSceneId))
+				),
+				UiStyle.MutedColor
+			);
 		}
 
-		private void BuildReceipt(ILocalizationService localization, ContractSettlement settlement, StringBuilder transcript)
+		private void BuildReceipt(
+			ILocalizationService localization,
+			ContractSettlement settlement,
+			StringBuilder transcript
+		)
 		{
 			StringBuilder labels = new();
 			StringBuilder values = new();
@@ -139,8 +155,8 @@ namespace NightCourier.UI
 		{
 			return line.Kind switch
 			{
-				SettlementLineKind.Bonus => UiStyle.Tint(UiStyle.SignedMoney(line.Amount), UiStyle.GoodColor),
-				SettlementLineKind.Deduction => UiStyle.Tint(UiStyle.SignedMoney(line.Amount), UiStyle.DangerColor),
+				SettlementLineKind.Bonus => UiStyle.Tint(UiStyle.SignedMoney(line.Amount), UiStyle.DocumentGood),
+				SettlementLineKind.Deduction => UiStyle.Tint(UiStyle.SignedMoney(line.Amount), UiStyle.DocumentDanger),
 				_ => UiStyle.Money(line.Amount)
 			};
 		}
@@ -175,10 +191,16 @@ namespace NightCourier.UI
 
 		private static string Axis(ILocalizationService localization, string labelKey, ShiftGrade grade)
 		{
-			return UiStyle.Caption(localization.Get(labelKey)) + " " + UiStyle.Tint(grade.ToString(), UiStyle.GradeColor(grade));
+			return UiStyle.Caption(localization.Get(labelKey)) +
+				" " +
+				UiStyle.Tint(grade.ToString(), UiStyle.GradeColor(grade));
 		}
 
-		private static string BuildStats(ILocalizationService localization, ContractOutcome outcome, StringBuilder transcript)
+		private static string BuildStats(
+			ILocalizationService localization,
+			ContractOutcome outcome,
+			StringBuilder transcript
+		)
 		{
 			int integrityPercent = Mathf.RoundToInt((float)outcome.CargoIntegrity * 100f);
 
@@ -215,14 +237,20 @@ namespace NightCourier.UI
 					text.Append(StatGap);
 				}
 
-				text.Append(UiStyle.Caption(labels[index])).Append(' ').Append(UiStyle.Tint(plain[index], colors[index]));
+				text.Append(UiStyle.Caption(labels[index])).Append(' ')
+					.Append(UiStyle.Tint(plain[index], colors[index]));
 				transcript.AppendLine(localization.Get(LineKey, labels[index], plain[index]));
 			}
 
 			return text.ToString();
 		}
 
-		private static string BuildAdvice(ILocalizationService localization, ContractOutcome outcome, bool saved, StringBuilder transcript)
+		private static string BuildAdvice(
+			ILocalizationService localization,
+			ContractOutcome outcome,
+			bool saved,
+			StringBuilder transcript
+		)
 		{
 			StringBuilder text = new();
 

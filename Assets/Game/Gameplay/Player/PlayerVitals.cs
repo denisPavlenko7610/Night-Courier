@@ -20,8 +20,6 @@ namespace NightCourier.Player
 
 		public bool IsAlive => _health.Pool.State.IsAlive;
 
-		public bool IsProtected => _lease != null;
-
 		public float Fraction => (float)_health.Pool.State.Normalized;
 
 		public int Current => Mathf.CeilToInt((float)_health.Pool.State.Current);

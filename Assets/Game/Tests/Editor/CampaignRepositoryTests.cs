@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Threading;
 using NightCourier.App;
 using NightCourier.Contracts;
 using NightCourier.Economy;
@@ -62,6 +63,96 @@ namespace NightCourier.Tests
 			run.Depart();
 			run.Deliver();
 			await repository.Current.Contracts.SettleAsync();
+		}
+
+		[Test]
+		public async Task FailedFinalSettlementSave_RetainsRecovery_AndRetryDoesNotDuplicateMoneyOrRank()
+		{
+			var storage = new FailingFinalSaveStorage(_root);
+			CampaignRepository repository = new(new SaveStore(storage, new UnityJsonSaveSerializer()), ContractFixtures.Chain(), UpgradeBook.Empty);
+			repository.StartNew();
+			ContractRun run = repository.Current.Contracts.Accept("first");
+			run.CollectPackage();
+			run.Depart();
+			run.Deliver();
+			repository.Current.PrepareSettlement();
+			Assert.That(await Capture(() => repository.RecoverSettlementAsync()), Is.InstanceOf<IOException>());
+			Assert.That(repository.Current.Credits, Is.EqualTo(100));
+			Assert.That(repository.Current.Rank.TotalExperience, Is.EqualTo(120));
+			Assert.That(repository.Current.Contracts.PendingSettlement, Is.Not.Null);
+			CampaignRepository restarted = NewRepository();
+			await restarted.ContinueAsync();
+			Assert.That(restarted.Current.Credits, Is.EqualTo(100));
+			Assert.That(restarted.Current.Rank.TotalExperience, Is.EqualTo(120));
+			await repository.RecoverSettlementAsync();
+			Assert.That(repository.Current.Credits, Is.EqualTo(100));
+			Assert.That(repository.Current.Rank.TotalExperience, Is.EqualTo(120));
+			Assert.That(repository.Current.Contracts.PendingSettlement, Is.Null);
+		}
+
+		private sealed class FailingFinalSaveStorage : ISaveStorage
+		{
+			private const int FinalSettlementWrite = 2;
+			private readonly FileSaveStorage _inner;
+			private int _writes;
+
+			public FailingFinalSaveStorage(string root)
+			{
+				_inner = new FileSaveStorage(root);
+			}
+
+			public Awaitable<bool> ExistsAsync(string slotId, CancellationToken cancellationToken = default) => _inner.ExistsAsync(slotId, cancellationToken);
+			public Awaitable<string> ReadAsync(string slotId, CancellationToken cancellationToken = default) => _inner.ReadAsync(slotId, cancellationToken);
+			public Awaitable DeleteAsync(string slotId, CancellationToken cancellationToken = default) => _inner.DeleteAsync(slotId, cancellationToken);
+			public Awaitable WriteAsync(string slotId, string payload, CancellationToken cancellationToken = default)
+			{
+				if (++_writes == FinalSettlementWrite)
+				{
+					throw new IOException("Injected final settlement save failure.");
+				}
+				return _inner.WriteAsync(slotId, payload, cancellationToken);
+			}
+		}
+
+		[Test]
+		public async Task Continue_RecoversPendingPaymentAndRank_AndSavesTheCompletedState()
+		{
+			CampaignRepository repository = NewRepository();
+			repository.StartNew();
+			ContractRun run = repository.Current.Contracts.Accept("first");
+			run.CollectPackage();
+			run.Depart();
+			run.Deliver();
+			repository.Current.PrepareSettlement();
+			await repository.SaveAsync();
+			CampaignRepository restored = NewRepository();
+			await restored.ContinueAsync();
+			Assert.That(restored.Current.Credits, Is.EqualTo(100));
+			Assert.That(restored.Current.Rank.TotalExperience, Is.EqualTo(120));
+			Assert.That(restored.Current.Contracts.PendingSettlement, Is.Null);
+			await restored.ContinueAsync();
+			Assert.That(restored.Current.Credits, Is.EqualTo(100));
+			Assert.That(restored.Current.Rank.TotalExperience, Is.EqualTo(120));
+		}
+
+		[Test]
+		public async Task FailedSettlementCheckpoint_DoesNotGrantMoneyOrRank_AndCanBeRetried()
+		{
+			File.WriteAllText(_root, "blocked");
+			CampaignRepository repository = NewRepository();
+			repository.StartNew();
+			ContractRun run = repository.Current.Contracts.Accept("first");
+			run.CollectPackage();
+			run.Depart();
+			run.Deliver();
+			repository.Current.PrepareSettlement();
+			Assert.That(await Capture(async () => { await repository.CompleteSettlementAsync(); }), Is.Not.Null);
+			Assert.That(repository.Current.Credits, Is.Zero);
+			Assert.That(repository.Current.Rank.TotalExperience, Is.Zero);
+			File.Delete(_root);
+			await repository.RecoverSettlementAsync();
+			Assert.That(repository.Current.Credits, Is.EqualTo(100));
+			Assert.That(repository.Current.Rank.TotalExperience, Is.EqualTo(120));
 		}
 
 		[Test]

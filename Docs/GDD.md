@@ -84,7 +84,7 @@ Fragile (₡220, Do Not Drop, ladder) is the careful-handling variant between th
 
 | Milestone | Goal | State |
 |---|---|---|
-| **Stage 1 ? Full-loop stability** | Several deliveries, settlement and save recovery, cancellation, scene transition failure, cargo loss, repeated input, checkpoint recovery | Verified by tests: 221 EditMode and 9 PlayMode tests pass, including malformed-prefab rejection, a failed save keeping the payout in memory and telling the player, and a payout paid once. The PlayMode fixtures now write to `Saves.PlayModeTests` through `GameHost._saveFolder` and never touch the real `Saves` folder. A lost Depot package and scene-transition failure remain open |
+| **Stage 1 ? Full-loop stability** | Several deliveries, settlement and save recovery, cancellation, scene transition failure, cargo loss, repeated input, checkpoint recovery | Automated coverage includes malformed-prefab rejection, failed-save feedback, single payout, lost-Depot-cargo abort/retry and isolated test saves. Dated results live in NightCourierPlaytest.md. Reward-grant recovery and scene-transition failure acceptance remain open |
 | **Stage 2 ? Existing Warehouse variety** | Use Normal/Blackout, scanner, generator, battery, doors and threats to offer meaningful choices | Implemented archetypes are listed in 0.3; full playthrough coverage of all five contracts remains incomplete |
 | **Stage 3 ? Visual and audio polish** | Readable paths and interactions, blackout lighting, state feedback, cargo warnings and sound | Partially implemented; real keyboard, mouse and gamepad verification remains required |
 | **Stage 4 ? Contract and progression balance** | Timed human runs, reward and upgrade costs, risk versus route choice | Planned; Express timing is a known tuning candidate, not a verified balance defect |
@@ -94,9 +94,11 @@ The road tier remains outside this work. The approved future scope in section 3.
 
 ### 0.6 Verified and not verified
 
-Verified: EditMode suite (221 tests) and a PlayMode suite of nine tests (`Assets/Game/Tests/PlayMode`; the first four items below plus the invalid-prefab test are in `GameLoopPlayModeTests`, the scanner, Lights Out, Express, and failed-save tests in `WarehouseRulesPlayModeTests`) that load the real `Boot` scene and run: Main Menu → New Game → Depot → accept (double click) → pickup → van → Warehouse → breaker → scan → deliver (double press) → result → Depot (double Return) → Main Menu → Continue, with credits paid once and the rank and save restored; a destroyed package failing without payout and the retry paying once; abort from the pause menu (the popup's confirm callback) returning to an unpaused Depot with the contract available; death in transit respawning the courier and charging the recovery fee. Also played through editor scripts: abort ignored while settling, Depot recovery from a stuck run, briefing and result layouts at 2560×1440, and the shipped Warehouse light field with power off and on across the hall.
+Dated execution evidence and exact test totals live in [NightCourierPlaytest.md](NightCourierPlaytest.md). Earlier status tables describe their recorded passes; they are not evidence of a new run after later changes.
 
-Not verified: real keyboard, mouse, or gamepad input (the PlayMode tests teleport the player, press interactables directly, read private fields by reflection, and click buttons; the manual script is Docs/Playtest-Checklist.md and has not been run by a person); Express, Lights Out, and Restricted Cargo played end to end (Lights Out is covered only up to the blackout state, the lamp, the dark notices, and the blocked prompts); a first-time-player playtest; a Depot with a lost package (no cancel path); resolutions other than 2560×1440; the blackout look in a standalone build (checked only in the editor).
+Automated integration has exercised settlement, single payout, Continue, abort/retry, lost Depot cargo, death, scanner identity, both blackout settlement scenarios, Express encounters and the on-time bonus, and a failed save retaining in-memory progress. A synthetic-keyboard test covers movement and terminal input-map transitions. A delivery-hold test covers release, looking away and pause cancellation before a successful payout. Restricted Cargo's clean-settlement helper disables threats; it does not verify enemy balance. World-space scanner/delivery accents were inspected from close approaches in Play Mode with power off/on.
+
+Still unverified: a complete human keyboard/mouse or gamepad campaign run; route timings and meaningful route choice in Express; Restricted Cargo traversal with live threats; first-time-player comprehension; finding the delivery point without the objective line; landmark visibility with cargo in hand; standalone blackout appearance. Pending-payment recovery is covered by the dated automated scenarios in the verification log. UI audit outcomes vary by recorded pass, including editor-package exceptions; consult the log rather than assuming every resolution currently passes. Native script-reload serialization errors remain unresolved.
 
 ### 0.7 Readable-run sprint: status by item
 
@@ -500,7 +502,7 @@ Adjacency checks are `Conditions` rules over the placement.
 Cargo Slot → Hold E — Secure Cargo
 ```
 
-An unsecured cargo slides when cornering and loses stability. `HoldInteraction` is installed but not yet integrated; until it is, securing is an instant interaction.
+An unsecured cargo slides when cornering and loses stability. `HoldInteraction` is already used for delivery. Its cargo-securing use remains a road-tier integration; until that use is verified, securing is an instant interaction.
 
 **Weight.** Cargos are Light, Medium, or Heavy. Heavy cargo lowers acceleration and lengthens braking distance. The same cargo that slowed the courier on foot (`CarryObject`) now affects the van.
 

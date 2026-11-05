@@ -146,7 +146,7 @@ GameObject:
   - component: {fileID: 4778786694058245364}
   - component: {fileID: 5969576147737112803}
   m_Layer: 0
-  m_Name: PH_Bolt
+  m_Name: Bolt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
