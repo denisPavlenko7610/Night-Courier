@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="../Theme/NightCourier.uss" />
+    <Style src="../Theme/NightCourierHud.uss" />
+    <ui:VisualElement name="layer" class="nc-theme nc-hud nc-layer" picking-mode="Ignore">
+        <ui:VisualElement name="hud-group" class="nc-layer" picking-mode="Ignore">
+            <ui:VisualElement class="nc-hud__info" picking-mode="Ignore">
+                <ui:Label name="depot-title" text="depot.title" class="nc-localized nc-hud__text nc-hud__title" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement class="nc-hud__stats" picking-mode="Ignore">
+                <ui:Label name="depot-credits" class="nc-hud__text nc-hud__mono" picking-mode="Ignore" />
+                <ui:Label name="depot-rank" class="nc-hud__text nc-hud__mono nc-hud__line nc-hud__rank" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -11,13 +11,11 @@ using RD.DependencyInjection;
 using RD.Foundation;
 using RD.Mechanics.Interactable;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace NightCourier.UI
 {
 	public sealed class DepotEntry : MonoBehaviour, ISceneEntry
 	{
-		private const string AcceptKey = "contract.accept";
 		private const float AmbienceFadeSeconds = 0.5f;
 
 		[SerializeField] private PlayerSession _player;
@@ -35,19 +33,8 @@ namespace NightCourier.UI
 		[SerializeField] private MedkitHudView _medkitHud;
 		[SerializeField] private GameObject _packagePrefab;
 		[SerializeField] private Transform _packageSpawn;
-		[SerializeField] private CanvasGroup _header;
-		[SerializeField] private GameObject _terminalPanel;
-		[SerializeField] private Button _closeButton;
-		[SerializeField] private LocalizedLabel _creditsLabel;
-		[SerializeField] private LocalizedLabel _rankLabel;
-		[SerializeField] private ContractSlot[] _slots;
-		[SerializeField] private GameObject _emptyNotice;
-		[SerializeField] private GameObject _detailsRoot;
-		[SerializeField] private LocalizedLabel _detailsTitle;
-		[SerializeField] private LocalizedLabel _detailsBody;
-		[SerializeField] private LocalizedLabel _detailsInfo;
-		[SerializeField] private Button _actionButton;
-		[SerializeField] private LocalizedLabel _actionLabel;
+		[SerializeField] private DepotHudView _hudView;
+		[SerializeField] private ContractTerminalView _terminalView;
 
 		private FirstDeliveryTraining _training;
 		private GameServices _services;
@@ -70,11 +57,10 @@ namespace NightCourier.UI
 
 			_services = services;
 
-			LocalizedLabel.BindAll(gameObject, services.Localization);
-
 			_player.Begin(services);
 			_carry = _player.Carry;
 
+			_hudView.Bind(services.Localization);
 			_promptView.Bind(_player.Interactor, services.Localization, services.Input.Actions);
 			_objective.Bind(services.Localization);
 
@@ -89,17 +75,18 @@ namespace NightCourier.UI
 			_upgradeTerminal.Bind(services, _campaign, _player);
 			_equipmentLocker.Bind(services, _campaign);
 			_medkitHud.Bind(services.Localization, _player.Medkits);
-			_uiSounds.Bind(services.Audio);
+			_terminalView.Bind(services.Localization);
+			_uiSounds.Bind(services.Audio, _terminalView.Panel);
 			_ambienceVoice = services.Audio.Play(_ambience);
 
 			_terminal.Interacted += OpenTerminal;
 			_van.Interacted += OnVanUsed;
 			_carry.HeldChanged += RefreshWorld;
-			_actionButton.onClick.AddListener(OnAccept);
-			_closeButton.onClick.AddListener(CloseTerminal);
+			_terminalView.Selected += OnSelected;
+			_terminalView.Accepted += OnAccept;
+			_terminalView.CloseRequested += CloseTerminal;
 
-			_terminalPanel.SetActive(false);
-			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
+			_hudView.SetCredits(_campaign.Credits);
 			ShowRank();
 
 			RefreshWorld();
@@ -109,7 +96,7 @@ namespace NightCourier.UI
 		{
 			bool covered = _pauseMenu.IsOpen || _upgradeTerminal.IsOpen || _equipmentLocker.IsOpen || _terminalScope != null;
 
-			_header.alpha = covered ? 0f : 1f;
+			_hudView.SetHidden(covered);
 			_objective.SetHidden(covered);
 			_vitalsView.SetHudHidden(covered);
 		}
@@ -135,8 +122,12 @@ namespace NightCourier.UI
 				_carry.HeldChanged -= RefreshWorld;
 			}
 
-			_actionButton.onClick.RemoveListener(OnAccept);
-			_closeButton.onClick.RemoveListener(CloseTerminal);
+			if (_terminalView != null)
+			{
+				_terminalView.Selected -= OnSelected;
+				_terminalView.Accepted -= OnAccept;
+				_terminalView.CloseRequested -= CloseTerminal;
+			}
 		}
 
 		private void ShowRank()
@@ -146,11 +137,11 @@ namespace NightCourier.UI
 
 			if (rank.IsMaxLevel)
 			{
-				_rankLabel.SetKey("depot.rank_max", title, rank.TotalExperience);
+				_hudView.SetRank("depot.rank_max", title, rank.TotalExperience);
 			}
 			else
 			{
-				_rankLabel.SetKey("depot.rank", title, rank.ExperienceIntoLevel, rank.ExperienceForNextLevel);
+				_hudView.SetRank("depot.rank", title, rank.ExperienceIntoLevel, rank.ExperienceForNextLevel);
 			}
 		}
 
@@ -162,7 +153,7 @@ namespace NightCourier.UI
 			}
 
 			_terminalScope = _services.Input.PushMenu(CloseTerminal);
-			_terminalPanel.SetActive(true);
+			_terminalView.Open();
 			_uiSounds.PlayOpen();
 
 			RefreshTerminal();
@@ -177,7 +168,7 @@ namespace NightCourier.UI
 
 			_terminalScope.Dispose();
 			_terminalScope = null;
-			_terminalPanel.SetActive(false);
+			_terminalView.Close();
 		}
 
 		private void RefreshWorld()
@@ -201,28 +192,16 @@ namespace NightCourier.UI
 
 		private void RefreshTerminal()
 		{
-			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
+			_hudView.SetCredits(_campaign.Credits);
 
 			ContractRun run = _campaign.Contracts.ActiveRun;
 
 			if (run != null)
 			{
-				foreach (ContractSlot slot in _slots)
-				{
-					slot.Hide();
-				}
-
-				_emptyNotice.SetActive(false);
-				ShowDetails(run.Spec);
-				ShowAction(false);
+				_terminalView.ShowActive(run.Spec);
 				return;
 			}
 
-			ShowOffers();
-		}
-
-		private void ShowOffers()
-		{
 			IReadOnlyList<ContractSpec> available = _campaign.Contracts.GetAvailable();
 
 			if (_selected == null || !available.Contains(_selected))
@@ -230,51 +209,7 @@ namespace NightCourier.UI
 				_selected = available.Count > 0 ? available[0] : null;
 			}
 
-			for (int index = 0; index < _slots.Length; index++)
-			{
-				if (index < available.Count)
-				{
-					bool selected = available[index] == _selected;
-
-					_slots[index].Show(
-						available[index],
-						selected,
-						ContractBriefing.SlotLabel(available[index], _services.Localization, selected),
-						OnSelected);
-				}
-				else
-				{
-					_slots[index].Hide();
-				}
-			}
-
-			_emptyNotice.SetActive(available.Count == 0);
-			ShowDetails(_selected);
-			ShowAction(_selected != null);
-		}
-
-		private void ShowDetails(ContractSpec spec)
-		{
-			_detailsRoot.SetActive(spec != null);
-
-			if (spec == null)
-			{
-				return;
-			}
-
-			_detailsTitle.SetKey(spec.TitleKey);
-			_detailsBody.SetRichText(ContractBriefing.Story(spec, _services.Localization));
-			_detailsInfo.SetRichText(ContractBriefing.Terms(spec, _services.Localization));
-		}
-
-		private void ShowAction(bool visible)
-		{
-			_actionButton.gameObject.SetActive(visible);
-
-			if (visible)
-			{
-				_actionLabel.SetKey(AcceptKey);
-			}
+			_terminalView.ShowOffers(available, _selected);
 		}
 
 		private void OnSelected(ContractSpec spec)

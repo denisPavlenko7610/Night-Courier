@@ -163,7 +163,7 @@ namespace NightCourier.PlayModeTests
 		}
 
 		[UnityTest, Timeout(TestTimeoutMilliseconds)]
-		public IEnumerator LightsOut_ParkedPackageStaysLit_TheDarkIsAnnounced_AndEveryBlockedObjectExplainsItself()
+		public IEnumerator LightsOut_ParkedPackageStaysLit_TheDarkTimerTracksExposure_AndEveryBlockedObjectExplainsItself()
 		{
 			yield return _driver.BootToMainMenu();
 			yield return _driver.NewGameToDepot();
@@ -204,12 +204,17 @@ namespace NightCourier.PlayModeTests
 
 			yield return GameDriver.WaitUntil(() => rule.DarkSeconds > 0.5d, "the dark timer to run in the hall");
 
-			Assert.That(_driver.NoticeText, Does.Contain("in darkness"));
+			PackageHudView hud = Object.FindAnyObjectByType<PackageHudView>();
+			Assert.That(hud.DarkTimerVisible, Is.True);
+			string firstTimerText = hud.DarkTimerText;
+			yield return new WaitForSeconds(1.5f);
+			Assert.That(hud.DarkTimerText, Is.Not.EqualTo(firstTimerText), "The HUD countdown did not advance.");
 
 			GameDriver.MovePackage(package, parkedAt);
 
 			yield return GameDriver.WaitUntil(() => rule.DarkSeconds <= 0d, "the dark timer to reset under the lamp");
 
+			Assert.That(hud.DarkTimerVisible, Is.False);
 			Assert.That(_driver.NoticeText, Does.Contain("back in the light"));
 			Assert.That(_driver.Run.ViolationCount, Is.EqualTo(0), "Passing through the dark briefly must not violate the rule.");
 		}

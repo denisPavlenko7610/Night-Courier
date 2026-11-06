@@ -172,7 +172,6 @@ namespace NightCourier.Tests
 		}
 
 		[TestCase("Assets/Game/Content/UI/PauseMenu.prefab")]
-		[TestCase("Assets/Game/Content/UI/ConfirmWindow.prefab")]
 		public void MenuPrefabs_HaveEveryUiSoundAssigned(string path)
 		{
 			Prefab(path, root =>

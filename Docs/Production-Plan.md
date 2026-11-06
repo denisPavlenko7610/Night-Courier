@@ -27,15 +27,19 @@ still goes one feature at a time.
 The Warehouse map, the package rules and ladder, the Lights Out battery, player health with respawn and checkpoints,
 the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Play Mode.
 
-1. **Phase 13 is content-complete for the MVP.** All five contracts have been played end to end and the enemies react to
-   being shot. More enemy variety (a second drone, a tougher route) is a balance pass for later.
-2. **Phase 10–11 remaining.** The upgrades that need new hooks (carry move speed needs a carry slowdown; weapon damage and
+1. **Phase 13 has five configured MVP contracts.** Earlier scripted runs exercised the loop, but full playthrough
+   coverage
+   of the current layouts remains incomplete. Restricted Cargo still needs a run with live threats, and the revised
+   Blackout battery route needs Play Mode verification. The enemies react to being shot.
+2. **Phase 10–11 remaining.** The upgrades that need new hooks (carry move speed needs a carry slowdown; weapon damage
+   and
    reload speed need runtime modifiers on `HitscanWeapon` and `AmmoReload`) and anything the rank should unlock. The
-   Upgrade Terminal, the Equipment Locker, the deduction lines, the shift rating and courier rank, and the save of all of
+   Upgrade Terminal, the Equipment Locker, the deduction lines, the shift rating and courier rank, and the save of all
+   of
    them already work, so the first-milestone path (purchase, save, restart, restore) is playable.
 3. **Phase 2b, remaining UI modules.** The Depot terminals and the result screen as screens or windows, a rebinding
    screen, and last-used-device prompt glyphs. The main menu, the pause menu, and the confirmation popups already use
-   `ScreenNavigation`, `PrefabWindows`, and `Tween`; sound goes through the template `AudioService` (see Phase 2b).
+   `RD.Menus`, `ScreenNavigation`, and `Tween`; sound goes through the template `AudioService` (see Phase 2b).
 
 ---
 
@@ -66,37 +70,58 @@ every combat, AI, world, and newly installed mechanic except `HoldInteraction`, 
 
 ### Phase 2b — UI Modules
 
-**Done.** The main menu (Main, Settings) and the pause menu (Main, Settings, Controls) are `ScreenNavigation` screens:
-`PanelScreen` implements `IScreen` over a uGUI panel with a `CanvasGroup` fade through `Tween` on unscaled time (so it
-runs while the game is paused), and each menu owns a `ScreenNavigator`. Escape pops a sub-screen first and closes the pause
-menu only from the main screen (the main menu gained the same Back behavior). Confirmation popups use `PrefabWindows`:
-`ConfirmWindow` (a `UIWindow<ConfirmArguments>` prefab with localized title, message, Confirm and Cancel) is listed in a
-`WindowCatalog` (`UiWindows.asset`) and opened by a `WindowManager` that each menu creates over its own `WindowRoot`. It
-guards New Game when a save exists, Abort Contract, and Main Menu from the pause menu; Escape closes the popup first. The
-navigator and window manager live in the scene entry or the pause menu and are disposed with them (no manager object, no
-global). Verified in stepped Play Mode: fades and Back in the main menu, the popup's Esc, Cancel, and Confirm paths, the
-pause stack in the Depot and Warehouse, and the abort and main-menu confirmations. Navigation calls that outlive their
-scene are ignored (`UiShutdown`).
+**Done on UI Toolkit.** The main menu (Main, Settings) and the pause menu (Main, Settings, Controls) are `RD.Menus`
+views (`MenuView`, `SettingsPageView`) inside `ScreenNavigation` screens (`UiScreen`, with a `Tween` fade on unscaled
+time so it runs while the game is paused); each menu owns a `ScreenNavigator`. Settings are one `SettingsPage` built by
+`SettingsStep` and exposed as `GameServices.SettingsPage` (graphics rows from `UnitySettingRows`; master volume and
+mouse sensitivity are game rows whose hooks write `ISettingsService`, sharing the `nightcourier.` PlayerPrefs keys). The
+confirmation popup is `ConfirmDialog`, a UXML overlay (New Game over a save, Abort Contract, Main Menu). Escape closes
+the popup first, then pops a sub-screen, then closes the pause menu; Back (UI Toolkit navigation) and the Cancel action
+can fire in the same frame, so Back is deduplicated per frame. The skin is the game USS theme layered over `Menus.uss`;
+the hero main menu is game UXML. Verified in Play Mode: the UI layout audit at seven resolutions (overflow, overlap and
+off-screen text for uGUI and UI Toolkit), `MenuPlayModeTests` (Continue state, New Game confirmation, Apply and Back,
+pause navigation and Escape order) and the abort path in `GameLoopPlayModeTests`. Not verified: a real Escape key press
+(the tests call the cancel handler), mouse clicks (the tests send navigation submit events), and gamepad navigation.
 
-**Still to integrate:** the Depot terminals (contracts, upgrades, locker) and the result screen as `PrefabWindows` popups
-(they are scene panels with their own `PushMenu` scopes today), a rebinding screen on top of `Input.Rebinding`, and
+**HUD on UI Toolkit.** The `PlayerHud` prefab is one `UIDocument` (`Content/UI/Hud/PlayerHud.uxml`) driven by
+`PlayerVitalsView` (health and the death overlay), `WeaponHudView`, `MedkitHudView`, `ObjectiveView` and
+`InteractionPromptView` (key glyph, lock icon, hold bar). `DepotHud.uxml` (`DepotHudView`: title, credits, rank) and
+`WarehouseHud.uxml` (`WarehouseHudView` and `PackageHudView`: location, contract, timer, package rules and integrity,
+notices) are scene documents on the HUD `PanelSettings` (sort order below the menus). Every HUD element ignores picking,
+and a covered HUD is hidden with `display: none` on its `hud-group`. The UI layout audit now measures UI Toolkit text
+(off-screen, overflow, overlap) and caught a real overlap between the info column and the objective plate. Not verified:
+gamepad prompts and a locale change at run time (the views refresh on `LocaleChanged`, but only English exists).
+
+**Depot terminals on UI Toolkit.** One `DepotTerminals.uxml` document holds the contract terminal, the upgrade terminal and the equipment locker as three overlays (`ContractTerminalView`, `UpgradeTerminalView`, `EquipmentLockerView`; the rows are UXML templates driven by the plain classes `ContractSlot`, `UpgradeSlot` and `LockerRow`). `DepotEntry` keeps the contract rules and talks to its view through three events (selected, accepted, close requested). Each terminal pushes a UI input context, focuses its first usable button when it opens, and binds its own `UiSounds` to its own panel so a click plays one cue. Briefing text keeps coming from `ContractBriefing` as rich text. The UI layout audit reads the terminals at seven resolutions; `UiLayoutPlayModeTests` opens and closes each of them through real button events.
+
+**Result panel on UI Toolkit.** The Warehouse result and failure panel is `ResultPanel.uxml` driven by `ResultPanelView` (`Bind`, `Open(credits)`, `SetReturnEnabled`, `ReturnRequested`), a scene document with its own `UiSounds` binding. Its rich text is composed in code and set on UI Toolkit labels.
+
+**No uGUI is left.** `LocalizedLabel`, `PanelScreen`, `ConfirmWindow`, `SettingsPanelView` and the uGUI paths of `UiSounds` are deleted, and `UnityEngine.UI` is no longer referenced by the game or PlayMode test assemblies. New UI must stay on UI Toolkit (AGENTS.md rule).
+
+**Still to integrate:** a rebinding screen on top of `Input.Rebinding` (a `SettingsPage` action row), and
 last-used-device prompt glyphs (`InputDeviceTracker`).
 
-**Audio (done).** `AudioStep` builds the template `AudioService` once and `GameServices.Audio` hands it to the scenes; 42
+**Audio (done).** `AudioStep` builds the template `AudioService` once and `GameServices.Audio` hands it to the scenes;
+42
 `AudioCue` assets in `Assets/Game/Content/Audio/Cues` are assigned to small listener components (`PlayerAudio`,
-`EnemyAudio`, `WarehouseAudio`, `UiSounds`) that subscribe to events the mechanics already raise. The Depot and Warehouse
+`EnemyAudio`, `WarehouseAudio`, `UiSounds`) that subscribe to events the mechanics already raise. The Depot and
+Warehouse
 ambience loops are generated in-house; every other clip is Kenney CC0 (register in `Docs/Asset-Plan.md` section 8).
 Verified in stepped Play Mode: menu and pause clicks, Depot ambience, footsteps, terminal open and accept, pickup and
-drop, pistol shot, crowbar swing, lever, generator, lift motor, door, violation buzz, unstable, alarm, hazard, player hurt,
-death and respawn, enemy hit, die, crawler attack, drone hum and bolt, and contract failure. Not exercised: scanner beep,
+drop, pistol shot, crowbar swing, lever, generator, lift motor, door, violation buzz, unstable, alarm, hazard, player
+hurt,
+death and respawn, enemy hit, die, crawler attack, drone hum and bolt, and contract failure. Not exercised: scanner
+beep,
 battery insert, barricade break, checkpoint locker, delivery jingle, purchase and error UI sounds. Added events:
 `ConditionDoor.Opened/Closed`, `FreightLift.RideStarted/RideCompleted`, `CargoScanner.ScanStarted`,
 `SecurityDroneBrain.BoltFired`.
 
 **Visual replacement, stage 1 (done).** One style family: Kenney. The Depot and Warehouse cubes use Kenney Prototype
-Textures (later replaced by flat Kenney-palette colors, the pack removed) through `Env_*` materials in `Assets/Game/Presentation/Materials`; the cube meshes were replaced by generated
+Textures (later replaced by flat Kenney-palette colors, the pack removed) through `Env_*` materials in
+`Assets/Game/Presentation/Materials`; the cube meshes were replaced by generated
 box meshes (`PH_BoxMeshes.asset`) with world-scale UVs, so the texel density is the same everywhere. Every `Text` used
-Kenney Future Narrow, later replaced by the built-in UI font and the font file removed (sizes scaled by 0.8, best fit on five labels), and all buttons and the dialog, contract, upgrade and
+Kenney Future Narrow, later replaced by the built-in UI font and the font file removed (sizes scaled by 0.8, best fit on
+five labels), and all buttons and the dialog, contract, upgrade and
 locker panels use the UI Pack Sci-Fi sprites. Hazard, interactable, delivery, and van placeholders keep their flat
 colors so the light language stays readable. Verified in stepped Play Mode with camera captures of the Depot, Warehouse,
 main menu, and contract terminal; EditMode 189 of 189. Not done: weapons, props and structure, effects, enemies, van
@@ -127,7 +152,8 @@ a violation and damage), and a destroyed package showing the failure panel and r
 
 Each package is modeled as three layers — Rule (what the player is told), Behavior (what the object does), Escalation
 (what happens after violations) — as per-package data over small components ([GDD §7.1](GDD.md)). The physical package
-(a small `PickupDrop` item on the conveyor, carried at the player's `CargoPoint`, loaded into the van, picked up again at
+(a small `PickupDrop` item on the conveyor, carried at the player's `CargoPoint`, loaded into the van, picked up again
+at
 the Warehouse dock, consumed on delivery) works, and every package rule violation reaches
 `ContractRun.RegisterViolation`.
 
@@ -138,7 +164,8 @@ are the GDD default (1 unstable, 2 enemy, 3 hazardous, 4 fail) for Fragile, Ligh
 for Standard Delivery and Express.
 Property damage (the barricade) counts toward the no-violations bonus through `RegisterPropertyDamage` but not toward
 the ladder. Verified in stepped Play Mode on Fragile (four floor drops: unstable at the first, failed at the fourth).
-Violation 2 now spawns an enemy: `EscalationEffect.SpawnEnemy` makes `EscalationResponder` ask a scene `Spawner` (the Crawler
+Violation 2 now spawns an enemy: `EscalationEffect.SpawnEnemy` makes `EscalationResponder` ask a scene `Spawner` (the
+Crawler
 prefab, three alarm points on the NavMesh, at most 2 alive) for a Crawler and report the player to its
 `ChaseTargetMemory`, with a HUD notice. Verified in stepped Play Mode on Fragile (violation 2 spawns a chasing Crawler).
 The dock bay is a separate NavMesh region, so an alarm Crawler cannot reach a player still in the dock bay (its path is
@@ -182,8 +209,10 @@ route goes through the maintenance door and the freight lift; the short route go
 ramp. In the delivery room the package is set on the cargo scanner, which opens the hatch to the delivery terminal. Both
 doors are `Conditions` rules over `WarehouseFacts`. Verified in stepped Play Mode only (no real keyboard input).
 
-Blackout adds a battery puzzle: the breaker lever is dead until a battery (a `CarryObject` on the loading floor, reachable
-only through the barricade because the maintenance door is unpowered) is carried into the generator in the dock bay.
+Blackout adds a battery puzzle: the breaker lever is dead until a battery (a `CarryObject` at the far end of the dock)
+is carried into the generator in the dock bay. The battery was moved from behind the barricade; the revised route has
+not
+yet been verified in Play Mode.
 Carrying the battery takes both hands (`PlayerHeavyCarry` and `PlayerCarry` refuse each other, with a notice), and a
 carried battery moves to a `Carried` layer that the interaction ray ignores. Verified in stepped Play Mode on Lights Out
 (refused grab with the package in hands, carry through the barricade gap, generator, lever, lights on).
@@ -209,11 +238,13 @@ Crowbar (three hits). JumpPad and Teleporter are optional later.
   It chases and searches over a baked NavMesh, swings in range, and walks home when the memory expires.
 - **SecurityDrone** (`SecurityDrone.prefab`, `SecurityDroneBrain`): a ground-level root that hovers through a `Visual`
   child, `Patrol` along its route, `DetectionSensor`, `ChaseTargetMemory`, `Projectile` bolts (`Cooldown`
-  1.1 s, only with line of sight; the bolt damage is 10), `HealthCarrier` (45), `HitReaction`. On detection it disables `Patrol` and takes over
+  1.1 s, only with line of sight; the bolt damage is 10), `HealthCarrier` (45), `HitReaction`. On detection it disables
+  `Patrol` and takes over
   with a `NavMeshAgent` keeping a 6 m standoff; after the memory expires it navigates to the nearest route waypoint and
   hands control back to `Patrol`.
 - Both die through `EnemyDeath` (stop the behaviours, disable colliders, shrink with Tween, destroy).
-- Both react to being shot: `EnemyAlert` listens to `HealthCarrier.DamageResolved` and, when the damage carried an incoming
+- Both react to being shot: `EnemyAlert` listens to `HealthCarrier.DamageResolved` and, when the damage carried an
+  incoming
   direction (hitscan, melee, and projectile hits do; the electric floor and damage over time do not), reports the player
   to the enemy's `ChaseTargetMemory`. The Warehouse binds the player to every alert in the encounter groups and to the
   alarm enemy it spawns. Verified in stepped Play Mode: a drone shot from behind turned and shot back, and a Crawler hit
@@ -225,23 +256,28 @@ and own movement; the AI state logic stays in `ChaseTargetMemory`. The player mo
 to an `Enemy` layer, so sensors, melee, and the NavMesh bake (Default layer only) target the right things. The Warehouse
 has a baked `NavMeshSurface` (`Scenes/Warehouse/NavMesh-Warehouse.asset`); the barricade and closed doors are baked as
 obstacles, so enemies do not use the shortcut or powered doors. Enemies appear per contract through
-`ContractSpec.Encounters` and `EncounterGroup`: Lights Out has Crawlers, Express a Security Drone, Restricted Cargo both.
+`ContractSpec.Encounters` and `EncounterGroup`: Lights Out has Crawlers, Express a Security Drone, Restricted Cargo
+both.
 Verified: encounter activation, detection, chase, melee hit with knockback, drone patrol, pursuit, shooting, killing the
-player, searching and returning to route, and enemy death. Not covered: a Spawner-driven wave, enemies hitting a package,
+player, searching and returning to route, and enemy death. Not covered: a Spawner-driven wave, enemies hitting a
+package,
 enemies on the electric floor, and fairness tuning.
 
 ### Phase 9 — Player Combat (MVP weapons done, verified in stepped Play Mode)
 
-- **Stun Pistol** (`StunPistol`): `HitscanWeapon` (15 damage, 3.5 shots/s, damage type `stun`), `AmmoReload` (8 rounds, 24
+- **Stun Pistol** (`StunPistol`): `HitscanWeapon` (15 damage, 3.5 shots/s, damage type `stun`), `AmmoReload` (8 rounds,
+  24
   reserve, 1.4 s reload; an empty magazine reloads on the next trigger pull), `Recoil` (applied to the camera by
   `PlayerMotor`), `WeaponSpread` (1 degree). The aim point comes from the camera ray and the shot leaves the muzzle. A
   `LineRenderer` tracer shows the shot.
 - **Crowbar** (`Crowbar`): `MeleeAttack` (18 damage, 0.55 s swing with a 0.15–0.3 s hit window) plus `Knockback` (7 m/s)
   and a Tween swing of the placeholder model. Enemies receive the push through the game-side `EnemyKnockbackReceiver`
   (a `NavMeshAgent` move that decays), the same pattern as the player's `PlayerKnockbackReceiver`.
-- **Input and switching:** `PlayerWeapons` binds Fire, Reload, SwitchWeapon, Weapon1, and Weapon2 from `PlayerInputActions`
+- **Input and switching:** `PlayerWeapons` binds Fire, Reload, SwitchWeapon, Weapon1, and Weapon2 from
+  `PlayerInputActions`
   (mouse, R, Q, 1, 2; gamepad right trigger, X, Y, D-pad). `WeaponSwitching` holds the two slots; switching cancels a
-  reload. A small `WeaponHudView` shows the weapon name and the magazine/reserve count in both the Depot and the Warehouse.
+  reload. A small `WeaponHudView` shows the weapon name and the magazine/reserve count in both the Depot and the
+  Warehouse.
 - **Hands restriction:** `WeaponRules.CanUse` is the single rule. A held package blocks the Crowbar (the pistol is
   one-handed); a heavy carry blocks every weapon. A refused use raises `UseRefused` and a HUD notice.
 - **Ammo and the result:** `ContractRun.RegisterShot` counts shots only in transit (`ShotsFired` in `ContractOutcome`).
@@ -249,7 +285,8 @@ enemies on the electric floor, and fairness tuning.
 - Verified with injected input: fire, recoil, reload, auto-reload on an empty magazine, 1/2/Q switching, three pistol
   shots kill a Crawler (40 health), two kill a Security Drone (30), the Crowbar knocks a Crawler back about 1 m, three
   Crowbar hits break the barricade, the package blocks the Crowbar but not the pistol, the battery blocks both, locker
-  refill and the HUD update, and the shot count reaches the active run. Not covered: a gamepad, `HitFeedback` visuals on a
+  refill and the HUD update, and the shot count reaches the active run. Not covered: a gamepad, `HitFeedback` visuals on
+  a
   pistol hit beyond the existing hit flash, and the recoil-to-package stability event (design in GDD 7.6).
 
 The player's carried items now come from the Equipment Locker (see Phase 10), and the ammo expense is a settlement line.
@@ -269,40 +306,55 @@ counts shots, property damage, and deaths in transit, and the result screen list
 tier the net payout also loses a cargo damage penalty and optional vehicle repair.
 
 **Shift rating and courier rank (done).** `ShiftRatingCalculator` grades four axes from the contract outcome on an
-S–A–B–C–D–F scale and averages them (rounded half up) into an overall grade: delivery time (the share of the deadline used,
+S–A–B–C–D–F scale and averages them (rounded half up) into an overall grade: delivery time (the share of the deadline
+used,
 skipped for contracts without a deadline), cargo condition (package integrity at delivery, recorded through
 `ContractRun.RecordCargoIntegrity`), protocol compliance (package rule violations), and property damage (events).
-`ContractSettlement.Rating` carries it, and the grade does not change the payout. `CourierRank` wraps a `ProgressionService`
-track (`courier.rank`, thresholds 100, 300, and 600 XP: Trainee, Courier, Senior Courier, Hazard Courier); an overall S, A,
-B, C, or D grants 120, 100, 70, 40, or 15 XP and F grants none. The Warehouse applies the rank after settlement, before the
+`ContractSettlement.Rating` carries it, and the grade does not change the payout. `CourierRank` wraps a
+`ProgressionService`
+track (`courier.rank`, thresholds 100, 300, and 600 XP: Trainee, Courier, Senior Courier, Hazard Courier); an overall S,
+A,
+B, C, or D grants 120, 100, 70, 40, or 15 XP and F grants none. The Warehouse applies the rank after settlement, before
+the
 save, and the result screen shows the rating, the four axes, the XP gained, and a promotion line; the Depot header shows
-the rank and progress. Verified in stepped Play Mode: a clean Standard Delivery rated S and promoted to Courier (+120 XP,
-20 of 200 into the level), a delivery with property damage and two violations rated B (Property B, Protocol C), and Continue
-restored the rank. Nothing is unlocked by rank yet (contracts stay gated by prerequisites); candidates are a minimum rank on
+the rank and progress. Verified in stepped Play Mode: a clean Standard Delivery rated S and promoted to Courier (+120
+XP,
+20 of 200 into the level), a delivery with property damage and two violations rated B (Property B, Protocol C), and
+Continue
+restored the rank. Nothing is unlocked by rank yet (contracts stay gated by prerequisites); candidates are a minimum
+rank on
 a contract, upgrade levels, and equipment ([GDD §14](GDD.md)).
 
 **Upgrades (done).** `UpgradeDefinition` assets (data) build immutable `UpgradeSpec`s in an `UpgradeBook`; each upgrade
 targets a `Stats` stat and has up to three levels with a price per level. `CourierStats` owns a `StatCollection`
-(`courier.max_health`, `courier.move_speed`, `courier.reserve_ammo`) and rebuilds one modifier per upgrade from its level;
+(`courier.max_health`, `courier.move_speed`, `courier.reserve_ammo`) and rebuilds one modifier per upgrade from its
+level;
 `CourierUpgrades` spends credits through the `Wallet`, tracks levels, and captures/restores them. The three MVP upgrades
 are Reinforced Vest (+25 max health per level), Courier Boots (+8% move speed per level), and Ammo Pouch (+8 reserve
-pistol rounds per level); prices are 100/200/350, 120/240/400, and 80/160/300. `PlayerSession.ApplyStats` pushes the stats
-to `PlayerVitals` (`HealthPool.SetMaximum`), `PlayerMotor` (speed multiplier), and `PlayerWeapons` (reserve bonus, applied
-as a delta so a purchase in the Depot is not double counted). The Depot has a physical Upgrade Terminal (`PH_UpgradeTerminal`
+pistol rounds per level); prices are 100/200/350, 120/240/400, and 80/160/300. `PlayerSession.ApplyStats` pushes the
+stats
+to `PlayerVitals` (`HealthPool.SetMaximum`), `PlayerMotor` (speed multiplier), and `PlayerWeapons` (reserve bonus,
+applied
+as a delta so a purchase in the Depot is not double counted). The Depot has a physical Upgrade Terminal
+(`PH_UpgradeTerminal`
 with an `Interactable`, `UpgradeTerminalView`, three `UpgradeSlot` rows) that saves the campaign after every purchase.
 Verified in stepped Play Mode: buying the vest through the terminal (E, then the Buy button) raised max health to 125,
-wrote `campaign.json`, and a restart through Continue restored credits, the level, and the stats; boots and pouch applied
+wrote `campaign.json`, and a restart through Continue restored credits, the level, and the stats; boots and pouch
+applied
 in the Warehouse (speed 1.08, reserve 40 of 24 base); the result screen showed `Base pay 150, Ammo expense -9, Property
 damage -20, Recovery team fee -25, Total 96`. The first MVP list in the GDD (+Max Health, +Carry Move Speed, +Scanner
 Range or a weapon stat) is adapted: there is no carry slowdown or scanner yet, and the library has no runtime damage or
 reload modifier, so move speed and reserve ammo stand in.
 
 **Equipment Locker (done).** `CourierLoadout` owns an `EquipmentLoadout` (slots Primary, Tool, Utility 1, Utility 2;
-definitions Stun Pistol, Crowbar, Medkit) and an `InventoryContainer` (the medkit stock, up to 3 owned). The locker in the
+definitions Stun Pistol, Crowbar, Medkit) and an `InventoryContainer` (the medkit stock, up to 3 owned). The locker in
+the
 Depot (`PH_EquipmentLocker` with an `Interactable`, `EquipmentLockerView`, five `LockerRow`s) can stow or equip each
-weapon, buy a medkit for ₡30 (`Wallet.Spend`), and move medkits between the stock and the two utility slots; every change
+weapon, buy a medkit for ₡30 (`Wallet.Spend`), and move medkits between the stock and the two utility slots; every
+change
 saves the campaign. In the field `PlayerMedkits` handles `UseMedkit` (H, D-pad up): it consumes an equipped medkit and
-heals 40, and does nothing at full health or with only stocked (unequipped) medkits. `PlayerWeapons` reads the loadout, so
+heals 40, and does nothing at full health or with only stocked (unequipped) medkits. `PlayerWeapons` reads the loadout,
+so
 a stowed weapon cannot be selected or used and the weapon HUD shows "No weapon" when both are stowed; `MedkitHudView`
 shows the carried count. Stowing the pistol is the way to a no-shots run (and no ammo expense). Verified in stepped Play
 Mode: buy two, equip one, stow the pistol (current weapon fell back to the Crowbar, Weapon1 and Fire did nothing), H at
@@ -312,11 +364,16 @@ and credits, and the Warehouse showed the HUD and healed 40 on H. The Shotgun, R
 
 ### Phase 11 — Persistence (remaining)
 
-Credits, quest progress, completed contracts, the reward ledger, purchased upgrade levels, the loadout (equipment snapshot,
-medkit stock, next medkit instance), and the courier rank experience are saved (`CampaignSave` version 6; versions 2 to 5
+Credits, quest progress, completed contracts, the reward ledger, purchased upgrade levels, the loadout (equipment
+snapshot,
+medkit stock, next medkit instance), and the courier rank experience are saved (`CampaignSave` version 6; versions 2 to
+5
 still load with no upgrades, the default loadout, and the Trainee rank; unknown upgrade ids are ignored and levels are
-clamped to the current maximum). A loadout snapshot that fails to restore falls back to the default. Remaining: collectible
-progress. Version 6 also records pending settlement totals, ratings, grant identity and rank baseline; payment is checkpointed before grant and resumed on Continue or Return to Depot through the existing Rewards/Wallet ledgers. Do not serialize arbitrary active scene physics. Checkpoint/Respawn handles temporary level death.
+clamped to the current maximum). A loadout snapshot that fails to restore falls back to the default. Remaining:
+collectible
+progress. Version 6 also records pending settlement totals, ratings, grant identity and rank baseline; payment is
+checkpointed before grant and resumed on Continue or Return to Depot through the existing Rewards/Wallet ledgers. Do not
+serialize arbitrary active scene physics. Checkpoint/Respawn handles temporary level death.
 
 ### Phase 12 — Full Module Integration
 
@@ -331,40 +388,52 @@ claim coverage if that damages architecture.
 Rules, ladders, and the Blackout state are configured per contract as data (Phase 4 and Phase 7). What is left, on the
 single Warehouse map:
 
-| #  | Contract          | Done                                                           | Still needs                                  |
-|----|-------------------|----------------------------------------------------------------|----------------------------------------------|
-| 01 | Standard Delivery | Physical pickup and delivery                                   | —                                            |
-| 02 | Fragile           | `DoNotDrop`, ladder 1 / 2 / 3 / 4                              | —                                            |
-| 03 | Lights Out        | `KeepInLight`, Blackout, battery and generator, ladder 1 / 2 / 3 / 4, Crawlers | —                            |
-| 04 | Express           | `DeliveryDeadline` (300 s), Security Drone, played end to end   | —                                            |
-| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight` in Blackout (battery puzzle), ladder 1 / 2 / 3 / 4, both enemies | —                       |
+| #  | Contract          | Done                                                                                         | Still needs |
+|----|-------------------|----------------------------------------------------------------------------------------------|-------------|
+| 01 | Standard Delivery | Physical pickup and delivery                                                                 | —           |
+| 02 | Fragile           | `DoNotDrop`, ladder 1 / 2 / 3 / 4                                                            | —           |
+| 03 | Lights Out        | `KeepInLight`, Blackout, battery and generator, ladder 1 / 2 / 3 / 4, Crawlers               | —           |
+| 04 | Express           | `DeliveryDeadline` (300 s), Security Drone, played end to end                                | —           |
+| 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight` in Blackout (battery puzzle), ladder 1 / 2 / 3 / 4, both enemies | —           |
 
 All five use the same Warehouse location with different configuration or state. Do not create five maps.
 
-**Playtest (stepped Play Mode, a scripted player with real keyboard and mouse input that walks the route).**
-- *Express.* Route A (breaker lever, maintenance door, north corridor, freight lift, scanner, hatch, terminal) takes about
-  24 s; the payout was 320 base + 75 on time − 9 ammo. The drone patrols the north corridor (waypoints (-16, 0.5),
-  (-16, 11.5), (10, 11.5)) and was shot in the back from the west aisle without ever detecting the player, so it is a
+**Historical scripted runs (stepped Play Mode).** These predate the battery move and do not establish human playtest
+acceptance or verify the current Blackout route.
+
+- *Express.* Route A (breaker lever, maintenance door, north corridor, freight lift, scanner, hatch, terminal) takes
+  about
+  24 s; the payout was 320 base + 75 on time − 9 ammo. The drone patrols the north corridor (waypoints (-16, 0.5), (-16,
+  11.5), (10, 11.5)) and was shot in the back from the west aisle without ever detecting the player, so it is a
   speed bump rather than a threat (fixed afterwards: enemies now react to being shot, see Phase 8).
 - *Restricted Cargo.* The package rules (Do Not Drop, Keep In Light) and both encounters load. Route B works: with the
   package held the Crowbar is refused, so the barricade takes three pistol shots (₡9 ammo plus the ₡20 property fine and
-  a lost no-violations bonus); the ramp leads to the delivery floor and the scan, hatch, and terminal work. Payout in the
+  a lost no-violations bonus); the ramp leads to the delivery floor and the scan, hatch, and terminal work. Payout in
+  the
   recorded run was 450 − 54 ammo − 40 property damage − 25 recovery fee = 331.
-- *Crawlers.* Two Crawlers in the open are easy for a stand-and-shoot player (8 shots, 2.2 s, no damage taken from a 10 m
-  notice distance). The danger is the electric strip beside the route: a Crawler hit knocks the player about 1.5 m, and the
-  strip deals 30 damage per 0.5 s tick, so a fight at the strip's south edge kills in about a second and, with the package
+- *Crawlers.* Two Crawlers in the open are easy for a stand-and-shoot player (8 shots, 2.2 s, no damage taken from a 10
+  m
+  notice distance). The danger is the electric strip beside the route: a Crawler hit knocks the player about 1.5 m, and
+  the
+  strip deals 30 damage per 0.5 s tick, so a fight at the strip's south edge kills in about a second and, with the
+  package
   held, adds a Do Not Drop violation (unstable package) on respawn.
 - Known library warning: dropping the package logs "Setting linear velocity of a kinematic body is not supported" from
   `PickupItem.Drop` (it writes `linearVelocity` on a kinematic rigidbody). It is harmless; a fix belongs in
   `UnityTemplates` and needs the owner's agreement.
 
-**Restricted Cargo puzzle (decided).** The contract runs in Blackout, so Keep In Light and the Lights Out battery puzzle
+**Restricted Cargo puzzle (previous layout).** The contract runs in Blackout, so Keep In Light and the Lights Out
+battery puzzle
 apply together with Do Not Drop and both enemies (data change only: `LocationState.Blackout`). Verified in stepped Play
 Mode: barricade (three shots), battery pick-up, carry back through the gap, generator, and breaker lever restore the
 lights; the fastest scripted run took about 10.5 s, and the package is dark for the first 10 s, so one Keep In Light
-violation (unstable package) is close to unavoidable, the alarm Crawler at violation 2 follows after 20 s of darkness, the
-hazardous package after 30 s, and the contract fails at 40 s (the same ladder as Lights Out). The carry breaks if the battery lags more than 2.5 m behind the carry point,
-so a very fast 180-degree turn while holding it drops it; the generator must be used from about 1.5 m.
+violation (unstable package) is close to unavoidable, the alarm Crawler at violation 2 follows after 20 s of darkness,
+the
+hazardous package after 30 s, and the contract fails at 40 s (the same ladder as Lights Out). The carry breaks if the
+battery lags more than 2.5 m behind the carry point,
+so a very fast 180-degree turn while holding it drops it; the generator must be used from about 1.5 m. The battery is
+now
+in the dock, and this historical run does not verify the revised route or its clean payout.
 
 ### Phase 15 — Presentation
 
@@ -428,13 +497,13 @@ contracts; the board currently allows exactly one active contract.
 
 Raised for the user; agents do not settle them alone.
 
-| Decision | Options | Notes |
-|---|---|---|
-| Who owns vehicle driving? | (a) minimal arcade controller in `Assets/Game/Gameplay/Vehicle`; (b) a new reusable mechanic in `UnityTemplates` | The library has none. (b) fits the project's purpose |
-| Fuel representation | `Wallet` currency committed per road segment; `Stats` value; `Stamina` | Settle in the audit |
-| Hinged vehicle/building doors | Keep `Door` slide-only; or extend the template | `Door` only slides |
-| **`SceneFlow.ChangeSceneAsync` defect** (UnityTemplates) | Fix in the template: skip `SetActiveScene` when the loaded scene is already active | In Unity 6000.6 `SceneManager.SetActiveScene` returns `false` for the scene that is already active, which is the case right after a `Single` load, so `SceneFlow` throws `InvalidOperationException: Failed to set scene ... as active` although the scene loaded. Night Courier avoids it through additive swapping and does not depend on the fix, but every other consumer of `ChangeSceneAsync` is affected. Not changed here because UnityTemplates is a separate repository with work in progress |
-| New Game overwrites the existing save without confirmation | Resolved: a `ConfirmWindow` asks first (see Phase 2b) | — |
+| Decision                                                   | Options                                                                                                          | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+|------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Who owns vehicle driving?                                  | (a) minimal arcade controller in `Assets/Game/Gameplay/Vehicle`; (b) a new reusable mechanic in `UnityTemplates` | The library has none. (b) fits the project's purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Fuel representation                                        | `Wallet` currency committed per road segment; `Stats` value; `Stamina`                                           | Settle in the audit                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Hinged vehicle/building doors                              | Keep `Door` slide-only; or extend the template                                                                   | `Door` only slides                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **`SceneFlow.ChangeSceneAsync` defect** (UnityTemplates)   | Fix in the template: skip `SetActiveScene` when the loaded scene is already active                               | In Unity 6000.6 `SceneManager.SetActiveScene` returns `false` for the scene that is already active, which is the case right after a `Single` load, so `SceneFlow` throws `InvalidOperationException: Failed to set scene ... as active` although the scene loaded. Night Courier avoids it through additive swapping and does not depend on the fix, but every other consumer of `ChangeSceneAsync` is affected. Not changed here because UnityTemplates is a separate repository with work in progress |
+| New Game overwrites the existing save without confirmation | Resolved: a `ConfirmDialog` asks first (see Phase 2b)                                                            | —                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 ---
 
@@ -478,24 +547,25 @@ New Game
 
 Required:
 
-| Item | Required |
-|---|---|
+| Item          | Required                                       |
+|---------------|------------------------------------------------|
 | Package rules | `DoNotDrop`, `KeepInLight`, `DeliveryDeadline` |
-| Enemies | `SecurityDrone`, `Crawler` |
-| Contracts | 5 |
-| Locations | 1 Warehouse |
+| Enemies       | `SecurityDrone`, `Crawler`                     |
+| Contracts     | 5                                              |
+| Locations     | 1 Warehouse                                    |
 
 ### Additional Acceptance Criteria
 
-The slice is not done on a feature count. It is done when these also hold; each is checked by a run, not by reading code.
+The slice is not done on a feature count. It is done when these also hold; each is checked by a run, not by reading
+code.
 
-| Criterion | Evidence so far |
-|---|---|
-| Every contract has its own goal, risk, and at least one differing player action, not only a different payout | Data and Play Mode runs per contract (Phase 13). A fresh playtester explaining in their own words how the five contracts differ is not yet done |
-| Cargo damage and rule violations are reproducible, explained, and shown honestly | Reproducibility was checked per rule in stepped Play Mode (Phase 4). Damage notices now name the cause (impact or electric floor) and size, and the result screen shows the deduction lines, the rating and axes, the violation count, final integrity, property damage, and deaths |
-| At least one contract can be finished without firing | Stowing the pistol in the Equipment Locker gives a no-shots run (Phase 10) |
-| Failure, death, abort, replay, and quitting never cause a double payout, a lost profile, or a blocked UI | EditMode (`ContractBoardTests`, `CampaignFlowTests`): a failed contract returns to Available with no reward and pays once on retry, a second delivery callback and concurrent settlements pay once, an abort during settlement is refused, and a save taken mid-run restores to a clean Depot. PlayMode (`Assets/Game/Tests/PlayMode`, four tests, state-driven input): double Accept, double delivery press, double Return, payout once, Continue restoring credits, rank, and contracts, a destroyed package failing without payout and the retry paying once, abort from the pause menu, death respawn with the recovery fee. Played through editor scripts: abort ignored while delivered, the Depot recovering from a stuck run. Not exercised: real keyboard, mouse, or gamepad input (manual script in Playtest-Checklist.md), a failed disk write |
-| The result screen tells the player what to change next time, not only the numbers | Done: up to three improvement lines from `SettlementAdvice` (per broken rule, overdue, cargo, property damage, death, or "clean run"). Whether players act on them is part of the first-time-player playtest (Next-Sprint.md task 1) |
+| Criterion                                                                                                    | Evidence so far                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+|--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Every contract has its own goal, risk, and at least one differing player action, not only a different payout | Data and Play Mode runs per contract (Phase 13). A fresh playtester explaining in their own words how the five contracts differ is not yet done                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Cargo damage and rule violations are reproducible, explained, and shown honestly                             | Reproducibility was checked per rule in stepped Play Mode (Phase 4). Damage notices now name the cause (impact or electric floor) and size, and the result screen shows the deduction lines, the rating and axes, the violation count, final integrity, property damage, and deaths                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| At least one contract can be finished without firing                                                         | Stowing the pistol in the Equipment Locker gives a no-shots run (Phase 10)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Failure, death, abort, replay, and quitting never cause a double payout, a lost profile, or a blocked UI     | EditMode (`ContractBoardTests`, `CampaignFlowTests`): a failed contract returns to Available with no reward and pays once on retry, a second delivery callback and concurrent settlements pay once, an abort during settlement is refused, and a save taken mid-run restores to a clean Depot. PlayMode (`Assets/Game/Tests/PlayMode`, four tests, state-driven input): double Accept, double delivery press, double Return, payout once, Continue restoring credits, rank, and contracts, a destroyed package failing without payout and the retry paying once, abort from the pause menu, death respawn with the recovery fee. Played through editor scripts: abort ignored while delivered, the Depot recovering from a stuck run. Not exercised: real keyboard, mouse, or gamepad input (manual script in Playtest-Checklist.md), a failed disk write |
+| The result screen tells the player what to change next time, not only the numbers                            | Done: up to three improvement lines from `SettlementAdvice` (per broken rule, overdue, cargo, property damage, death, or "clean run"). Whether players act on them is part of the first-time-player playtest (Next-Sprint.md task 1)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ---
 

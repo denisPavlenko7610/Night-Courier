@@ -1,0 +1,73 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="../Theme/NightCourier.uss" />
+    <Style src="../Theme/NightCourierTerminals.uss" />
+    <ui:Template name="ContractSlot" src="ContractSlot.uxml" />
+    <ui:Template name="UpgradeRow" src="UpgradeRow.uxml" />
+    <ui:Template name="LockerRow" src="LockerRow.uxml" />
+    <ui:VisualElement name="layer" class="nc-theme nc-layer" picking-mode="Ignore">
+        <ui:VisualElement name="contract-terminal" class="nc-terminal" style="display: none;">
+            <ui:VisualElement class="nc-terminal__frame">
+                <ui:VisualElement class="nc-terminal__body">
+                    <ui:VisualElement class="nc-terminal__list">
+                        <ui:Label text="depot.contracts_header" class="nc-localized nc-terminal__list-header" />
+                        <ui:VisualElement name="contract-slots">
+                            <ui:Instance template="ContractSlot" />
+                            <ui:Instance template="ContractSlot" />
+                            <ui:Instance template="ContractSlot" />
+                            <ui:Instance template="ContractSlot" />
+                            <ui:Instance template="ContractSlot" />
+                        </ui:VisualElement>
+                        <ui:Label name="contract-empty" text="depot.no_contracts" class="nc-localized nc-terminal__empty" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="contract-details" class="nc-terminal__details">
+                        <ui:Label name="contract-title" class="nc-terminal__title" />
+                        <ui:VisualElement class="nc-terminal__row">
+                            <ui:ScrollView name="contract-paper" class="nc-paper">
+                                <ui:Label name="contract-story" class="nc-paper__text" />
+                            </ui:ScrollView>
+                            <ui:Label name="contract-terms" class="nc-terminal__terms" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="nc-terminal__footer">
+                    <ui:Button name="contract-close" text="common.close" class="nc-localized nc-button" />
+                    <ui:Button name="contract-accept" text="contract.accept" class="nc-localized nc-button nc-button--primary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="upgrade-terminal" class="nc-terminal" style="display: none;">
+            <ui:VisualElement class="nc-terminal__frame">
+                <ui:VisualElement class="nc-terminal__title-row">
+                    <ui:Label text="upgrades.title" class="nc-localized nc-terminal__title" />
+                    <ui:Label name="upgrade-credits" class="nc-terminal__credits" />
+                </ui:VisualElement>
+                <ui:VisualElement class="nc-terminal__column">
+                    <ui:Instance template="UpgradeRow" />
+                    <ui:Instance template="UpgradeRow" />
+                    <ui:Instance template="UpgradeRow" />
+                </ui:VisualElement>
+                <ui:VisualElement class="nc-terminal__footer nc-terminal__footer--center">
+                    <ui:Button name="upgrade-close" text="common.close" class="nc-localized nc-button" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="locker-terminal" class="nc-terminal" style="display: none;">
+            <ui:VisualElement class="nc-terminal__frame">
+                <ui:VisualElement class="nc-terminal__title-row">
+                    <ui:Label text="loadout.title" class="nc-localized nc-terminal__title" />
+                    <ui:Label name="locker-credits" class="nc-terminal__credits" />
+                </ui:VisualElement>
+                <ui:VisualElement class="nc-terminal__column">
+                    <ui:Instance template="LockerRow" />
+                    <ui:Instance template="LockerRow" />
+                    <ui:Instance template="LockerRow" />
+                    <ui:Instance template="LockerRow" />
+                    <ui:Instance template="LockerRow" />
+                </ui:VisualElement>
+                <ui:VisualElement class="nc-terminal__footer nc-terminal__footer--center">
+                    <ui:Button name="locker-close" text="common.close" class="nc-localized nc-button" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

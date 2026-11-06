@@ -1,0 +1,24 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="controls" class="rd-screen rd-profile--desktop">
+        <ui:VisualElement class="rd-screen__content nc-panel nc-panel--full">
+            <ui:Label text="controls.title" class="nc-localized rd-screen__title" />
+            <ui:VisualElement class="nc-controls__columns">
+                <ui:VisualElement class="nc-controls__group">
+                    <ui:Label text="controls.keyboard_header" class="nc-localized nc-controls__header" />
+                    <ui:VisualElement class="nc-controls__table">
+                        <ui:Label text="controls.keyboard_keys" class="nc-localized nc-controls__keys" />
+                        <ui:Label text="controls.keyboard_actions" class="nc-localized nc-controls__actions" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="nc-controls__group nc-controls__group--last">
+                    <ui:Label text="controls.gamepad_header" class="nc-localized nc-controls__header" />
+                    <ui:VisualElement class="nc-controls__table">
+                        <ui:Label text="controls.gamepad_keys" class="nc-localized nc-controls__keys" />
+                        <ui:Label text="controls.gamepad_actions" class="nc-localized nc-controls__actions" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Button name="controls-back" text="common.back" class="nc-localized rd-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

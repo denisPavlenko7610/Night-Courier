@@ -2,24 +2,34 @@ using System;
 using NightCourier.App;
 using NightCourier.Audio;
 using NightCourier.Economy;
+using System.Collections.Generic;
 using NightCourier.Player;
 using RD.Foundation;
+using RD.Localization;
 using RD.Mechanics.Interactable;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace NightCourier.UI
 {
 	public sealed class UpgradeTerminalView : MonoBehaviour
 	{
+		public const string PanelName = "upgrade-terminal";
+		public const string CloseButtonName = "upgrade-close";
+
 		private const string CreditsKey = "depot.credits";
+		private const string CreditsName = "upgrade-credits";
+		private const string RowName = "row";
 
 		[SerializeField] private UiSounds _sounds;
 		[SerializeField] private Interactable _terminal;
-		[SerializeField] private GameObject _panel;
-		[SerializeField] private Button _closeButton;
-		[SerializeField] private LocalizedLabel _creditsLabel;
-		[SerializeField] private UpgradeSlot[] _slots;
+		[SerializeField] private UIDocument _document;
+
+		private readonly List<UpgradeSlot> _slots = new();
+
+		private VisualElement _panel;
+		private Label _credits;
+		private Button _close;
 
 		private GameServices _services;
 		private CampaignState _campaign;
@@ -33,16 +43,29 @@ namespace NightCourier.UI
 			_campaign = campaign ?? throw new ArgumentNullException(nameof(campaign));
 			_player = player != null ? player : throw new ArgumentNullException(nameof(player));
 
-			if (_campaign.Upgrades.Book.All.Count > _slots.Length)
+			VisualElement root = _document.rootVisualElement;
+
+			_panel = UiQuery.Require<VisualElement>(root, PanelName);
+			_credits = UiQuery.Require<Label>(_panel, CreditsName);
+			_close = UiQuery.Require<Button>(_panel, CloseButtonName);
+
+			foreach (VisualElement row in _panel.Query<VisualElement>(RowName).ToList())
 			{
-				throw new InvalidOperationException(
-					$"The upgrade terminal has {_slots.Length} slots for {_campaign.Upgrades.Book.All.Count} upgrades.");
+				_slots.Add(new UpgradeSlot(row, services.Localization));
 			}
 
+			if (_campaign.Upgrades.Book.All.Count > _slots.Count)
+			{
+				throw new InvalidOperationException(
+					$"The upgrade terminal has {_slots.Count} slots for {_campaign.Upgrades.Book.All.Count} upgrades.");
+			}
+
+			LocalizedText.Apply(_panel, services.Localization);
+
 			_terminal.Interacted += Open;
-			_sounds.Bind(services.Audio);
-			_closeButton.onClick.AddListener(Close);
-			_panel.SetActive(false);
+			_sounds.Bind(services.Audio, _panel);
+			_close.clicked += Close;
+			UiQuery.SetVisible(_panel, false);
 		}
 
 		private void OnDestroy()
@@ -54,10 +77,20 @@ namespace NightCourier.UI
 				_terminal.Interacted -= Open;
 			}
 
-			_closeButton.onClick.RemoveListener(Close);
+			if (_close != null)
+			{
+				_close.clicked -= Close;
+			}
+
+			foreach (UpgradeSlot slot in _slots)
+			{
+				slot.Dispose();
+			}
 		}
 
 		public bool IsOpen => _scope != null;
+
+		public VisualElement Panel => _panel;
 
 		private void Open()
 		{
@@ -67,10 +100,30 @@ namespace NightCourier.UI
 			}
 
 			_scope = _services.Input.PushMenu(Close);
-			_panel.SetActive(true);
+			UiQuery.SetVisible(_panel, true);
 			_sounds.PlayOpen();
 
 			Refresh();
+			_panel.schedule.Execute(FocusPrimary);
+		}
+
+		private void FocusPrimary()
+		{
+			if (_scope == null)
+			{
+				return;
+			}
+
+			foreach (UpgradeSlot slot in _slots)
+			{
+				if (slot.Button.enabledSelf && slot.Button.resolvedStyle.display != DisplayStyle.None)
+				{
+					slot.Button.Focus();
+					return;
+				}
+			}
+
+			_close.Focus();
 		}
 
 		private void Close()
@@ -82,18 +135,18 @@ namespace NightCourier.UI
 
 			_scope.Dispose();
 			_scope = null;
-			_panel.SetActive(false);
+			UiQuery.SetVisible(_panel, false);
 		}
 
 		private void Refresh()
 		{
 			long credits = _campaign.Credits;
 
-			_creditsLabel.SetKey(CreditsKey, credits);
+			_credits.text = _services.Localization.Get(CreditsKey, credits);
 
 			CourierUpgrades upgrades = _campaign.Upgrades;
 
-			for (int index = 0; index < _slots.Length; index++)
+			for (int index = 0; index < _slots.Count; index++)
 			{
 				if (index < upgrades.Book.All.Count)
 				{

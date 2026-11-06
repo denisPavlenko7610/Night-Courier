@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace NightCourier.PlayModeTests
 {
@@ -15,6 +16,12 @@ namespace NightCourier.PlayModeTests
 		private const float OverlapTolerancePixels = 3f;
 		private const float EdgeTolerancePixels = 1f;
 		private const float ClippedTolerancePixels = 3f;
+		private const float MinimumOpacity = 0.05f;
+		private const int MaximumPathLength = 90;
+		private const int MaximumSnippetLength = 40;
+
+		private static readonly Regex RichTextTags = new("<[^>]*>", RegexOptions.Compiled);
+		private static readonly Regex SpaceRuns = new("[ \\t]{2,}", RegexOptions.Compiled);
 
 		private readonly string _folder;
 		private readonly StringBuilder _report = new();
@@ -33,15 +40,17 @@ namespace NightCourier.PlayModeTests
 		{
 			yield return new WaitForEndOfFrame();
 
-			Canvas.ForceUpdateCanvases();
-
 			Texture2D shot = ScreenCapture.CaptureScreenshotAsTexture();
 
 			File.WriteAllBytes(Path.Combine(_folder, name + ".png"), shot.EncodeToPNG());
 			UnityEngine.Object.Destroy(shot);
 
 			_report.AppendLine($"== {name} ({Screen.width}x{Screen.height})");
-			Analyse();
+
+			if (Analyse() == 0)
+			{
+				_report.AppendLine("  (no visible text)");
+			}
 		}
 
 		public void Save()
@@ -49,136 +58,128 @@ namespace NightCourier.PlayModeTests
 			File.WriteAllText(Path.Combine(_folder, "report.txt"), _report.ToString());
 		}
 
-		private struct Item
+		private int Analyse()
 		{
-			public Text Text;
-			public Rect Glyphs;
-			public Rect Box;
-			public string Path;
-		}
+			List<TextElement> elements = new();
 
-		private void Analyse()
-		{
-			List<Item> items = new();
-
-			foreach (Text text in UnityEngine.Object.FindObjectsByType<Text>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+			foreach (UIDocument document in UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Exclude))
 			{
-				if (!text.isActiveAndEnabled || string.IsNullOrWhiteSpace(text.text) || text.color.a < 0.05f || !IsShown(text))
+				VisualElement root = document.rootVisualElement;
+
+				if (root?.panel == null)
 				{
 					continue;
 				}
 
-				if (!TryGlyphs(text, out Rect glyphs))
+				foreach (TextElement element in root.Query<TextElement>().ToList())
 				{
-					continue;
-				}
-
-				items.Add(new Item { Text = text, Glyphs = glyphs, Box = WorldRect(text.rectTransform), Path = PathOf(text.transform) });
-			}
-
-			foreach (Item item in items)
-			{
-				if (item.Glyphs.xMin < -EdgeTolerancePixels || item.Glyphs.yMin < -EdgeTolerancePixels
-					|| item.Glyphs.xMax > Screen.width + EdgeTolerancePixels || item.Glyphs.yMax > Screen.height + EdgeTolerancePixels)
-				{
-					Add($"OFFSCREEN  {item.Path}  \"{Snippet(item.Text)}\"  glyphs={Fmt(item.Glyphs)}");
-				}
-
-				if (item.Glyphs.height > item.Box.height + ClippedTolerancePixels || item.Glyphs.width > item.Box.width + ClippedTolerancePixels)
-				{
-					Add($"OVERFLOW   {item.Path}  \"{Snippet(item.Text)}\"  glyphs={Fmt(item.Glyphs)} box={Fmt(item.Box)}");
+					if (IsRendered(element))
+					{
+						elements.Add(element);
+					}
 				}
 			}
 
-			for (int left = 0; left < items.Count; left++)
+			foreach (TextElement element in elements)
 			{
-				for (int right = left + 1; right < items.Count; right++)
-				{
-					Item a = items[left];
-					Item b = items[right];
+				Rect panelBounds = element.panel.visualTree.layout;
+				Rect box = element.worldBound;
+				Rect content = element.contentRect;
+				string whiteSpace = element.resolvedStyle.whiteSpace.ToString();
+				string measured = RichTextTags.Replace(element.text, string.Empty);
 
-					if (IsRelated(a.Text.transform, b.Text.transform))
+				if (whiteSpace == "Normal")
+				{
+					measured = SpaceRuns.Replace(measured, " ");
+				}
+
+				bool wraps = whiteSpace is "Normal" or "PreWrap";
+				Vector2 size = wraps
+					? element.MeasureTextSize(measured, content.width + ClippedTolerancePixels, VisualElement.MeasureMode.AtMost, 0f, VisualElement.MeasureMode.Undefined)
+					: element.MeasureTextSize(measured, 0f, VisualElement.MeasureMode.Undefined, 0f, VisualElement.MeasureMode.Undefined);
+
+				if (box.xMin < panelBounds.xMin - EdgeTolerancePixels || box.yMin < panelBounds.yMin - EdgeTolerancePixels
+					|| box.xMax > panelBounds.xMax + EdgeTolerancePixels || box.yMax > panelBounds.yMax + EdgeTolerancePixels)
+				{
+					Add($"OFFSCREEN  {PathOf(element)}  \"{Snippet(element.text)}\"  box={Fmt(box)} panel={Fmt(panelBounds)}");
+				}
+
+				if (size.x > content.width + ClippedTolerancePixels || size.y > content.height + ClippedTolerancePixels)
+				{
+					Add($"OVERFLOW   {PathOf(element)}  \"{Snippet(element.text)}\"  text={size.x:F0}x{size.y:F0} content={content.width:F0}x{content.height:F0}");
+				}
+			}
+
+			for (int left = 0; left < elements.Count; left++)
+			{
+				for (int right = left + 1; right < elements.Count; right++)
+				{
+					TextElement a = elements[left];
+					TextElement b = elements[right];
+
+					if (a.Contains(b) || b.Contains(a))
 					{
 						continue;
 					}
 
-					Rect shared = Intersect(a.Glyphs, b.Glyphs);
+					Rect shared = Intersect(a.worldBound, b.worldBound);
 
 					if (shared.width > OverlapTolerancePixels && shared.height > OverlapTolerancePixels)
 					{
-						Add($"OVERLAP    {a.Path} \"{Snippet(a.Text)}\"  x  {b.Path} \"{Snippet(b.Text)}\"  shared={Fmt(shared)}");
+						Add($"OVERLAP    {PathOf(a)} \"{Snippet(a.text)}\"  x  {PathOf(b)} \"{Snippet(b.text)}\"  shared={Fmt(shared)}");
 					}
 				}
 			}
 
-			if (items.Count == 0)
+			return elements.Count;
+		}
+
+		private static bool IsRendered(TextElement element)
+		{
+			if (string.IsNullOrWhiteSpace(element.text) || float.IsNaN(element.layout.width) || element.layout.width <= 0f || element.layout.height <= 0f)
 			{
-				_report.AppendLine("  (no visible text)");
+				return false;
 			}
-		}
 
-		private void Add(string line)
-		{
-			Problems++;
-			_report.AppendLine("  " + line);
-		}
-
-		private static bool IsShown(Text text)
-		{
-			CanvasGroup[] groups = text.GetComponentsInParent<CanvasGroup>();
-
-			foreach (CanvasGroup group in groups)
+			for (VisualElement current = element; current != null; current = current.parent)
 			{
-				if (group.alpha < 0.05f)
+				if (current.resolvedStyle.display == DisplayStyle.None
+					|| current.resolvedStyle.opacity < MinimumOpacity
+					|| current.resolvedStyle.visibility != Visibility.Visible)
 				{
 					return false;
-				}
-
-				if (group.ignoreParentGroups)
-				{
-					break;
 				}
 			}
 
 			return true;
 		}
 
-		private static bool TryGlyphs(Text text, out Rect glyphs)
+		private static string PathOf(VisualElement element)
 		{
-			glyphs = default;
+			StringBuilder path = new(string.IsNullOrEmpty(element.name) ? element.GetType().Name : element.name);
 
-			TextGenerator generator = text.cachedTextGenerator;
-			IList<UIVertex> verts = generator.verts;
-
-			if (generator.vertexCount == 0 || verts.Count == 0)
+			for (VisualElement parent = element.parent; parent != null && path.Length < MaximumPathLength; parent = parent.parent)
 			{
-				return false;
+				if (!string.IsNullOrEmpty(parent.name))
+				{
+					path.Insert(0, parent.name + "/");
+				}
 			}
 
-			Vector2 min = new(float.MaxValue, float.MaxValue);
-			Vector2 max = new(float.MinValue, float.MinValue);
-			float scale = text.pixelsPerUnit;
-
-			for (int index = 0; index < generator.vertexCount; index++)
-			{
-				Vector3 world = text.transform.TransformPoint(verts[index].position / scale);
-
-				min = Vector2.Min(min, world);
-				max = Vector2.Max(max, world);
-			}
-
-			glyphs = Rect.MinMaxRect(min.x, min.y, max.x, max.y);
-
-			return glyphs.width > 0f && glyphs.height > 0f;
+			return path.ToString();
 		}
 
-		private static Rect WorldRect(RectTransform rect)
+		private static string Snippet(string text)
 		{
-			Vector3[] corners = new Vector3[4];
+			string value = text.Replace("\n", " | ");
 
-			rect.GetWorldCorners(corners);
+			return value.Length > MaximumSnippetLength ? value.Substring(0, MaximumSnippetLength) + "..." : value;
+		}
 
-			return Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
+		private void Add(string line)
+		{
+			Problems++;
+			_report.AppendLine("  " + line);
 		}
 
 		private static Rect Intersect(Rect a, Rect b)
@@ -189,30 +190,6 @@ namespace NightCourier.PlayModeTests
 			float yMax = Mathf.Min(a.yMax, b.yMax);
 
 			return xMax > xMin && yMax > yMin ? Rect.MinMaxRect(xMin, yMin, xMax, yMax) : default;
-		}
-
-		private static bool IsRelated(Transform a, Transform b)
-		{
-			return a == b || a.IsChildOf(b) || b.IsChildOf(a);
-		}
-
-		private static string PathOf(Transform transform)
-		{
-			StringBuilder path = new(transform.name);
-
-			for (Transform parent = transform.parent; parent != null && path.Length < 90; parent = parent.parent)
-			{
-				path.Insert(0, parent.name + "/");
-			}
-
-			return path.ToString();
-		}
-
-		private static string Snippet(Text text)
-		{
-			string value = text.text.Replace("\n", " | ");
-
-			return value.Length > 40 ? value.Substring(0, 40) + "..." : value;
 		}
 
 		private static string Fmt(Rect rect)

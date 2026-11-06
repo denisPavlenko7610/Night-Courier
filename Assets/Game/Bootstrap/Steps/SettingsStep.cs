@@ -1,5 +1,6 @@
 using System.Threading;
 using RD.Foundation;
+using RD.Menus;
 using RD.Settings;
 using RD.Startup;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace NightCourier.App
 		private readonly GameServicesBuilder _builder;
 
 		private SettingsService _settings;
+		private SettingsPage _page;
 
 		public SettingsStep(GameServicesBuilder builder) : base(StepId)
 		{
@@ -27,11 +29,17 @@ namespace NightCourier.App
 
 			ApplyMasterVolume();
 
+			_page = GameSettingsPage.Create(_settings);
+			_builder.SettingsPage = _page;
+
 			return AwaitableExtensions.Completed;
 		}
 
 		public override Awaitable StopAsync(CancellationToken cancellationToken = default)
 		{
+			_page?.Dispose();
+			_page = null;
+
 			if (_settings != null)
 			{
 				_settings.Changed -= OnChanged;

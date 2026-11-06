@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Packages/com.rd.presentation/Menus/Runtime/UI/Menus.uss" />
+    <Style src="../Theme/NightCourier.uss" />
+    <ui:Template name="SettingsScreen" src="SettingsScreen.uxml" />
+    <ui:Template name="ConfirmDialog" src="ConfirmDialog.uxml" />
+    <ui:VisualElement name="layer" class="nc-theme nc-layer" picking-mode="Ignore">
+        <ui:VisualElement class="nc-backdrop" picking-mode="Ignore" />
+        <ui:VisualElement name="menu" class="rd-screen nc-hero">
+            <ui:VisualElement class="rd-screen__content nc-hero__content">
+                <ui:Label name="menu-footer" text="menu.footer" class="nc-localized nc-hero__footer" />
+                <ui:Label name="menu-title" class="rd-screen__title nc-hero__title" />
+                <ui:Label name="menu-tagline" text="menu.tagline" class="nc-localized nc-hero__tagline" />
+                <ui:VisualElement class="nc-hero__divider" />
+                <ui:VisualElement name="menu-entries" class="rd-menu__entries" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Instance template="SettingsScreen" name="settings-instance" class="nc-slot" picking-mode="Ignore" />
+        <ui:Instance template="ConfirmDialog" name="confirm-instance" class="nc-slot" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

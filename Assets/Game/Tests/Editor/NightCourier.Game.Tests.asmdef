@@ -14,6 +14,8 @@
         "RD.Mechanics.Combat",
         "RD.Progression",
         "RD.Localization",
+        "RD.Menus",
+        "RD.Settings",
         "RD.Quests",
         "RD.Rewards",
         "RD.SceneFlow",

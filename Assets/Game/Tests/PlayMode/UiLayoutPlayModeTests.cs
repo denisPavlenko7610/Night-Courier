@@ -9,8 +9,8 @@ using NightCourier.World;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
+using Toolkit = UnityEngine.UIElements;
 
 namespace NightCourier.PlayModeTests
 {
@@ -62,13 +62,12 @@ namespace NightCourier.PlayModeTests
 			yield return new WaitForSeconds(1.2f);
 			yield return audit.Capture("01_main_menu");
 
-			GameDriver.Get<Button>(Object.FindFirstObjectByType<MainMenuEntry>(), "_settingsButton").onClick.Invoke();
+			GameDriver.Click(Object.FindFirstObjectByType<MainMenuEntry>().Root, "entry-" + MainMenuEntry.SettingsEntryId);
 
 			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
 			yield return audit.Capture("02_main_settings");
 
-			GameDriver.Get<Button>(Object.FindFirstObjectByType<MainMenuEntry>(), "_settingsBackButton").onClick
-				.Invoke();
+			GameDriver.Click(Object.FindFirstObjectByType<MainMenuEntry>().Root, "settings-back");
 
 			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
 			yield return _driver.NewGameToDepot();
@@ -80,13 +79,10 @@ namespace NightCourier.PlayModeTests
 
 			yield return null;
 
-			Assert.That(
-				GameDriver.Get<CanvasGroup>(Object.FindAnyObjectByType<PlayerVitalsView>(), "_hud").alpha,
-				Is.Zero
-			);
+			Assert.That(Object.FindAnyObjectByType<PlayerVitalsView>().IsHudHidden, Is.True);
 			yield return audit.Capture("04_depot_terminal_one_contract");
 
-			GameDriver.Get<Button>(depot, "_closeButton").onClick.Invoke();
+			GameDriver.Click(Object.FindFirstObjectByType<ContractTerminalView>().Panel, ContractTerminalView.CloseButtonName);
 
 			UpgradeTerminalView upgrades = Object.FindFirstObjectByType<UpgradeTerminalView>();
 
@@ -95,7 +91,7 @@ namespace NightCourier.PlayModeTests
 			yield return null;
 			yield return audit.Capture("05_upgrade_terminal");
 
-			GameDriver.Get<Button>(upgrades, "_closeButton").onClick.Invoke();
+			GameDriver.Click(upgrades.Panel, UpgradeTerminalView.CloseButtonName);
 
 			EquipmentLockerView locker = Object.FindFirstObjectByType<EquipmentLockerView>();
 
@@ -104,7 +100,7 @@ namespace NightCourier.PlayModeTests
 			yield return null;
 			yield return audit.Capture("06_equipment_locker");
 
-			GameDriver.Get<Button>(locker, "_closeButton").onClick.Invoke();
+			GameDriver.Click(locker.Panel, EquipmentLockerView.CloseButtonName);
 
 			yield return _driver.CompleteInState(GameDriver.StandardDelivery);
 			yield return _driver.CompleteInState(GameDriver.Fragile);
@@ -114,7 +110,7 @@ namespace NightCourier.PlayModeTests
 			yield return null;
 			yield return audit.Capture("07_depot_terminal_two_contracts");
 
-			GameDriver.Get<Button>(depot, "_closeButton").onClick.Invoke();
+			GameDriver.Click(Object.FindFirstObjectByType<ContractTerminalView>().Panel, ContractTerminalView.CloseButtonName);
 
 			yield return _driver.AcceptInTerminal(LightsOut);
 			yield return null;
@@ -138,6 +134,7 @@ namespace NightCourier.PlayModeTests
 			GameDriver.MovePackage(package, new Vector3(0f, 0.5f, -2f));
 
 			yield return new WaitForSeconds(1.5f);
+			Assert.That(Object.FindAnyObjectByType<PackageHudView>().DarkTimerVisible, Is.True);
 			yield return audit.Capture("11_warehouse_dark_notice");
 
 			GameDriver.MovePackage(package, new Vector3(-15.6f, 1.2f, -11.9f));
@@ -148,24 +145,28 @@ namespace NightCourier.PlayModeTests
 
 			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
 
-			Assert.That(
-				GameDriver.Get<CanvasGroup>(Object.FindAnyObjectByType<PlayerVitalsView>(), "_hud").alpha,
-				Is.Zero
-			);
+			Assert.That(Object.FindAnyObjectByType<PlayerVitalsView>().IsHudHidden, Is.True);
 			yield return audit.Capture("12_pause_menu");
 
-			GameDriver.Get<Button>(pause, "_settingsButton").onClick.Invoke();
+			GameDriver.Click(pause.Root, "entry-" + PauseMenu.SettingsEntryId);
 
 			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
+			AssertVisible(Toolkit.UQueryExtensions.Q<Toolkit.Label>(pause.SettingsView.Root, "settings-title"));
 			yield return audit.Capture("13_pause_settings");
 
-			GameDriver.Get<Button>(pause, "_settingsBackButton").onClick.Invoke();
-			GameDriver.Get<Button>(pause, "_controlsButton").onClick.Invoke();
+			GameDriver.Click(pause.Root, "settings-back");
+
+			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
+
+			GameDriver.Click(pause.Root, "entry-" + PauseMenu.ControlsEntryId);
 
 			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
 			yield return audit.Capture("14_pause_controls");
 
-			GameDriver.Get<Button>(pause, "_controlsBackButton").onClick.Invoke();
+			GameDriver.Click(pause.Root, "controls-back");
+
+			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
+
 			pause.Close();
 
 			GameDriver.Teleport(_driver.Player, dockPosition);
@@ -175,10 +176,7 @@ namespace NightCourier.PlayModeTests
 			yield return _driver.ScanAndDeliver();
 			yield return null;
 
-			Assert.That(
-				GameDriver.Get<CanvasGroup>(Object.FindAnyObjectByType<PlayerVitalsView>(), "_hud").alpha,
-				Is.Zero
-			);
+			Assert.That(Object.FindAnyObjectByType<PlayerVitalsView>().IsHudHidden, Is.True);
 			yield return audit.Capture("15_result_success");
 
 			yield return _driver.ReturnToDepotFromResult();
@@ -197,9 +195,9 @@ namespace NightCourier.PlayModeTests
 
 			yield return GameDriver.WaitUntil(() => _driver.ResultVisible, "the failure panel");
 			yield return null;
+			Assert.That(Object.FindAnyObjectByType<PlayerVitalsView>().OverlayAlpha, Is.EqualTo(0f));
 			yield return audit.Capture("18_result_failed");
 
-			GameDriver.Get<LocalizedLabel>(_driver.Warehouse, "_resultTitle").SetKey("result.pending_title");
 			GameDriver.Get<ResultPanelView>(_driver.Warehouse, "_resultView").ShowFailure(
 				_driver.Services.Localization,
 				GameDriver.Get<ContractRun>(_driver.Warehouse, "_run").Spec,
@@ -213,6 +211,21 @@ namespace NightCourier.PlayModeTests
 			{
 				Assert.That(audit.Problems, Is.Zero, audit.Report);
 			}
+		}
+
+		private static void AssertVisible(Toolkit.VisualElement element)
+		{
+			Assert.That(element, Is.Not.Null, "The expected screen element is missing.");
+
+			for (Toolkit.VisualElement current = element; current != null; current = current.parent)
+			{
+				Assert.That(current.resolvedStyle.display, Is.Not.EqualTo(Toolkit.DisplayStyle.None), current.name);
+				Assert.That(current.resolvedStyle.visibility, Is.EqualTo(Toolkit.Visibility.Visible), current.name);
+				Assert.That(current.resolvedStyle.opacity, Is.GreaterThan(0.95f), current.name);
+			}
+
+			Assert.That(element.worldBound.width, Is.GreaterThan(0f));
+			Assert.That(element.worldBound.height, Is.GreaterThan(0f));
 		}
 	}
 }

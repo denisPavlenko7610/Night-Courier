@@ -1,0 +1,246 @@
+.nc-hud .nc-hud__text {
+    font-size: 30px;
+    color: rgb(235, 231, 219);
+    -unity-text-outline-width: 0;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+}
+
+.nc-hud .nc-hud__icon {
+    width: 40px;
+    height: 40px;
+    -unity-background-image-tint-color: rgb(235, 231, 219);
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.nc-hud .nc-hud__icon--health {
+    background-image: url("../../../../ThirdParty/GameIconsNet/Textures/heart-beats.png");
+    margin-right: 10px;
+}
+
+.nc-hud .nc-hud__icon--weapon {
+    background-image: url("../../../../ThirdParty/GameIconsNet/Textures/pistol-gun.png");
+    margin-left: 10px;
+}
+
+.nc-hud .nc-hud__icon--ammo {
+    background-image: url("../../../../ThirdParty/GameIconsNet/Textures/bullets.png");
+    margin-left: 10px;
+}
+
+.nc-hud .nc-hud__icon--medkit {
+    background-image: url("../../../../ThirdParty/GameIconsNet/Textures/first-aid-kit.png");
+    margin-left: 10px;
+}
+
+.nc-hud .nc-hud__top {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 35px;
+    align-items: center;
+}
+
+.nc-hud .nc-hud__objective {
+    width: 760px;
+    padding: 18px 32px 22px 32px;
+    background-color: rgba(10, 8, 6, 0.74);
+}
+
+.nc-hud .nc-hud__objective-accent {
+    position: absolute;
+    left: -8px;
+    top: 30px;
+    bottom: 30px;
+    width: 2px;
+    background-color: rgb(213, 161, 107);
+}
+
+.nc-hud .nc-hud__objective-text {
+    font-size: 28px;
+    color: rgb(235, 231, 219);
+    white-space: normal;
+    -unity-text-align: upper-center;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+}
+
+.nc-hud .nc-hud__vitals {
+    position: absolute;
+    left: 10px;
+    bottom: 36px;
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 10px;
+    background-color: rgba(10, 8, 6, 0.78);
+}
+
+.nc-hud .nc-hud__gear {
+    position: absolute;
+    right: 10px;
+    bottom: 36px;
+    align-items: flex-end;
+    padding: 6px 10px;
+    background-color: rgba(10, 8, 6, 0.78);
+}
+
+.nc-hud .nc-hud__gear-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 50px;
+}
+
+.nc-hud .nc-hud__crosshair {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    margin-left: -3px;
+    margin-top: -3px;
+    border-radius: 3px;
+    background-color: rgba(235, 231, 219, 0.9);
+}
+
+.nc-hud .nc-hud__prompt {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 56%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.nc-hud .nc-hud__prompt .nc-hud__text {
+    padding: 6px 10px;
+    background-color: rgba(10, 8, 6, 0.82);
+}
+
+.nc-hud .nc-hud__glyph {
+    width: 44px;
+    height: 44px;
+    margin-right: 14px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.nc-hud .nc-hud__hold {
+    position: absolute;
+    left: 50%;
+    top: 64%;
+    width: 360px;
+    height: 14px;
+    margin-left: -180px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-width: 1px;
+    border-color: rgba(235, 231, 219, 0.5);
+}
+
+.nc-hud .nc-hud__hold-fill {
+    width: 0;
+    height: 100%;
+    background-color: rgb(213, 161, 107);
+}
+
+.nc-hud .nc-hud__death {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(13, 13, 13);
+    opacity: 0;
+}
+
+.nc-hud .nc-hud__death-message {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexSans-SemiBold.ttf");
+    font-size: 44px;
+    color: rgb(230, 226, 212);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.nc-hud .nc-hud__info {
+    position: absolute;
+    left: 50px;
+    top: 40px;
+    width: 500px;
+    padding: 12px 16px;
+    background-color: rgba(10, 8, 6, 0.78);
+}
+
+.nc-hud .nc-hud__title {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexSans-SemiBold.ttf");
+    font-size: 30px;
+}
+
+.nc-hud .nc-hud__subtitle {
+    font-size: 26px;
+    margin-top: 4px;
+}
+
+.nc-hud .nc-hud__line {
+    font-size: 24px;
+    margin-top: 10px;
+    white-space: normal;
+}
+
+.nc-hud .nc-hud__stats {
+    position: absolute;
+    right: 50px;
+    top: 40px;
+    align-items: flex-end;
+}
+
+.nc-hud .nc-hud__mono {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexMono-Regular.ttf");
+}
+
+.nc-hud .nc-hud__timer {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexMono-Regular.ttf");
+    position: absolute;
+    right: 50px;
+    top: 40px;
+    font-size: 40px;
+    color: rgb(213, 161, 107);
+}
+
+.nc-hud .nc-hud__notice {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 150px;
+    align-items: center;
+}
+
+.nc-hud .nc-hud__notice-text {
+    width: 900px;
+    white-space: normal;
+    -unity-text-align: upper-center;
+    padding: 10px 16px;
+    background-color: rgba(10, 8, 6, 0.82);
+}
+
+.nc-hud .nc-hud__dark-timer {
+    color: rgb(255, 192, 119);
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexSans-SemiBold.ttf");
+}
+
+.nc-hud .nc-hud__rank {
+    min-height: 80px;
+}
+
+.nc-hud .rd-notifications {
+    --rd-toast-width: 900px;
+    --rd-toast-font: 30px;
+    --rd-toast-surface: rgba(10, 8, 6, 0.82);
+    --rd-toast-text: rgb(235, 231, 219);
+    --rd-toast-info: rgb(213, 161, 107);
+    padding-bottom: 150px;
+}
+
+.nc-hud .rd-notifications .rd-toast__message {
+    -unity-text-align: upper-center;
+}

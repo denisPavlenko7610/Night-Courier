@@ -1,0 +1,41 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="../Theme/NightCourier.uss" />
+    <Style src="../Theme/NightCourierResults.uss" />
+    <ui:VisualElement name="layer" class="nc-theme nc-layer" picking-mode="Ignore">
+        <ui:VisualElement name="result-panel" class="nc-result" style="display: none;">
+            <ui:VisualElement class="nc-result__frame">
+                <ui:Label name="result-title" class="nc-result__title" />
+                <ui:Label name="result-subtitle" class="nc-result__subtitle" />
+                <ui:VisualElement name="result-success">
+                    <ui:VisualElement class="nc-result__top">
+                        <ui:VisualElement class="nc-receipt">
+                            <ui:Label name="receipt-caption" class="nc-receipt__caption" />
+                            <ui:VisualElement class="nc-receipt__lines">
+                                <ui:Label name="receipt-labels" class="nc-receipt__labels" />
+                                <ui:Label name="receipt-values" class="nc-receipt__values" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="nc-receipt__total">
+                                <ui:Label name="total-label" class="nc-receipt__total-label" />
+                                <ui:Label name="total-value" class="nc-receipt__total-value" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="nc-rating">
+                            <ui:Label name="grade-caption" class="nc-rating__caption" />
+                            <ui:Label name="grade" class="nc-rating__grade" />
+                            <ui:Label name="axes" class="nc-rating__axes" />
+                            <ui:Label name="rank" class="nc-rating__rank" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:Label name="stats" class="nc-result__stats" />
+                    <ui:Label name="advice" class="nc-result__advice" />
+                </ui:VisualElement>
+                <ui:VisualElement name="result-failure" class="nc-result__failure">
+                    <ui:Label name="failure-message" class="nc-result__failure-message" />
+                    <ui:Label name="failure-footer" class="nc-result__failure-footer" />
+                </ui:VisualElement>
+                <ui:Label name="result-credits" class="nc-result__credits" />
+                <ui:Button name="result-return" text="result.return_to_depot" class="nc-localized nc-result__return" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

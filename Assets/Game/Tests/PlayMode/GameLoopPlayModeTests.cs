@@ -78,7 +78,7 @@ namespace NightCourier.PlayModeTests
 				);
 
 				Interactable terminal = GameDriver.Get<Interactable>(_driver.Depot, "_terminal");
-				GameObject panel = GameDriver.Get<GameObject>(_driver.Depot, "_terminalPanel");
+				ContractTerminalView panel = Object.FindFirstObjectByType<ContractTerminalView>();
 				Vector3 target = terminal.GetComponent<Collider>().bounds.center;
 				Vector3 approach = target - Vector3.forward * TerminalApproachDistance;
 				approach.y = _driver.Player.transform.position.y;
@@ -93,7 +93,7 @@ namespace NightCourier.PlayModeTests
 				Assert.That(_driver.Player.Interactor.Target, Is.EqualTo(terminal));
 
 				InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.E));
-				yield return GameDriver.WaitUntil(() => panel.activeSelf, "keyboard interaction opening the terminal");
+				yield return GameDriver.WaitUntil(() => panel.IsOpen, "keyboard interaction opening the terminal");
 
 				Assert.That(_driver.Services.Input.Actions.Gameplay.enabled, Is.False);
 				Assert.That(_driver.Services.Input.Actions.Ui.enabled, Is.True);
@@ -107,7 +107,7 @@ namespace NightCourier.PlayModeTests
 				yield return null;
 
 				InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.Escape));
-				yield return GameDriver.WaitUntil(() => !panel.activeSelf, "keyboard cancel closing the terminal");
+				yield return GameDriver.WaitUntil(() => !panel.IsOpen, "keyboard cancel closing the terminal");
 
 				Assert.That(_driver.Services.Input.Actions.Gameplay.enabled, Is.True);
 				InputSystem.QueueStateEvent(keyboard, new KeyboardState());
@@ -263,7 +263,7 @@ namespace NightCourier.PlayModeTests
 			yield return _driver.BootToMainMenu();
 			yield return _driver.NewGameToDepot();
 			PauseMenu pause = Object.FindFirstObjectByType<PauseMenu>();
-			Assert.That(GameDriver.Get<UnityEngine.UI.Button>(pause, "_leaveButton").gameObject.activeSelf, Is.False);
+			Assert.That(pause.IsLeaveAvailable, Is.False);
 
 			yield return _driver.AcceptInTerminal(GameDriver.StandardDelivery);
 			Assert.That(GameDriver.Get<FirstDeliveryTraining>(_driver.Depot, "_training").StepNumber, Is.EqualTo(2));
@@ -273,7 +273,7 @@ namespace NightCourier.PlayModeTests
 			GameDriver.MovePackage(Object.FindFirstObjectByType<NightCourier.Player.CargoPackage>(), new Vector3(0f, -100f, 0f));
 			DepotEntry previous = _driver.Depot;
 			pause.Open();
-			Assert.That(GameDriver.Get<UnityEngine.UI.Button>(pause, "_leaveButton").gameObject.activeSelf, Is.True);
+			Assert.That(pause.IsLeaveAvailable, Is.True);
 			GameDriver.Invoke(pause, "ConfirmLeave");
 			yield return GameDriver.WaitUntil(() => previous == null && _driver.Depot != null, "a fresh depot after the abort");
 			yield return _driver.WaitForDepot("the initialized depot after the abort");

@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Button name="slot" class="nc-slot-button">
+        <ui:VisualElement name="slot-marker" class="nc-slot-button__marker" picking-mode="Ignore" />
+        <ui:Label name="slot-label" class="nc-slot-button__label" picking-mode="Ignore" />
+    </ui:Button>
+</ui:UXML>

@@ -11,6 +11,8 @@
         "RD.Save",
         "RD.Settings",
         "RD.Localization",
+        "RD.Menus",
+        "RD.Notifications",
         "RD.Quests",
         "RD.Rewards",
         "RD.Wallet",
@@ -55,8 +57,7 @@
         "RD.Mechanics.WeaponSpread",
         "RD.Mechanics.WeaponSwitching",
         "RD.Tween",
-        "Unity.InputSystem",
-        "UnityEngine.UI"
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

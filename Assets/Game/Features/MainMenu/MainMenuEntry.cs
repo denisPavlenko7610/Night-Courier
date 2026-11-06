@@ -4,71 +4,110 @@ using NightCourier.App;
 using NightCourier.Audio;
 using RD.DependencyInjection;
 using RD.Foundation;
-using RD.PrefabWindows;
+using RD.Menus;
 using RD.Save;
 using RD.ScreenNavigation;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace NightCourier.UI
 {
 	public sealed class MainMenuEntry : MonoBehaviour, ISceneEntry
 	{
+		public const string NewGameEntryId = "new-game";
+		public const string ContinueEntryId = "continue";
+		public const string SettingsEntryId = "settings";
+		public const string QuitEntryId = "quit";
+		public const string MainScreenId = "main";
+		public const string SettingsScreenId = "settings";
+
+		private const string MenuId = "main-menu";
+		private const string MenuTitleKey = "menu.title";
+		private const string NewGameKey = "menu.new_game";
+		private const string ContinueKey = "menu.continue";
+		private const string SettingsKey = "menu.settings";
+		private const string QuitKey = "menu.quit";
+		private const string NewGameConfirmTitleKey = "confirm.new_game.title";
+		private const string NewGameConfirmMessageKey = "confirm.new_game.message";
+		private const string MenuName = "menu";
+		private const string SettingsSlotName = "settings-instance";
+		private const string SettingsName = "settings";
+		private const string ConfirmSlotName = "confirm-instance";
+
 		[SerializeField] private UiSounds _uiSounds;
-		[SerializeField] private PanelScreen _mainScreen;
-		[SerializeField] private PanelScreen _settingsScreen;
-		[SerializeField] private Button _newGameButton;
-		[SerializeField] private Button _continueButton;
-		[SerializeField] private Button _settingsButton;
-		[SerializeField] private Button _quitButton;
-		[SerializeField] private Button _settingsBackButton;
-		[SerializeField] private SettingsPanelView _settingsView;
-		[SerializeField] private WindowRoot _windowRoot;
-		[SerializeField] private WindowCatalog _windowCatalog;
+		[SerializeField] private UIDocument _document;
+		[SerializeField] private MenuAssets _menuAssets;
 
 		private GameServices _services;
+		private Menu _menu;
+		private MenuView _mainView;
+		private SettingsPageView _settingsView;
+		private ConfirmDialog _dialog;
 		private ScreenNavigator _navigator;
-		private WindowManager _windows;
 		private IDisposable _menuScope;
+		private int _backFrame = -1;
+
+		public Menu Menu => _menu;
+
+		public SettingsPageView SettingsView => _settingsView;
+
+		public ConfirmDialog Dialog => _dialog;
+
+		public IScreenNavigator Navigator => _navigator;
+
+		public VisualElement Root => _document.rootVisualElement;
 
 		public void Enter(GameServices services, IObjectResolver scene)
 		{
 			_services = services;
 
-			LocalizedLabel.BindAll(gameObject, services.Localization);
-			_settingsView.Bind(services.Settings);
-			_uiSounds.Bind(services.Audio);
+			VisualElement root = _document.rootVisualElement;
+			IMenuTextProvider text = GameMenuText.Create(services.Localization);
 
-			_continueButton.interactable = services.Campaign.HasSave;
+			LocalizedText.Apply(root, services.Localization);
+			_uiSounds.Bind(services.Audio, root);
 
-			_mainScreen.HideImmediately();
-			_settingsScreen.HideImmediately();
+			_menu = new Menu(MenuId, MenuTitleKey);
+			_menu.Add(NewGameEntryId, NewGameKey, OnNewGame);
+			_menu.Add(ContinueEntryId, ContinueKey, ContinueAsync, isEnabled: () => _services.Campaign.HasSave);
+			_menu.Add(SettingsEntryId, SettingsKey, OpenSettingsAsync);
+			_menu.Add(QuitEntryId, QuitKey, OnQuit, isVisible: () => MenuProfiles.CanQuit);
 
-			_navigator = new ScreenNavigator(new ScreenRegistry(new IScreen[] { _mainScreen, _settingsScreen }));
-			_windows = new WindowManager(_windowCatalog, _windowRoot);
+			_mainView = new MenuView(_menu, root.Q<VisualElement>(MenuName), _menuAssets, text, MenuProfile.Desktop);
+			_settingsView = new SettingsPageView(
+				services.SettingsPage,
+				root.Q<VisualElement>(SettingsSlotName).Q<VisualElement>(SettingsName),
+				_menuAssets,
+				text,
+				MenuProfile.Desktop,
+				SettingsApplyMode.Explicit);
+			_dialog = new ConfirmDialog(root.Q<VisualElement>(ConfirmSlotName).Q<VisualElement>(ConfirmDialog.RootName), services.Localization);
 
-			_newGameButton.onClick.AddListener(OnNewGame);
-			_continueButton.onClick.AddListener(OnContinue);
-			_settingsButton.onClick.AddListener(OnSettings);
-			_settingsBackButton.onClick.AddListener(OnBack);
-			_quitButton.onClick.AddListener(OnQuit);
+			_navigator = new ScreenNavigator(new ScreenRegistry(new IScreen[]
+			{
+				UiScreen.ForView(MainScreenId, _mainView, destroyCancellationToken),
+				UiScreen.ForView(SettingsScreenId, _settingsView, destroyCancellationToken)
+			}));
 
+			_settingsView.BackRequested += OnBack;
 			_menuScope = services.Input.PushMenu(OnCancel);
 
-			Run(() => _navigator.PushAsync(_mainScreen.Id));
+			Run(() => _navigator.PushAsync(MainScreenId));
 		}
 
 		private void OnDestroy()
 		{
 			_menuScope?.Dispose();
-			_windows?.Dispose();
-			_navigator?.Dispose();
 
-			_newGameButton.onClick.RemoveListener(OnNewGame);
-			_continueButton.onClick.RemoveListener(OnContinue);
-			_settingsButton.onClick.RemoveListener(OnSettings);
-			_settingsBackButton.onClick.RemoveListener(OnBack);
-			_quitButton.onClick.RemoveListener(OnQuit);
+			if (_settingsView != null)
+			{
+				_settingsView.BackRequested -= OnBack;
+			}
+
+			_dialog?.Dispose();
+			_navigator?.Dispose();
+			_settingsView?.Dispose();
+			_mainView?.Dispose();
 		}
 
 		private void Run(Func<Awaitable> operation)
@@ -76,23 +115,37 @@ namespace NightCourier.UI
 			UiShutdown.Run(operation, this);
 		}
 
-		private void OnSettings()
+		private async Awaitable OpenSettingsAsync()
 		{
-			Run(() => _navigator.PushAsync(_settingsScreen.Id));
+			try
+			{
+				await _navigator.PushAsync(SettingsScreenId);
+			}
+			catch (Exception exception) when (UiShutdown.IsExpected(exception))
+			{
+			}
 		}
 
 		private void OnBack()
 		{
+			if (Time.frameCount == _backFrame || _navigator.Depth <= 1)
+			{
+				return;
+			}
+
+			_backFrame = Time.frameCount;
+			_services.SettingsPage.Revert();
+
 			Run(async () => await _navigator.PopAsync());
 		}
 
 		private void OnCancel()
 		{
-			if (_windows.IsOpen(ConfirmWindow.WindowId))
+			if (_dialog.IsOpen)
 			{
-				Run(() => _windows.BackAsync());
+				_dialog.Close();
 			}
-			else if (_navigator.Depth > 1)
+			else
 			{
 				OnBack();
 			}
@@ -111,14 +164,7 @@ namespace NightCourier.UI
 				return;
 			}
 
-			ConfirmArguments arguments = new(
-				_services.Localization,
-				_services.Audio,
-				"confirm.new_game.title",
-				"confirm.new_game.message",
-				StartNewGame);
-
-			Run(() => _windows.OpenAsync(ConfirmWindow.WindowId, arguments));
+			_dialog.Open(NewGameConfirmTitleKey, NewGameConfirmMessageKey, StartNewGame);
 		}
 
 		private async void StartNewGame()
@@ -134,7 +180,7 @@ namespace NightCourier.UI
 			}
 		}
 
-		private async void OnContinue()
+		private async Awaitable ContinueAsync()
 		{
 			try
 			{
@@ -144,7 +190,7 @@ namespace NightCourier.UI
 			{
 				UnityLogger.LogError($"The campaign save could not be loaded: {exception.Message}", this);
 				await _services.Campaign.RefreshAsync();
-				_continueButton.interactable = _services.Campaign.HasSave;
+				_menu.Refresh();
 				return;
 			}
 			catch (Exception exception)

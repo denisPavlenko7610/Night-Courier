@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="row" class="nc-card">
+        <ui:VisualElement class="nc-card__text">
+            <ui:Label name="row-title" class="nc-card__title" />
+            <ui:Label name="row-description" class="nc-card__body" />
+            <ui:Label name="row-level" class="nc-card__meta" />
+        </ui:VisualElement>
+        <ui:Button name="upgrade-buy" class="nc-button nc-card__button" />
+    </ui:VisualElement>
+</ui:UXML>

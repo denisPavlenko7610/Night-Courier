@@ -139,13 +139,24 @@ PhysicsButton, Pendulum, RopeSwing.
 - Build features at their tier only ([Docs/GDD.md](Docs/GDD.md) §3.2). Do not implement Demo/1.0 systems while working
   on the MVP, but do not model data in a way that blocks them.
 - Prefer simple primitives and placeholder materials over waiting for art (see Visuals and Assets).
-- **UI layout.** Every canvas uses `Scale With Screen Size` with the `Expand` match mode and is built inside the 1920×1080
-  reference, so the whole reference area is visible at any aspect ratio. Variable-length text uses best fit with a
-  minimum size and wrapping; single-line fixed titles use a size that fits their box. HUD groups that a menu or result
-  panel covers are hidden with a `CanvasGroup`, not left to show through. `UiLayoutPlayModeTests` captures 18 screens at
+- **UI Toolkit only.** All player-facing UI is UI Toolkit: UXML for structure, USS for style, a `UIDocument` over a
+  shared `PanelSettings` asset. Do not add uGUI (`Canvas`, `Button`, `Text`, `TMP_Text`, `CanvasGroup`, `LayoutGroup`) and
+  do not extend an existing uGUI screen with new features: migrate it to UI Toolkit in the same change. Menus, the pause
+  menu, and settings are built on `RD.Menus` (`Menu`, `MenuView`, `SettingsPage`, `SettingsPageView`) with the game's
+  stylesheet (`Content/UI/Theme/NightCourier.uss`, layered over `Menus.uss`) and UXML (`Content/UI/Menus`); navigation
+  between screens stays on `ScreenNavigation` through the `UiScreen` adapter. Rows write game state in their `apply`
+  hooks; there is one `SettingsPage`, built by `SettingsStep`. `MenuViewBase` has an internal constructor, so the game
+  never subclasses it: plain screens use `UiScreen.ForElement`. Label texts are localization keys (`LocalizedText`,
+  `GameMenuText`); the module's English row labels are mapped to game keys in `GameMenuText.MapLabel`. Colors, fonts, spacing, and sizes live in one game USS theme as variables, not as per-element inline
+  styles. Views find elements by named constants, never by hierarchy position. `PrefabWindows` is
+  uGUI-only and is not used. No uGUI screen remains, and the game assemblies do not reference `UnityEngine.UI`.
+- **UI layout.** Every `PanelSettings` uses `Scale With Screen Size` with the `Expand` match mode and a 1920×1080
+  reference, so the whole reference area is visible at any aspect ratio. Variable-length text wraps inside a flexible
+  box with a minimum font size; single-line fixed titles use a size that fits their box. HUD groups that a menu or result
+  panel covers are hidden with `display: none` or opacity on the group, not left to show through. `UiLayoutPlayModeTests` captures 18 screens at
   seven resolutions (16:9, 16:10, 5:4, 4:3, 21:9) into `Temp/UiAudit` and fails on overlapping, clipped, or off-screen
   text; run it after any UI change and read the screenshots. The UI font draws the letter X like H (`XP`, `maximum`,
-  `Express` are misread), so keep player-facing strings free of X. Colors, money (`₡`), pips and grades come from `UiStyle`; rich text is composed in code (`ContractBriefing`, `ResultPanelView`) and passed through `LocalizedLabel.SetRichText`, never stored in `en.json`. Each contract's copy is data: `<contract>.title`, `.description`, `.order`, `.notes` (one dispatch note per line) and `.memo`, and `ContentDataTests` checks that every key exists and that no string contains X.
+  `Express` are misread), so keep player-facing strings free of X. Colors, money (`₡`), pips and grades come from `UiStyle`; rich text is composed in code (`ContractBriefing`, `ResultPanelView`) and set on UI Toolkit labels with rich text enabled, never stored in `en.json`. Each contract's copy is data: `<contract>.title`, `.description`, `.order`, `.notes` (one dispatch note per line) and `.memo`, and `ContentDataTests` checks that every key exists and that no string contains X.
 
 ## Visuals and Assets
 

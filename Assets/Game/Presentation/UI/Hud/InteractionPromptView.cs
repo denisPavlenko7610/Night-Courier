@@ -4,7 +4,7 @@ using RD.Localization;
 using RD.Mechanics.Interactable;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace NightCourier.UI
 {
@@ -14,31 +14,40 @@ namespace NightCourier.UI
 		private const string HoldKey = "prompt.hold";
 		private const string PressGlyphKey = "prompt.press_glyph";
 		private const string HoldGlyphKey = "prompt.hold_glyph";
-		private const float GlyphGap = 14f;
+		private const string PromptName = "prompt-label";
+		private const string GlyphName = "prompt-glyph";
+		private const string HoldBarName = "hold-bar";
+		private const string HoldFillName = "hold-fill";
 
-		[SerializeField] private Text _prompt;
-		[SerializeField] private GameObject _holdBar;
-		[SerializeField] private Image _holdFill;
-		[SerializeField] private Image _glyph;
+		[SerializeField] private UIDocument _document;
 		[SerializeField] private PromptGlyphs _glyphs;
 
 		private InteractionFocus _interactor;
 		private ILocalizationService _localization;
 		private PlayerInputActions _actions;
-		private Vector2 _promptHome;
+		private Label _prompt;
+		private VisualElement _glyph;
+		private VisualElement _holdBar;
+		private VisualElement _holdFill;
+		private bool _holdVisible;
 
-		private void Awake()
-		{
-			_promptHome = _prompt.rectTransform.anchoredPosition;
-		}
+		public string PromptText => _prompt?.text;
+
+		public bool HoldBarVisible => _holdVisible;
 
 		public void Bind(InteractionFocus interactor, ILocalizationService localization, PlayerInputActions actions)
 		{
 			Unbind();
 
+			VisualElement root = _document.rootVisualElement;
+
 			_interactor = interactor ?? throw new ArgumentNullException(nameof(interactor));
 			_localization = localization ?? throw new ArgumentNullException(nameof(localization));
 			_actions = actions ?? throw new ArgumentNullException(nameof(actions));
+			_prompt = UiQuery.Require<Label>(root, PromptName);
+			_glyph = UiQuery.Require<VisualElement>(root, GlyphName);
+			_holdBar = UiQuery.Require<VisualElement>(root, HoldBarName);
+			_holdFill = UiQuery.Require<VisualElement>(root, HoldFillName);
 
 			_interactor.TargetChanged += Refresh;
 			_localization.LocaleChanged += OnLocaleChanged;
@@ -48,12 +57,12 @@ namespace NightCourier.UI
 
 		private void Update()
 		{
-			if (_interactor == null || !_holdBar.activeSelf)
+			if (_interactor == null || !_holdVisible)
 			{
 				return;
 			}
 
-			_holdFill.fillAmount = _interactor.HoldProgress;
+			_holdFill.style.width = new Length(_interactor.HoldProgress * 100f, LengthUnit.Percent);
 		}
 
 		private void OnDestroy()
@@ -66,11 +75,13 @@ namespace NightCourier.UI
 			if (_interactor != null)
 			{
 				_interactor.TargetChanged -= Refresh;
+				_interactor = null;
 			}
 
 			if (_localization != null)
 			{
 				_localization.LocaleChanged -= OnLocaleChanged;
+				_localization = null;
 			}
 		}
 
@@ -88,11 +99,13 @@ namespace NightCourier.UI
 				Interactable blocked = _interactor.Blocked;
 
 				_prompt.text = blocked != null ? _localization.Get(blocked.BlockedKey) : string.Empty;
-				_holdBar.SetActive(false);
+				UiQuery.SetVisible(_prompt, blocked != null);
+				SetHoldBar(false);
 				ShowGlyph(blocked != null && _glyphs != null ? _glyphs.Lock : null);
 				return;
 			}
 
+			UiQuery.SetVisible(_prompt, true);
 			string action = _localization.Get(target.PromptKey);
 			Sprite keyGlyph = _glyphs != null ? _glyphs.FindKey(_actions.Interact.bindings[0].effectivePath) : null;
 
@@ -107,36 +120,29 @@ namespace NightCourier.UI
 				_prompt.text = _localization.Get(target.RequiresHold ? HoldKey : PressKey, key, action);
 			}
 
-			_holdFill.fillAmount = 0f;
-			_holdBar.SetActive(target.RequiresHold);
+			_holdFill.style.width = new Length(0f, LengthUnit.Percent);
+			SetHoldBar(target.RequiresHold);
 			ShowGlyph(keyGlyph);
+		}
+
+		private void SetHoldBar(bool visible)
+		{
+			_holdVisible = visible;
+
+			UiQuery.SetVisible(_holdBar, visible);
 		}
 
 		private void ShowGlyph(Sprite sprite)
 		{
-			if (_glyph == null)
-			{
-				return;
-			}
-
-			RectTransform promptRect = _prompt.rectTransform;
-
 			if (sprite == null)
 			{
-				_glyph.gameObject.SetActive(false);
-				promptRect.anchoredPosition = _promptHome;
+				UiQuery.SetVisible(_glyph, false);
 				return;
 			}
 
-			_glyph.sprite = sprite;
-			_glyph.gameObject.SetActive(true);
+			_glyph.style.backgroundImage = new StyleBackground(sprite);
 
-			float glyphWidth = _glyph.rectTransform.rect.width;
-			float textWidth = Mathf.Min(_prompt.preferredWidth, promptRect.rect.width);
-			float shift = (glyphWidth + GlyphGap) / 2f;
-
-			promptRect.anchoredPosition = _promptHome + Vector2.right * shift;
-			_glyph.rectTransform.anchoredPosition = _promptHome + new Vector2(-textWidth / 2f - GlyphGap / 2f, 0f);
+			UiQuery.SetVisible(_glyph, true);
 		}
 	}
 }

@@ -14,8 +14,8 @@ using RD.Mechanics.Combat;
 using RD.Mechanics.Interactable;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
+using Toolkit = UnityEngine.UIElements;
 
 namespace NightCourier.PlayModeTests
 {
@@ -161,16 +161,40 @@ namespace NightCourier.PlayModeTests
 			yield return WaitUntil(() => IsEntered(Object.FindFirstObjectByType<MainMenuEntry>()), "the main menu");
 		}
 
+		public static void Click(Toolkit.VisualElement root, string buttonName, bool requireEnabled = true)
+		{
+			Toolkit.Button button = Toolkit.UQueryExtensions.Q<Toolkit.Button>(root, buttonName);
+
+			Assert.That(button, Is.Not.Null, buttonName);
+
+			if (requireEnabled)
+			{
+				Assert.That(button.enabledInHierarchy, Is.True, buttonName + " is disabled");
+			}
+
+			using Toolkit.NavigationSubmitEvent submit = Toolkit.NavigationSubmitEvent.GetPooled();
+
+			submit.target = button;
+			button.SendEvent(submit);
+		}
+
+		public IEnumerator SaveCampaign()
+		{
+			_ = Services.Campaign.SaveAsync();
+
+			yield return WaitUntil(() => Services.Campaign.HasSave, "the campaign save");
+		}
+
 		public IEnumerator NewGameToDepot()
 		{
-			Get<Button>(Object.FindFirstObjectByType<MainMenuEntry>(), "_newGameButton").onClick.Invoke();
+			Click(Object.FindFirstObjectByType<MainMenuEntry>().Root, "entry-" + MainMenuEntry.NewGameEntryId);
 
 			yield return WaitForDepot("the depot");
 		}
 
 		public IEnumerator ContinueToDepot()
 		{
-			Get<Button>(Object.FindFirstObjectByType<MainMenuEntry>(), "_continueButton").onClick.Invoke();
+			Click(Object.FindFirstObjectByType<MainMenuEntry>().Root, "entry-" + MainMenuEntry.ContinueEntryId);
 
 			yield return WaitForDepot("the depot after Continue");
 		}
@@ -218,11 +242,11 @@ namespace NightCourier.PlayModeTests
 			Invoke(depot, "OpenTerminal");
 			Invoke(depot, "OnSelected", spec);
 
-			Button accept = Get<Button>(depot, "_actionButton");
+			ContractTerminalView terminal = Object.FindFirstObjectByType<ContractTerminalView>();
 
 			for (int click = 0; click < clicks; click++)
 			{
-				accept.onClick.Invoke();
+				Click(terminal.Panel, ContractTerminalView.AcceptButtonName, requireEnabled: click == 0);
 			}
 
 			yield return WaitUntil(() => Run != null && Run.Spec.Id == contractId, "the accepted contract");
@@ -374,15 +398,14 @@ namespace NightCourier.PlayModeTests
 			get
 			{
 				PackageHudView hud = Object.FindFirstObjectByType<PackageHudView>();
-				LocalizedLabel label = Get<LocalizedLabel>(hud, "_notice");
 
-				return label.gameObject.activeInHierarchy ? Get<Text>(label, "_text").text : string.Empty;
+				return hud.NoticeVisible ? hud.NoticeText : string.Empty;
 			}
 		}
 
-		public string PromptText => Get<Text>(Object.FindFirstObjectByType<InteractionPromptView>(), "_prompt").text;
+		public string PromptText => Object.FindFirstObjectByType<InteractionPromptView>().PromptText;
 
-		public bool ResultVisible => Get<GameObject>(Warehouse, "_resultPanel").activeSelf;
+		public bool ResultVisible => Get<ResultPanelView>(Warehouse, "_resultView").IsOpen;
 
 		public string ResultText => Get<ResultPanelView>(Warehouse, "_resultView").Transcript;
 
@@ -402,10 +425,10 @@ namespace NightCourier.PlayModeTests
 
 		public IEnumerator ReturnToDepotFromResult()
 		{
-			Button button = Get<Button>(Warehouse, "_returnButton");
+			ResultPanelView result = Get<ResultPanelView>(Warehouse, "_resultView");
 
-			button.onClick.Invoke();
-			button.onClick.Invoke();
+			Click(result.Panel, ResultPanelView.ReturnButtonName);
+			Click(result.Panel, ResultPanelView.ReturnButtonName, requireEnabled: false);
 
 			yield return WaitUntil(() => IsEntered(Depot), "the depot after the result");
 		}

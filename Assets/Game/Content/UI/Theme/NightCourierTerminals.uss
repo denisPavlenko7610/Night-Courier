@@ -1,0 +1,240 @@
+.nc-terminal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    padding: 40px 80px;
+    background-color: rgba(8, 9, 8, 0.94);
+}
+
+.nc-terminal .nc-terminal__frame {
+    flex-grow: 1;
+    border-top-width: 3px;
+    border-top-color: rgb(213, 161, 107);
+    padding-top: 36px;
+}
+
+.nc-terminal .nc-terminal__body {
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.nc-terminal .nc-terminal__list {
+    width: 440px;
+    padding: 24px 20px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.nc-terminal .nc-terminal__list-header {
+    font-size: 30px;
+    color: rgb(235, 231, 219);
+    -unity-text-align: middle-left;
+    margin-bottom: 24px;
+}
+
+.nc-terminal .nc-terminal__empty {
+    font-size: 26px;
+    color: rgb(168, 170, 160);
+    white-space: normal;
+}
+
+.nc-terminal .nc-slot-button {
+    flex-direction: row;
+    align-items: center;
+    min-height: 100px;
+    margin: 0 0 12px 0;
+    padding: 12px 20px 12px 24px;
+    background-color: rgba(235, 231, 219, 0.04);
+    border-width: 0;
+    border-radius: 0;
+    -unity-text-align: middle-left;
+}
+
+.nc-terminal .nc-slot-button:hover {
+    background-color: rgb(60, 62, 54);
+}
+
+.nc-terminal .nc-slot-button:focus {
+    background-color: rgb(60, 62, 54);
+}
+
+.nc-terminal .nc-slot-button__marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: rgb(213, 161, 107);
+}
+
+.nc-terminal .nc-slot-button__label {
+    flex-grow: 1;
+    flex-shrink: 1;
+    font-size: 30px;
+    color: rgb(235, 231, 219);
+    white-space: normal;
+}
+
+.nc-terminal .nc-terminal__details {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-left: 40px;
+    padding: 28px 40px;
+    background-color: rgba(20, 21, 20, 0.9);
+}
+
+.nc-terminal .nc-terminal__title {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexSans-SemiBold.ttf");
+    font-size: 52px;
+    color: rgb(235, 231, 219);
+}
+
+.nc-terminal .nc-terminal__row {
+    flex-direction: row;
+    flex-grow: 1;
+    margin-top: 18px;
+}
+
+.nc-terminal .nc-paper {
+    width: 720px;
+    flex-shrink: 0;
+    padding: 24px 28px;
+    background-color: rgb(216, 216, 198);
+}
+
+.nc-terminal .nc-paper__text {
+    font-size: 28px;
+    color: rgb(40, 45, 38);
+    white-space: pre-wrap;
+}
+
+.nc-terminal .nc-terminal__terms {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-left: 32px;
+    font-size: 28px;
+    color: rgb(235, 231, 219);
+    white-space: pre-wrap;
+}
+
+.nc-terminal .nc-terminal__footer {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 36px;
+}
+
+.nc-terminal .nc-terminal__footer--center {
+    justify-content: center;
+}
+
+.nc-terminal .nc-button {
+    min-width: 440px;
+    height: 76px;
+    margin: 0;
+    padding: 0 24px;
+    font-size: 32px;
+    color: rgb(235, 231, 219);
+    background-color: rgb(46, 52, 44);
+    border-width: 0;
+    border-radius: 0;
+    -unity-text-align: middle-center;
+}
+
+.nc-terminal .nc-button:hover {
+    background-color: rgb(62, 70, 59);
+}
+
+.nc-terminal .nc-button:focus {
+    border-width: 2px;
+    border-color: rgb(213, 161, 107);
+}
+
+.nc-terminal .nc-button:disabled {
+    color: rgb(168, 170, 160);
+    background-color: rgb(30, 33, 29);
+}
+
+.nc-terminal .nc-button--primary {
+    color: rgb(26, 22, 16);
+    background-color: rgb(213, 161, 107);
+}
+
+.nc-terminal .nc-button--primary:hover {
+    background-color: rgb(228, 180, 128);
+}
+
+.nc-terminal .nc-terminal__title-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.nc-terminal .nc-terminal__credits {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexMono-Regular.ttf");
+    font-size: 32px;
+    color: rgb(168, 170, 160);
+}
+
+.nc-terminal .nc-terminal__column {
+    align-self: center;
+    width: 1500px;
+    max-width: 100%;
+}
+
+.nc-terminal .nc-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 130px;
+    margin-bottom: 0;
+    padding: 20px 24px;
+    background-color: rgba(20, 21, 20, 0.8);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(235, 231, 219, 0.16);
+}
+
+.nc-terminal .nc-card__text {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: 40px;
+}
+
+.nc-terminal .nc-card__title {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexSans-SemiBold.ttf");
+    font-size: 36px;
+    color: rgb(235, 231, 219);
+}
+
+.nc-terminal .nc-card__title--fixed {
+    width: 440px;
+    flex-shrink: 0;
+}
+
+.nc-terminal .nc-card__body {
+    font-size: 28px;
+    color: rgb(214, 210, 198);
+    white-space: pre-wrap;
+    margin-top: 6px;
+}
+
+.nc-terminal .nc-card__status {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-top: 0;
+    margin-right: 40px;
+}
+
+.nc-terminal .nc-card__meta {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexMono-Regular.ttf");
+    font-size: 26px;
+    color: rgb(168, 170, 160);
+    margin-top: 10px;
+}
+
+.nc-terminal .nc-card__button {
+    width: 340px;
+    min-width: 340px;
+    flex-shrink: 0;
+}

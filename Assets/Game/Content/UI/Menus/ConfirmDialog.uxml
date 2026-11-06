@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="confirm" class="rd-screen rd-profile--desktop nc-confirm">
+        <ui:VisualElement class="nc-confirm__panel">
+            <ui:Label name="confirm-title" class="nc-confirm__title" />
+            <ui:Label name="confirm-message" class="nc-confirm__message" />
+            <ui:VisualElement class="nc-confirm__buttons">
+                <ui:Button name="confirm-cancel" text="common.cancel" class="nc-localized rd-button" />
+                <ui:Button name="confirm-ok" text="common.confirm" class="nc-localized rd-button rd-button--primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

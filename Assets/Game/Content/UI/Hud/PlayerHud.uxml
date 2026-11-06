@@ -1,0 +1,43 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="../Theme/NightCourier.uss" />
+    <Style src="../Theme/NightCourierHud.uss" />
+    <ui:VisualElement name="layer" class="nc-theme nc-hud nc-layer" picking-mode="Ignore">
+        <ui:VisualElement name="hud-group" class="nc-layer" picking-mode="Ignore">
+            <ui:VisualElement name="objective" class="nc-hud__top" picking-mode="Ignore">
+                <ui:VisualElement name="objective-plate" class="nc-hud__objective" picking-mode="Ignore">
+                    <ui:VisualElement class="nc-hud__objective-accent" picking-mode="Ignore" />
+                    <ui:Label name="objective-label" class="nc-hud__objective-text" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="vitals" class="nc-hud__vitals" picking-mode="Ignore">
+                <ui:VisualElement class="nc-hud__icon nc-hud__icon--health" picking-mode="Ignore" />
+                <ui:Label name="health-label" class="nc-hud__text" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="gear" class="nc-hud__gear" picking-mode="Ignore">
+                <ui:VisualElement name="medkit-row" class="nc-hud__gear-row" picking-mode="Ignore">
+                    <ui:Label name="medkit-label" class="nc-hud__text" picking-mode="Ignore" />
+                    <ui:VisualElement class="nc-hud__icon nc-hud__icon--medkit" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:VisualElement name="weapon-row" class="nc-hud__gear-row" picking-mode="Ignore">
+                    <ui:Label name="weapon-label" class="nc-hud__text" picking-mode="Ignore" />
+                    <ui:VisualElement class="nc-hud__icon nc-hud__icon--weapon" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:VisualElement name="ammo-row" class="nc-hud__gear-row" picking-mode="Ignore">
+                    <ui:Label name="ammo-label" class="nc-hud__text" picking-mode="Ignore" />
+                    <ui:VisualElement class="nc-hud__icon nc-hud__icon--ammo" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="crosshair" class="nc-hud__crosshair" picking-mode="Ignore" />
+            <ui:VisualElement name="prompt" class="nc-hud__prompt" picking-mode="Ignore">
+                <ui:VisualElement name="prompt-glyph" class="nc-hud__glyph" picking-mode="Ignore" />
+                <ui:Label name="prompt-label" class="nc-hud__text" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="hold-bar" class="nc-hud__hold" picking-mode="Ignore">
+                <ui:VisualElement name="hold-fill" class="nc-hud__hold-fill" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="death-overlay" class="nc-hud__death" picking-mode="Ignore">
+            <ui:Label name="death-message" class="nc-hud__death-message" picking-mode="Ignore" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

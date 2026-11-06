@@ -1,17 +1,38 @@
 using System;
-using UnityEngine;
-using UnityEngine.UI;
+using RD.Localization;
+using UnityEngine.UIElements;
 
 namespace NightCourier.UI
 {
-	public sealed class LockerRow : MonoBehaviour
+	public sealed class LockerRow : IDisposable
 	{
-		[SerializeField] private LocalizedLabel _title;
-		[SerializeField] private LocalizedLabel _status;
-		[SerializeField] private Button _button;
-		[SerializeField] private LocalizedLabel _buttonLabel;
+		public const string ActionButtonName = "locker-action";
+
+		private const string TitleName = "row-title";
+		private const string StatusName = "row-status";
+
+		private readonly VisualElement _row;
+		private readonly ILocalizationService _localization;
+		private readonly Label _title;
+		private readonly Label _status;
+		private readonly Button _button;
 
 		private Action _onClick;
+
+		public LockerRow(VisualElement row, ILocalizationService localization)
+		{
+			_row = row ?? throw new ArgumentNullException(nameof(row));
+			_localization = localization ?? throw new ArgumentNullException(nameof(localization));
+			_title = UiQuery.Require<Label>(row, TitleName);
+			_status = UiQuery.Require<Label>(row, StatusName);
+			_button = UiQuery.Require<Button>(row, ActionButtonName);
+
+			_button.clicked += OnClicked;
+
+			Hide();
+		}
+
+		public Button Button => _button;
 
 		public void Show(
 			string titleKey,
@@ -24,26 +45,24 @@ namespace NightCourier.UI
 		{
 			_onClick = onClick;
 
-			gameObject.SetActive(true);
-			_title.SetKey(titleKey);
-			_status.SetKey(statusKey, statusArguments);
-			_buttonLabel.SetKey(buttonKey, buttonArguments);
-			_button.interactable = interactable;
+			UiQuery.SetVisible(_row, true);
+
+			_title.text = _localization.Get(titleKey);
+			_status.text = _localization.Get(statusKey, statusArguments);
+			_button.text = _localization.Get(buttonKey, buttonArguments);
+			_button.SetEnabled(interactable);
 		}
 
 		public void Hide()
 		{
-			gameObject.SetActive(false);
+			_onClick = null;
+
+			UiQuery.SetVisible(_row, false);
 		}
 
-		private void Awake()
+		public void Dispose()
 		{
-			_button.onClick.AddListener(OnClicked);
-		}
-
-		private void OnDestroy()
-		{
-			_button.onClick.RemoveListener(OnClicked);
+			_button.clicked -= OnClicked;
 		}
 
 		private void OnClicked()

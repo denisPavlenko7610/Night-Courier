@@ -1,6 +1,7 @@
 using RD.Audio;
 using NightCourier.Controls;
 using RD.Localization;
+using RD.Menus;
 using RD.Pause;
 using RD.SceneFlow;
 using RD.Settings;
@@ -10,6 +11,8 @@ namespace NightCourier.App
 	public sealed class GameServicesBuilder
 	{
 		public ISettingsService Settings { get; set; }
+
+		public SettingsPage SettingsPage { get; set; }
 
 		public ILocalizationService Localization { get; set; }
 

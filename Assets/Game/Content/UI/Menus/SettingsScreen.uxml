@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="settings" class="rd-screen">
+        <ui:VisualElement class="rd-screen__content nc-panel nc-panel--wide">
+            <ui:Label name="settings-title" text="settings.title" class="rd-screen__title" />
+            <ui:VisualElement name="settings-sections" class="rd-settings__tabs" />
+            <ui:ScrollView name="settings-rows" class="rd-settings__rows" />
+            <ui:Label name="settings-status" class="rd-settings__status" />
+            <ui:VisualElement class="rd-settings__footer">
+                <ui:Button name="settings-back" text="Back" class="rd-button" />
+                <ui:Button name="settings-defaults" text="Defaults" class="rd-button" />
+                <ui:Button name="settings-revert" text="Revert" class="rd-button" />
+                <ui:Button name="settings-apply" text="Apply" class="rd-button rd-button--primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

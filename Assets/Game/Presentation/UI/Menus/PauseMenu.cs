@@ -3,43 +3,76 @@ using NightCourier.App;
 using NightCourier.Audio;
 using RD.Foundation;
 using RD.Input;
-using RD.PrefabWindows;
+using RD.Menus;
 using RD.ScreenNavigation;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace NightCourier.UI
 {
 	public sealed class PauseMenu : MonoBehaviour
 	{
+		public const string ResumeEntryId = "resume";
+		public const string SettingsEntryId = "settings";
+		public const string ControlsEntryId = "controls";
+		public const string LeaveEntryId = "leave";
+		public const string MainMenuEntryId = "main-menu";
+		public const string MainScreenId = "pause.main";
+		public const string SettingsScreenId = "pause.settings";
+		public const string ControlsScreenId = "pause.controls";
+
 		private const string PauseReason = "pause-menu";
+		private const string MenuId = "pause";
+		private const string TitleKey = "pause.title";
+		private const string ResumeKey = "pause.resume";
+		private const string SettingsKey = "pause.settings";
+		private const string ControlsKey = "pause.controls";
+		private const string DefaultLeaveKey = "pause.abort_contract";
+		private const string MainMenuKey = "pause.main_menu";
+		private const string AbortConfirmTitleKey = "confirm.abort.title";
+		private const string AbortConfirmMessageKey = "confirm.abort.message";
+		private const string MainMenuConfirmTitleKey = "confirm.main_menu.title";
+		private const string MainMenuConfirmMessageKey = "confirm.main_menu.message";
+		private const string LayerName = "layer";
+		private const string MenuName = "menu";
+		private const string SettingsSlotName = "settings-instance";
+		private const string SettingsName = "settings";
+		private const string ControlsSlotName = "controls-instance";
+		private const string ControlsName = "controls";
+		private const string ConfirmSlotName = "confirm-instance";
 
 		[SerializeField] private UiSounds _uiSounds;
-		[SerializeField] private GameObject _root;
-		[SerializeField] private PanelScreen _mainScreen;
-		[SerializeField] private PanelScreen _settingsScreen;
-		[SerializeField] private PanelScreen _controlsScreen;
-		[SerializeField] private Button _resumeButton;
-		[SerializeField] private Button _settingsButton;
-		[SerializeField] private Button _controlsButton;
-		[SerializeField] private Button _leaveButton;
-		[SerializeField] private LocalizedLabel _leaveLabel;
-		[SerializeField] private Button _mainMenuButton;
-		[SerializeField] private Button _settingsBackButton;
-		[SerializeField] private Button _controlsBackButton;
-		[SerializeField] private SettingsPanelView _settingsView;
-		[SerializeField] private WindowRoot _windowRoot;
-		[SerializeField] private WindowCatalog _windowCatalog;
+		[SerializeField] private UIDocument _document;
+		[SerializeField] private MenuAssets _menuAssets;
 
 		private GameServices _services;
 		private Action _leaveAction;
+		private bool _leaveAvailable = true;
+		private VisualElement _layer;
+		private Menu _menu;
+		private MenuView _mainView;
+		private SettingsPageView _settingsView;
+		private ConfirmDialog _dialog;
 		private ScreenNavigator _navigator;
-		private WindowManager _windows;
 		private IDisposable _openSubscription;
 		private IDisposable _pauseHandle;
 		private IDisposable _menuScope;
+		private Button _controlsBack;
+		private int _backFrame = -1;
 
 		public bool IsOpen { get; private set; }
+
+		public bool IsLeaveAvailable => _leaveAction != null && _leaveAvailable;
+
+		public Menu Menu => _menu;
+
+		public SettingsPageView SettingsView => _settingsView;
+
+		public ConfirmDialog Dialog => _dialog;
+
+		public IScreenNavigator Navigator => _navigator;
+
+		public VisualElement Root => _document.rootVisualElement;
 
 		public void Bind(GameServices services, string leaveLabelKey = null, Action leaveAction = null)
 		{
@@ -51,40 +84,57 @@ namespace NightCourier.UI
 			_services = services;
 			_leaveAction = leaveAction;
 
-			LocalizedLabel.BindAll(gameObject, services.Localization);
-			_settingsView.Bind(services.Settings);
-			_uiSounds.Bind(services.Audio);
+			VisualElement root = _document.rootVisualElement;
+			IMenuTextProvider text = GameMenuText.Create(services.Localization);
 
-			_leaveButton.gameObject.SetActive(leaveAction != null);
+			_layer = root.Q<VisualElement>(LayerName);
 
-			if (leaveAction != null)
+			LocalizedText.Apply(root, services.Localization);
+			_uiSounds.Bind(services.Audio, root);
+
+			_menu = new Menu(MenuId, TitleKey);
+			_menu.Add(ResumeEntryId, ResumeKey, Close);
+			_menu.Add(SettingsEntryId, SettingsKey, () => PushAsync(SettingsScreenId));
+			_menu.Add(ControlsEntryId, ControlsKey, () => PushAsync(ControlsScreenId));
+			_menu.Add(
+				LeaveEntryId,
+				string.IsNullOrEmpty(leaveLabelKey) ? DefaultLeaveKey : leaveLabelKey,
+				OnLeave,
+				isVisible: () => _leaveAction != null && _leaveAvailable);
+			_menu.Add(MainMenuEntryId, MainMenuKey, OnMainMenu);
+
+			_mainView = new MenuView(_menu, root.Q<VisualElement>(MenuName), _menuAssets, text, MenuProfile.Desktop);
+			_settingsView = new SettingsPageView(
+				services.SettingsPage,
+				root.Q<VisualElement>(SettingsSlotName).Q<VisualElement>(SettingsName),
+				_menuAssets,
+				text,
+				MenuProfile.Desktop,
+				SettingsApplyMode.Explicit);
+
+			VisualElement controls = root.Q<VisualElement>(ControlsSlotName).Q<VisualElement>(ControlsName);
+
+			_controlsBack = controls.Q<Button>("controls-back");
+			_dialog = new ConfirmDialog(root.Q<VisualElement>(ConfirmSlotName).Q<VisualElement>(ConfirmDialog.RootName), services.Localization);
+
+			_navigator = new ScreenNavigator(new ScreenRegistry(new IScreen[]
 			{
-				_leaveLabel.SetKey(leaveLabelKey);
-			}
+				UiScreen.ForView(MainScreenId, _mainView, destroyCancellationToken),
+				UiScreen.ForView(SettingsScreenId, _settingsView, destroyCancellationToken),
+				UiScreen.ForElement(ControlsScreenId, controls, destroyCancellationToken)
+			}));
 
-			_mainScreen.HideImmediately();
-			_settingsScreen.HideImmediately();
-			_controlsScreen.HideImmediately();
-
-			_navigator = new ScreenNavigator(new ScreenRegistry(new IScreen[] { _mainScreen, _settingsScreen, _controlsScreen }));
-			_windows = new WindowManager(_windowCatalog, _windowRoot);
-
-			_resumeButton.onClick.AddListener(Close);
-			_settingsButton.onClick.AddListener(ShowSettings);
-			_controlsButton.onClick.AddListener(ShowControls);
-			_leaveButton.onClick.AddListener(OnLeave);
-			_mainMenuButton.onClick.AddListener(OnMainMenu);
-			_settingsBackButton.onClick.AddListener(OnBack);
-			_controlsBackButton.onClick.AddListener(OnBack);
-
+			_settingsView.BackRequested += OnBack;
+			_controlsBack.clicked += OnBack;
 			_openSubscription = services.Input.Actions.Pause.SubscribePerformed(_ => Open());
 
-			_root.SetActive(false);
+			_layer.style.display = DisplayStyle.None;
 		}
 
 		public void SetLeaveAvailable(bool available)
 		{
-			_leaveButton.gameObject.SetActive(available && _leaveAction != null);
+			_leaveAvailable = available;
+			_menu?.Refresh();
 		}
 
 		public void Open()
@@ -99,10 +149,10 @@ namespace NightCourier.UI
 			_pauseHandle = _services.Pause.RequestPause(PauseReason);
 			_menuScope = _services.Input.PushMenu(OnCancel);
 
-			_root.SetActive(true);
+			_layer.style.display = DisplayStyle.Flex;
 			_uiSounds.PlayOpen();
 
-			Run(() => _navigator.PushAsync(_mainScreen.Id));
+			Run(() => _navigator.PushAsync(MainScreenId));
 		}
 
 		public void Close()
@@ -115,6 +165,7 @@ namespace NightCourier.UI
 			IsOpen = false;
 
 			_uiSounds.PlayBack();
+			_dialog.Close();
 			_menuScope?.Dispose();
 			_pauseHandle?.Dispose();
 			_menuScope = null;
@@ -128,17 +179,30 @@ namespace NightCourier.UI
 			_openSubscription?.Dispose();
 			_menuScope?.Dispose();
 			_pauseHandle?.Dispose();
-			_windows?.Dispose();
+
+			if (_settingsView != null)
+			{
+				_settingsView.BackRequested -= OnBack;
+			}
+
+			if (_controlsBack != null)
+			{
+				_controlsBack.clicked -= OnBack;
+			}
+
+			_dialog?.Dispose();
 			_navigator?.Dispose();
+			_settingsView?.Dispose();
+			_mainView?.Dispose();
 		}
 
 		private async Awaitable CloseScreensAsync()
 		{
 			await _navigator.ClearAsync();
 
-			if (!IsOpen && _root != null)
+			if (!IsOpen && _layer != null)
 			{
-				_root.SetActive(false);
+				_layer.style.display = DisplayStyle.None;
 			}
 		}
 
@@ -147,11 +211,22 @@ namespace NightCourier.UI
 			UiShutdown.Run(operation, this);
 		}
 
+		private async Awaitable PushAsync(string screenId)
+		{
+			try
+			{
+				await _navigator.PushAsync(screenId);
+			}
+			catch (Exception exception) when (UiShutdown.IsExpected(exception))
+			{
+			}
+		}
+
 		private void OnCancel()
 		{
-			if (_windows.IsOpen(ConfirmWindow.WindowId))
+			if (_dialog.IsOpen)
 			{
-				Run(() => _windows.BackAsync());
+				_dialog.Close();
 			}
 			else if (_navigator.Depth > 1)
 			{
@@ -165,29 +240,24 @@ namespace NightCourier.UI
 
 		private void OnBack()
 		{
+			if (Time.frameCount == _backFrame || _navigator.Depth <= 1)
+			{
+				return;
+			}
+
+			_backFrame = Time.frameCount;
+
+			if (_navigator.CurrentScreenId == SettingsScreenId)
+			{
+				_services.SettingsPage.Revert();
+			}
+
 			Run(async () => await _navigator.PopAsync());
-		}
-
-		private void ShowSettings()
-		{
-			Run(() => _navigator.PushAsync(_settingsScreen.Id));
-		}
-
-		private void ShowControls()
-		{
-			Run(() => _navigator.PushAsync(_controlsScreen.Id));
-		}
-
-		private void Confirm(string titleKey, string messageKey, Action onConfirm)
-		{
-			ConfirmArguments arguments = new(_services.Localization, _services.Audio, titleKey, messageKey, onConfirm);
-
-			Run(() => _windows.OpenAsync(ConfirmWindow.WindowId, arguments));
 		}
 
 		private void OnLeave()
 		{
-			Confirm("confirm.abort.title", "confirm.abort.message", ConfirmLeave);
+			_dialog.Open(AbortConfirmTitleKey, AbortConfirmMessageKey, ConfirmLeave);
 		}
 
 		private void ConfirmLeave()
@@ -198,7 +268,7 @@ namespace NightCourier.UI
 
 		private void OnMainMenu()
 		{
-			Confirm("confirm.main_menu.title", "confirm.main_menu.message", ConfirmMainMenu);
+			_dialog.Open(MainMenuConfirmTitleKey, MainMenuConfirmMessageKey, ConfirmMainMenu);
 		}
 
 		private async void ConfirmMainMenu()

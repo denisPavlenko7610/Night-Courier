@@ -1,26 +1,38 @@
 using System;
 using RD.Localization;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace NightCourier.UI
 {
 	public sealed class ObjectiveView : MonoBehaviour
 	{
-		private const string CaptionKey = "hud.objective";
+		private const string PlateName = "objective-plate";
+		private const string LabelName = "objective-label";
 
-		[SerializeField] private LocalizedLabel _label;
+		[SerializeField] private UIDocument _document;
 
 		private ILocalizationService _localization;
+		private VisualElement _plate;
+		private Label _label;
 		private string _key;
 		private bool _hidden;
 		private FirstDeliveryTraining _training;
+
+		public bool IsVisible => _plate != null && _plate.style.display != DisplayStyle.None;
+
+		public string Text => _label?.text;
 
 		public void Bind(ILocalizationService localization)
 		{
 			_localization = localization ?? throw new ArgumentNullException(nameof(localization));
 
-			_label.Bind(localization);
+			VisualElement root = _document.rootVisualElement;
+
+			_plate = UiQuery.Require<VisualElement>(root, PlateName);
+			_label = UiQuery.Require<Label>(root, LabelName);
 			_key = null;
+
 			Apply();
 		}
 
@@ -52,17 +64,24 @@ namespace NightCourier.UI
 		{
 			bool visible = _key != null && !_hidden;
 
-			_label.gameObject.SetActive(visible);
+			UiQuery.SetVisible(_plate, visible);
 
-			if (visible)
+			if (!visible)
 			{
-				bool training = _training != null && _training.StepNumber > 0;
-				string caption = training
-					? _localization.Get(FirstDeliveryTraining.CaptionKey, _training.StepNumber, _training.StepCount)
-					: _localization.Get(CaptionKey);
-				string key = training ? "training." + _key : _key;
-				_label.SetRichText(UiStyle.Heading(caption) + "\n" + _localization.Get(key));
+				return;
 			}
+
+			bool training = _training != null && _training.StepNumber > 0;
+			string key = training ? "training." + _key : _key;
+			string text = _localization.Get(key);
+
+			if (training)
+			{
+				string caption = _localization.Get(FirstDeliveryTraining.CaptionKey, _training.StepNumber, _training.StepCount);
+				text = UiStyle.Heading(caption) + "\n" + text;
+			}
+
+			_label.text = text;
 		}
 	}
 }

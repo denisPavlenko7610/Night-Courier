@@ -1,0 +1,261 @@
+.nc-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.nc-slot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.nc-theme {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexSans-Regular.ttf");
+}
+
+.nc-theme .rd-screen {
+    --rd-bg: rgba(7, 8, 7, 0.88);
+    --rd-surface: rgb(33, 38, 32);
+    --rd-surface-hover: rgb(47, 54, 45);
+    --rd-surface-disabled: rgb(21, 23, 20);
+    --rd-accent: rgb(213, 161, 107);
+    --rd-accent-text: rgb(26, 22, 16);
+    --rd-text: rgb(235, 231, 219);
+    --rd-muted: rgb(168, 170, 160);
+    --rd-danger: rgb(239, 107, 91);
+}
+
+.nc-theme .rd-profile--desktop {
+    --rd-font-size: 30px;
+    --rd-title-size: 56px;
+    --rd-control-height: 64px;
+    --rd-gap: 14px;
+    --rd-panel-width: 980px;
+    --rd-panel-padding: 48px;
+    --rd-handle-size: 28px;
+    --rd-control-width: 420px;
+    --rd-slider-width: 340px;
+}
+
+.nc-theme .rd-screen .rd-screen__title {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexSans-SemiBold.ttf");
+    -unity-font-style: normal;
+    color: var(--rd-text);
+    margin-bottom: 28px;
+}
+
+.nc-theme .rd-screen .nc-panel {
+    background-color: rgb(20, 21, 20);
+    border-top-width: 5px;
+    border-top-color: var(--rd-accent);
+}
+
+.nc-theme .rd-screen .nc-panel--narrow {
+    width: 720px;
+}
+
+.nc-theme .rd-screen .nc-panel--wide {
+    width: 1100px;
+}
+
+.nc-theme .rd-screen .rd-menu__entry,
+.nc-theme .rd-screen .rd-button,
+.nc-theme .rd-screen .rd-settings__tab,
+.nc-theme .rd-screen .rd-row__action {
+    border-radius: 0;
+}
+
+.nc-theme .rd-screen .rd-button--primary,
+.nc-theme .rd-screen .rd-settings__tab--active {
+    color: var(--rd-accent-text);
+}
+
+.nc-theme .rd-screen .rd-settings__rows {
+    max-height: 560px;
+}
+
+.nc-theme .rd-screen .unity-base-slider__dragger {
+    border-radius: 0;
+}
+
+.nc-theme .rd-screen .unity-toggle__input {
+    background-color: var(--rd-surface);
+}
+
+.nc-theme .rd-screen .unity-toggle__checkmark {
+    -unity-background-image-tint-color: var(--rd-accent);
+}
+
+.nc-theme .rd-screen .nc-panel--full {
+    width: 1560px;
+}
+
+.nc-theme .nc-hero {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.nc-theme .nc-backdrop {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("../PH_DispatchBackdrop.png");
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.nc-theme .rd-screen .nc-hero__content {
+    position: absolute;
+    left: 130px;
+    top: 80px;
+    bottom: 60px;
+    width: 560px;
+    max-width: none;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-top-width: 0;
+}
+
+.nc-theme .rd-screen .nc-hero__footer {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexMono-Regular.ttf");
+    font-size: 24px;
+    color: var(--rd-muted);
+    margin-bottom: 56px;
+}
+
+.nc-theme .rd-screen .nc-hero__title {
+    font-size: 116px;
+    -unity-text-align: upper-left;
+    white-space: normal;
+    margin: 0;
+}
+
+.nc-theme .rd-screen .nc-hero__tagline {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexMono-Regular.ttf");
+    font-size: 32px;
+    color: var(--rd-accent);
+    margin-top: 34px;
+}
+
+.nc-theme .rd-screen .nc-hero__divider {
+    height: 1px;
+    margin: 36px 0 26px 0;
+    background-color: rgba(235, 231, 219, 0.22);
+}
+
+.nc-theme .nc-hero .rd-menu__entry {
+    min-height: 77px;
+    margin: 0 0 8px 0;
+    padding: 0 0 0 60px;
+    font-size: 36px;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-text-align: middle-left;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 4px;
+    border-left-color: rgba(0, 0, 0, 0);
+}
+
+.nc-theme .nc-hero .rd-menu__entry:hover {
+    background-color: rgba(235, 231, 219, 0.07);
+}
+
+.nc-theme .nc-hero .rd-menu__entry:focus {
+    background-color: rgba(235, 231, 219, 0.07);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 4px;
+    border-left-color: var(--rd-accent);
+}
+
+.nc-theme .nc-hero .rd-menu__entry:disabled {
+    color: var(--rd-muted);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.nc-theme .rd-screen.nc-confirm {
+    background-color: rgba(0, 0, 0, 0.72);
+}
+
+.nc-theme .rd-screen .nc-confirm__panel {
+    width: 860px;
+    padding: 48px;
+    background-color: rgb(20, 21, 20);
+    border-top-width: 5px;
+    border-top-color: var(--rd-accent);
+}
+
+.nc-theme .rd-screen .nc-confirm__title {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexSans-SemiBold.ttf");
+    font-size: 44px;
+    color: var(--rd-text);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.nc-theme .rd-screen .nc-confirm__message {
+    font-size: 28px;
+    color: var(--rd-muted);
+    -unity-text-align: upper-center;
+    white-space: normal;
+    margin: 24px 0 40px 0;
+}
+
+.nc-theme .rd-screen .nc-confirm__buttons {
+    flex-direction: row;
+    justify-content: center;
+}
+
+.nc-theme .rd-screen .nc-confirm__buttons .rd-button {
+    width: 280px;
+    margin: 0 12px;
+}
+
+.nc-theme .rd-screen .nc-controls__columns {
+    flex-direction: row;
+    margin-bottom: 24px;
+}
+
+.nc-theme .rd-screen .nc-controls__group {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin-right: 48px;
+}
+
+.nc-theme .rd-screen .nc-controls__group--last {
+    margin-right: 0;
+}
+
+.nc-theme .rd-screen .nc-controls__header {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexSans-SemiBold.ttf");
+    font-size: 26px;
+    color: var(--rd-accent);
+    margin-bottom: 10px;
+}
+
+.nc-theme .rd-screen .nc-controls__table {
+    flex-direction: row;
+}
+
+.nc-theme .rd-screen .nc-controls__keys {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexMono-Regular.ttf");
+    width: 270px;
+    flex-shrink: 0;
+    font-size: 22px;
+    color: var(--rd-text);
+    white-space: normal;
+}
+
+.nc-theme .rd-screen .nc-controls__actions {
+    flex-grow: 1;
+    font-size: 22px;
+    color: var(--rd-muted);
+    white-space: normal;
+}

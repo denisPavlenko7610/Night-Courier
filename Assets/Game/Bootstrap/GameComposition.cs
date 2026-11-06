@@ -22,6 +22,7 @@ namespace NightCourier.App
 
 			builder.RegisterInstance(navigator ?? throw new ArgumentNullException(nameof(navigator)));
 			builder.RegisterInstance(startup.Settings ?? throw new InvalidOperationException("Settings have not been started."));
+			builder.RegisterInstance(startup.SettingsPage ?? throw new InvalidOperationException("The settings page has not been started."));
 			builder.RegisterInstance(startup.Localization ?? throw new InvalidOperationException("Localization has not been started."));
 			builder.RegisterInstance(startup.Campaign ?? throw new InvalidOperationException("The campaign has not been started."));
 			builder.RegisterInstance(startup.Input ?? throw new InvalidOperationException("Input has not been started."));

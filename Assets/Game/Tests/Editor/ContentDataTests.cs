@@ -255,7 +255,7 @@ namespace NightCourier.Tests
 
 			string[] hudKeys =
 			{
-				LocalizedLabel.PassthroughKey, "contract.none", "contract.site", "contract.slot_summary", "contract.field.risk",
+				"contract.none", "contract.site", "contract.slot_summary", "contract.field.risk",
 				"contract.field.pay", "contract.field.site", "contract.field.rules", "contract.field.deadline", "contract.field.bonus",
 				"contract.field.threats", "contract.field.notes", "hud.objective", "menu.tagline", "menu.footer",
 				"result.subtitle", "result.caption_settlement", "result.caption_rating", "result.caption_debrief", "result.total_label",
@@ -263,7 +263,7 @@ namespace NightCourier.Tests
 				"result.axis.property", "result.stat.violations", "result.stat.cargo", "result.stat.property", "result.stat.deaths",
 				"controls.keyboard_header", "controls.gamepad_header", "controls.keyboard_keys", "controls.keyboard_actions",
 				"controls.gamepad_keys", "controls.gamepad_actions",
-				"notice.scan_first", "notice.scan_interrupted", "notice.dark_started", "notice.dark_cleared",
+				"notice.scan_first", "notice.scan_interrupted", "hud.dark_timer", "notice.dark_cleared",
 				"result.save_failed", "result.settlement_failed", WarehouseObjectiveHints.ParkPackage,
 				WarehouseObjectiveHints.RestorePower, WarehouseObjectiveHints.ScanPackage, WarehouseObjectiveHints.Scanning, WarehouseObjectiveHints.PickUpScanned,
 				WarehouseObjectiveHints.DeliverPackage, WarehouseObjectiveHints.PickUpPackage, WarehouseObjectiveHints.FindBattery, WarehouseObjectiveHints.InsertBattery,

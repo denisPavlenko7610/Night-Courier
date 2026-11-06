@@ -12,9 +12,7 @@ namespace NightCourier.UI
 	public sealed class PackageWatch : IDisposable
 	{
 		private const float DamageNoticeCooldownSeconds = 1.5f;
-		private const float DarkNoticeCooldownSeconds = 3f;
 		private const string RuleViolatedKey = "notice.rule_violated";
-		private const string DarkStartedKey = "notice.dark_started";
 		private const string DarkClearedKey = "notice.dark_cleared";
 		private const string PackageDestroyedReasonKey = "result.package_destroyed";
 
@@ -27,7 +25,6 @@ namespace NightCourier.UI
 		private readonly KeepInLightRule _darkRule;
 
 		private float _lastDamageNoticeAt = float.NegativeInfinity;
-		private float _lastDarkNoticeAt = float.NegativeInfinity;
 
 		public PackageWatch(
 			ContractRun run,
@@ -70,6 +67,7 @@ namespace NightCourier.UI
 
 			if (_darkRule != null)
 			{
+				_hud.SetDarkness(_darkRule, false);
 				_darkRule.DarknessStarted -= OnDark;
 				_darkRule.LightRestored -= OnLit;
 			}
@@ -107,17 +105,16 @@ namespace NightCourier.UI
 
 		private void OnDark()
 		{
-			if (!InTransit || Time.unscaledTime - _lastDarkNoticeAt < DarkNoticeCooldownSeconds)
+			if (InTransit)
 			{
-				return;
+				_hud.SetDarkness(_darkRule, true);
 			}
 
-			_lastDarkNoticeAt = Time.unscaledTime;
-			_hud.Notify(DarkStartedKey, Mathf.RoundToInt(_darkRule.DarkLimitSeconds));
 		}
 
 		private void OnLit()
 		{
+			_hud.SetDarkness(_darkRule, false);
 			if (InTransit)
 			{
 				_hud.Notify(DarkClearedKey);

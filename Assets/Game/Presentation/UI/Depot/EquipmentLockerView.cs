@@ -1,19 +1,26 @@
 using System;
+using System.Collections.Generic;
 using NightCourier.App;
 using NightCourier.Audio;
 using NightCourier.Loadout;
 using NightCourier.Weapons;
 using RD.Equipment;
 using RD.Foundation;
+using RD.Localization;
 using RD.Mechanics.Interactable;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace NightCourier.UI
 {
 	public sealed class EquipmentLockerView : MonoBehaviour
 	{
+		public const string PanelName = "locker-terminal";
+		public const string CloseButtonName = "locker-close";
+
 		private const string CreditsKey = "depot.credits";
+		private const string CreditsName = "locker-credits";
+		private const string RowName = "row";
 		private const string EquippedKey = "loadout.equipped";
 		private const string StowedKey = "loadout.stowed";
 		private const string EquipKey = "loadout.equip";
@@ -38,10 +45,13 @@ namespace NightCourier.UI
 
 		[SerializeField] private UiSounds _sounds;
 		[SerializeField] private Interactable _locker;
-		[SerializeField] private GameObject _panel;
-		[SerializeField] private Button _closeButton;
-		[SerializeField] private LocalizedLabel _creditsLabel;
-		[SerializeField] private LockerRow[] _rows;
+		[SerializeField] private UIDocument _document;
+
+		private readonly List<LockerRow> _rows = new();
+
+		private VisualElement _panel;
+		private Label _credits;
+		private Button _close;
 
 		private GameServices _services;
 		private CampaignState _campaign;
@@ -53,15 +63,28 @@ namespace NightCourier.UI
 			_services = services ?? throw new ArgumentNullException(nameof(services));
 			_campaign = campaign ?? throw new ArgumentNullException(nameof(campaign));
 
-			if (_rows.Length < RowCount)
+			VisualElement root = _document.rootVisualElement;
+
+			_panel = UiQuery.Require<VisualElement>(root, PanelName);
+			_credits = UiQuery.Require<Label>(_panel, CreditsName);
+			_close = UiQuery.Require<Button>(_panel, CloseButtonName);
+
+			foreach (VisualElement row in _panel.Query<VisualElement>(RowName).ToList())
 			{
-				throw new InvalidOperationException($"The equipment locker needs {RowCount} rows but has {_rows.Length}.");
+				_rows.Add(new LockerRow(row, services.Localization));
 			}
 
+			if (_rows.Count < RowCount)
+			{
+				throw new InvalidOperationException($"The equipment locker needs {RowCount} rows but has {_rows.Count}.");
+			}
+
+			LocalizedText.Apply(_panel, services.Localization);
+
 			_locker.Interacted += Open;
-			_sounds.Bind(services.Audio);
-			_closeButton.onClick.AddListener(Close);
-			_panel.SetActive(false);
+			_sounds.Bind(services.Audio, _panel);
+			_close.clicked += Close;
+			UiQuery.SetVisible(_panel, false);
 		}
 
 		private void OnDestroy()
@@ -73,10 +96,20 @@ namespace NightCourier.UI
 				_locker.Interacted -= Open;
 			}
 
-			_closeButton.onClick.RemoveListener(Close);
+			if (_close != null)
+			{
+				_close.clicked -= Close;
+			}
+
+			foreach (LockerRow row in _rows)
+			{
+				row.Dispose();
+			}
 		}
 
 		public bool IsOpen => _scope != null;
+
+		public VisualElement Panel => _panel;
 
 		private void Open()
 		{
@@ -86,10 +119,30 @@ namespace NightCourier.UI
 			}
 
 			_scope = _services.Input.PushMenu(Close);
-			_panel.SetActive(true);
+			UiQuery.SetVisible(_panel, true);
 			_sounds.PlayOpen();
 
 			Refresh();
+			_panel.schedule.Execute(FocusPrimary);
+		}
+
+		private void FocusPrimary()
+		{
+			if (_scope == null)
+			{
+				return;
+			}
+
+			for (int index = 0; index < RowCount; index++)
+			{
+				if (_rows[index].Button.enabledSelf)
+				{
+					_rows[index].Button.Focus();
+					return;
+				}
+			}
+
+			_close.Focus();
 		}
 
 		private void Close()
@@ -101,7 +154,7 @@ namespace NightCourier.UI
 
 			_scope.Dispose();
 			_scope = null;
-			_panel.SetActive(false);
+			UiQuery.SetVisible(_panel, false);
 		}
 
 		private void Refresh()
@@ -109,7 +162,7 @@ namespace NightCourier.UI
 			CourierLoadout loadout = _campaign.Loadout;
 			long credits = _campaign.Credits;
 
-			_creditsLabel.SetKey(CreditsKey, credits);
+			_credits.text = _services.Localization.Get(CreditsKey, credits);
 
 			ShowWeapon(PistolRow, WeaponKind.StunPistol, loadout);
 			ShowWeapon(CrowbarRow, WeaponKind.Crowbar, loadout);
@@ -128,7 +181,7 @@ namespace NightCourier.UI
 			ShowUtility(FirstUtilityRow, FirstUtilityKey, LoadoutIds.UtilityFirst, loadout);
 			ShowUtility(SecondUtilityRow, SecondUtilityKey, LoadoutIds.UtilitySecond, loadout);
 
-			for (int index = RowCount; index < _rows.Length; index++)
+			for (int index = RowCount; index < _rows.Count; index++)
 			{
 				_rows[index].Hide();
 			}

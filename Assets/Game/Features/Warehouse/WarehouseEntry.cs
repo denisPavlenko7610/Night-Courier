@@ -16,7 +16,6 @@ using RD.Mechanics.Checkpoint;
 using RD.Mechanics.Interactable;
 using RD.Mechanics.Spawner;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace NightCourier.UI
 {
@@ -53,14 +52,8 @@ namespace NightCourier.UI
 		[SerializeField] private Spawner _alarmSpawner;
 		[SerializeField] private WarehouseLighting _lighting;
 		[SerializeField] private PackageHudView _packageHud;
-		[SerializeField] private CanvasGroup _hud;
-		[SerializeField] private GameObject _resultPanel;
-		[SerializeField] private LocalizedLabel _resultTitle;
-		[SerializeField] private LocalizedLabel _contractTitle;
-		[SerializeField] private LocalizedLabel _timerLabel;
+		[SerializeField] private WarehouseHudView _hudView;
 		[SerializeField] private ResultPanelView _resultView;
-		[SerializeField] private LocalizedLabel _creditsLabel;
-		[SerializeField] private Button _returnButton;
 
 		private FirstDeliveryTraining _training;
 		private GameServices _services;
@@ -88,9 +81,7 @@ namespace NightCourier.UI
 
 			_services = services;
 
-			LocalizedLabel.BindAll(gameObject, services.Localization);
-			_contractTitle.SetKey(_run.Spec.TitleKey);
-			_timerLabel.gameObject.SetActive(_run.HasDeadline);
+			_hudView.Bind(services.Localization, _run.Spec.TitleKey, _run.HasDeadline);
 
 			_player.Begin(services);
 			_carry = _player.Carry;
@@ -110,7 +101,8 @@ namespace NightCourier.UI
 
 			BuildWorld(scene);
 			_sounds.Bind(services.Audio, _facts);
-			_uiSounds.Bind(services.Audio);
+			_resultView.Bind(services.Localization);
+			_uiSounds.Bind(services.Audio, _resultView.Panel);
 			SpawnPackage();
 			AnnounceRules();
 
@@ -126,18 +118,16 @@ namespace NightCourier.UI
 			_player.Weapons.ShotFired += OnShotFired;
 			_facts.Changed += RefreshWorld;
 			_barricade.Broken += OnBarricadeBroken;
-			_returnButton.onClick.AddListener(OnReturn);
-
-			_resultPanel.SetActive(false);
+			_resultView.ReturnRequested += OnReturn;
 
 			RefreshWorld();
 		}
 
 		private void Update()
 		{
-			bool covered = _pauseMenu.IsOpen || _resultPanel.activeSelf;
+			bool covered = _pauseMenu.IsOpen || _resultView.IsOpen;
 
-			_hud.alpha = covered ? 0f : 1f;
+			_hudView.SetHidden(covered);
 			_objective.SetHidden(covered);
 			_vitalsView.SetHudHidden(covered);
 
@@ -155,7 +145,7 @@ namespace NightCourier.UI
 
 			if (_run.HasDeadline)
 			{
-				_timerLabel.SetKey("warehouse.time_left", ClockText.Format(_run.RemainingSeconds));
+				_hudView.SetTimer(ClockText.Format(_run.RemainingSeconds));
 			}
 
 			if (_scanner.IsScanning != _wasScanning || _scanner.HasPackageOnPlate != _wasOnPlate)
@@ -217,7 +207,10 @@ namespace NightCourier.UI
 
 			_packageWatch?.Dispose();
 			_escalation?.Dispose();
-			_returnButton.onClick.RemoveListener(OnReturn);
+			if (_resultView != null)
+			{
+				_resultView.ReturnRequested -= OnReturn;
+			}
 		}
 
 		private void BuildWorld(IObjectResolver scene)
@@ -376,7 +369,6 @@ namespace NightCourier.UI
 		{
 			_sounds.PlayFailed();
 			bool pending = _campaign.Contracts.PendingSettlement != null;
-			_resultTitle.SetKey(pending ? "result.pending_title" : "result.failed_title");
 			_resultView.ShowFailure(_services.Localization, _run.Spec, reasonKey, pending);
 			OpenResultPanel();
 		}
@@ -482,11 +474,11 @@ namespace NightCourier.UI
 
 		private async void OnReturn()
 		{
-			if (!_returnButton.interactable)
+			if (!_resultView.ReturnEnabled)
 			{
 				return;
 			}
-			_returnButton.interactable = false;
+			_resultView.SetReturnEnabled(false);
 			try
 			{
 				await _services.Campaign.RecoverSettlementAsync();
@@ -500,7 +492,7 @@ namespace NightCourier.UI
 				UnityLogger.LogException(exception, this);
 				if (this != null)
 				{
-					_returnButton.interactable = true;
+					_resultView.SetReturnEnabled(true);
 					ShowFailure(SettlementFailedKey);
 				}
 			}
@@ -515,15 +507,15 @@ namespace NightCourier.UI
 
 		private void OpenResultPanel()
 		{
-			_creditsLabel.SetKey("depot.credits", _campaign.Credits);
+			_vitalsView.HideRecoveryOverlay();
 
 			_resultScope ??= _services.Input.PushMenu();
-			_resultPanel.SetActive(true);
+			_resultView.Open(_campaign.Credits);
 		}
 
 		private async void Navigate(string sceneId)
 		{
-			_returnButton.interactable = false;
+			_resultView.SetReturnEnabled(false);
 
 			try
 			{
@@ -532,7 +524,7 @@ namespace NightCourier.UI
 			catch (Exception exception)
 			{
 				UnityLogger.LogException(exception, this);
-				_returnButton.interactable = true;
+				_resultView.SetReturnEnabled(true);
 			}
 		}
 	}

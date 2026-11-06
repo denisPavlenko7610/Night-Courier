@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using NightCourier.Contracts;
 using NightCourier.Packages;
 using RD.Localization;
+using RD.Notifications;
+using RD.Timers;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace NightCourier.UI
 {
@@ -14,25 +17,55 @@ namespace NightCourier.UI
 		private const int MaxNoticeLines = 3;
 		private const string RulesKey = "hud.package_rules";
 		private const string IntegrityKey = "hud.package_integrity";
-		private const string NoticeKey = "notice.text";
+		private const string DarkTimerKey = "hud.dark_timer";
 		private const string RuleSeparator = ", ";
+		private const string RulesName = "package-rules";
+		private const string IntegrityName = "package-integrity";
+		private const string NoticeName = "notifications";
+		private const string DarkTimerName = "dark-timer";
 
-		[SerializeField] private LocalizedLabel _rules;
-		[SerializeField] private LocalizedLabel _integrity;
-		[SerializeField] private LocalizedLabel _notice;
+		[SerializeField] private UIDocument _document;
+		[SerializeField] private NotificationAssets _notificationAssets;
 
-		private readonly List<string> _noticeLines = new(MaxNoticeLines);
+		private NotificationCenter _notifications;
+		private NotificationView _notificationView;
 
 		private ILocalizationService _localization;
-		private float _noticeRemaining;
+		private Label _rules;
+		private Label _integrity;
+		private Label _darkTimer;
+		private KeepInLightRule _darkRule;
+		private bool _inDarkness;
+		private int _darkSecondsShown = -1;
+
+		public string DarkTimerText => _darkTimer?.text;
+
+		public bool DarkTimerVisible => _darkTimer != null && _darkTimer.style.display != DisplayStyle.None;
+
+		public string NoticeText => _notifications == null ? string.Empty :
+			string.Join("\n", System.Linq.Enumerable.Select(_notifications.Visible, notice => notice.Message));
+
+		public bool NoticeVisible => _notifications != null && _notifications.Visible.Count > 0;
 
 		public void Bind(ILocalizationService localization, IReadOnlyList<PackageRuleKind> rules)
 		{
 			_localization = localization ?? throw new ArgumentNullException(nameof(localization));
 
-			_rules.Bind(localization);
-			_integrity.Bind(localization);
-			_notice.Bind(localization);
+			VisualElement root = _document.rootVisualElement;
+
+			_rules = UiQuery.Require<Label>(root, RulesName);
+			_integrity = UiQuery.Require<Label>(root, IntegrityName);
+			_notificationView?.Dispose();
+			_notifications?.Dispose();
+			_notifications = new NotificationCenter(new NotificationOptions(MaxNoticeLines, 0), UnityClocks.Scaled);
+			_notificationView = new NotificationView(
+				_notifications, UiQuery.Require<VisualElement>(root, NoticeName), _notificationAssets,
+				NotificationAnchor.BottomCenter, NotificationProfile.Desktop);
+			_darkTimer = UiQuery.Require<Label>(root, DarkTimerName);
+			_darkRule = null;
+			_inDarkness = false;
+			_darkSecondsShown = -1;
+			UiQuery.SetVisible(_darkTimer, false);
 
 			List<string> names = new(rules.Count);
 
@@ -41,18 +74,42 @@ namespace NightCourier.UI
 				names.Add(localization.Get(PackageRuleKeys.NameKey(rule)));
 			}
 
-			_rules.gameObject.SetActive(names.Count > 0);
-			_rules.SetKey(RulesKey, UiStyle.Tint(string.Join(RuleSeparator, names), UiStyle.AccentColor));
-			_notice.gameObject.SetActive(false);
+			UiQuery.SetVisible(_rules, names.Count > 0);
+			_rules.text = localization.Get(RulesKey, UiStyle.Tint(string.Join(RuleSeparator, names), UiStyle.AccentColor));
 
 			ShowIntegrity(1f);
+		}
+
+		public void SetDarkness(KeepInLightRule rule, bool active)
+		{
+			_darkRule = rule;
+			_inDarkness = active;
+			_darkSecondsShown = -1;
+			UiQuery.SetVisible(_darkTimer, active);
+			RefreshDarkTimer();
+		}
+
+		private void RefreshDarkTimer()
+		{
+			if (!_inDarkness || _darkRule == null)
+			{
+				return;
+			}
+
+			int seconds = Mathf.Max(0, Mathf.CeilToInt(_darkRule.DarkLimitSeconds - (float)_darkRule.DarkSeconds));
+
+			if (seconds != _darkSecondsShown)
+			{
+				_darkSecondsShown = seconds;
+				_darkTimer.text = _localization.Get(DarkTimerKey, seconds);
+			}
 		}
 
 		public void ShowIntegrity(float fraction)
 		{
 			float clamped = Mathf.Clamp01(fraction);
 
-			_integrity.SetKey(
+			_integrity.text = _localization.Get(
 				IntegrityKey,
 				UiStyle.Tint(Mathf.RoundToInt(clamped * 100f) + "%", UiStyle.IntegrityColor(clamped)));
 		}
@@ -69,34 +126,23 @@ namespace NightCourier.UI
 
 		private void Show(string text, float seconds)
 		{
-			if (_noticeRemaining <= 0f)
+			if (_notifications.Visible.Count == MaxNoticeLines)
 			{
-				_noticeLines.Clear();
-			}
-			else if (_noticeLines.Count == MaxNoticeLines)
-			{
-				_noticeLines.RemoveAt(0);
+				_notifications.Visible[0].Dismiss();
 			}
 
-			_noticeLines.Add(text);
-			_notice.gameObject.SetActive(true);
-			_notice.SetKey(NoticeKey, string.Join("\n", _noticeLines));
-			_noticeRemaining = Mathf.Max(_noticeRemaining, seconds);
+			_notifications.Post(new NotificationRequest(text, duration: seconds));
 		}
 
 		private void Update()
 		{
-			if (_noticeRemaining <= 0f)
-			{
-				return;
-			}
+			RefreshDarkTimer();
+		}
 
-			_noticeRemaining -= Time.deltaTime;
-
-			if (_noticeRemaining <= 0f)
-			{
-				_notice.gameObject.SetActive(false);
-			}
+		private void OnDestroy()
+		{
+			_notificationView?.Dispose();
+			_notifications?.Dispose();
 		}
 	}
 }

@@ -1,15 +1,23 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using NightCourier.Contracts;
 using NightCourier.Economy;
 using RD.Localization;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace NightCourier.UI
 {
 	public sealed class ResultPanelView : MonoBehaviour
 	{
+		public const string PanelName = "result-panel";
+		public const string ReturnButtonName = "result-return";
+
+		private const string TitleKey = "result.title";
+		private const string FailedTitleKey = "result.failed_title";
+		private const string PendingTitleKey = "result.pending_title";
+		private const string CreditsKey = "depot.credits";
 		private const string SubtitleKey = "result.subtitle";
 		private const string LineKey = "result.line";
 		private const string TotalKey = "result.total";
@@ -19,29 +27,111 @@ namespace NightCourier.UI
 		private const string SaveFailedKey = "result.save_failed";
 		private const string FailedFooterKey = "result.failed_footer";
 		private const string PendingFooterKey = "result.pending_footer";
+		private const string TitleName = "result-title";
+		private const string SubtitleName = "result-subtitle";
+		private const string SuccessName = "result-success";
+		private const string FailureName = "result-failure";
+		private const string CreditsName = "result-credits";
+		private const string ReceiptCaptionName = "receipt-caption";
+		private const string ReceiptLabelsName = "receipt-labels";
+		private const string ReceiptValuesName = "receipt-values";
+		private const string TotalLabelName = "total-label";
+		private const string TotalValueName = "total-value";
+		private const string GradeCaptionName = "grade-caption";
+		private const string GradeName = "grade";
+		private const string AxesName = "axes";
+		private const string RankName = "rank";
+		private const string StatsName = "stats";
+		private const string AdviceName = "advice";
+		private const string FailureMessageName = "failure-message";
+		private const string FailureFooterName = "failure-footer";
 		private const string StatGap = "     ";
 		private const string AxisGap = "    ";
 		private const int AxesPerLine = 4;
 		private const char LineBreak = '\n';
 
-		[SerializeField] private Text _subtitle;
-		[SerializeField] private GameObject _successGroup;
-		[SerializeField] private GameObject _failureGroup;
-		[SerializeField] private Text _receiptCaption;
-		[SerializeField] private Text _receiptLabels;
-		[SerializeField] private Text _receiptValues;
-		[SerializeField] private Text _totalLabel;
-		[SerializeField] private Text _totalValue;
-		[SerializeField] private Text _gradeCaption;
-		[SerializeField] private Text _grade;
-		[SerializeField] private Text _axes;
-		[SerializeField] private Text _rank;
-		[SerializeField] private Text _stats;
-		[SerializeField] private Text _advice;
-		[SerializeField] private Text _failureMessage;
-		[SerializeField] private Text _failureFooter;
+		[SerializeField] private UIDocument _document;
+
+		private ILocalizationService _localization;
+		private VisualElement _panel;
+		private Label _title;
+		private Label _subtitle;
+		private VisualElement _successGroup;
+		private VisualElement _failureGroup;
+		private Label _credits;
+		private Label _receiptCaption;
+		private Label _receiptLabels;
+		private Label _receiptValues;
+		private Label _totalLabel;
+		private Label _totalValue;
+		private Label _gradeCaption;
+		private Label _grade;
+		private Label _axes;
+		private Label _rank;
+		private Label _stats;
+		private Label _advice;
+		private Label _failureMessage;
+		private Label _failureFooter;
+		private Button _return;
+
+		public event Action ReturnRequested;
 
 		public string Transcript { get; private set; } = string.Empty;
+
+		public VisualElement Panel => _panel;
+
+		public bool IsOpen => _panel != null && _panel.style.display != DisplayStyle.None;
+
+		public bool ReturnEnabled => _return != null && _return.enabledSelf;
+
+		public string TitleText => _title?.text;
+
+		public void Bind(ILocalizationService localization)
+		{
+			_localization = localization ?? throw new ArgumentNullException(nameof(localization));
+
+			VisualElement root = _document.rootVisualElement;
+
+			_panel = UiQuery.Require<VisualElement>(root, PanelName);
+			_title = UiQuery.Require<Label>(_panel, TitleName);
+			_subtitle = UiQuery.Require<Label>(_panel, SubtitleName);
+			_successGroup = UiQuery.Require<VisualElement>(_panel, SuccessName);
+			_failureGroup = UiQuery.Require<VisualElement>(_panel, FailureName);
+			_credits = UiQuery.Require<Label>(_panel, CreditsName);
+			_receiptCaption = UiQuery.Require<Label>(_panel, ReceiptCaptionName);
+			_receiptLabels = UiQuery.Require<Label>(_panel, ReceiptLabelsName);
+			_receiptValues = UiQuery.Require<Label>(_panel, ReceiptValuesName);
+			_totalLabel = UiQuery.Require<Label>(_panel, TotalLabelName);
+			_totalValue = UiQuery.Require<Label>(_panel, TotalValueName);
+			_gradeCaption = UiQuery.Require<Label>(_panel, GradeCaptionName);
+			_grade = UiQuery.Require<Label>(_panel, GradeName);
+			_axes = UiQuery.Require<Label>(_panel, AxesName);
+			_rank = UiQuery.Require<Label>(_panel, RankName);
+			_stats = UiQuery.Require<Label>(_panel, StatsName);
+			_advice = UiQuery.Require<Label>(_panel, AdviceName);
+			_failureMessage = UiQuery.Require<Label>(_panel, FailureMessageName);
+			_failureFooter = UiQuery.Require<Label>(_panel, FailureFooterName);
+			_return = UiQuery.Require<Button>(_panel, ReturnButtonName);
+
+			LocalizedText.Apply(_panel, localization);
+
+			_return.clicked += OnReturnClicked;
+
+			UiQuery.SetVisible(_panel, false);
+		}
+
+		public void Open(long credits)
+		{
+			_credits.text = _localization.Get(CreditsKey, credits);
+
+			UiQuery.SetVisible(_panel, true);
+			_panel.schedule.Execute(FocusReturn);
+		}
+
+		public void SetReturnEnabled(bool enabled)
+		{
+			_return.SetEnabled(enabled);
+		}
 
 		public void ShowSuccess(
 			ILocalizationService localization,
@@ -55,8 +145,9 @@ namespace NightCourier.UI
 		{
 			StringBuilder transcript = new();
 
-			_successGroup.SetActive(true);
-			_failureGroup.SetActive(false);
+			UiQuery.SetVisible(_successGroup, true);
+			UiQuery.SetVisible(_failureGroup, false);
+			_title.text = localization.Get(TitleKey);
 			_subtitle.text = Subtitle(localization, spec);
 
 			_receiptCaption.text = UiStyle.Tint(
@@ -100,8 +191,9 @@ namespace NightCourier.UI
 			bool paymentPending = false
 		)
 		{
-			_successGroup.SetActive(false);
-			_failureGroup.SetActive(true);
+			UiQuery.SetVisible(_successGroup, false);
+			UiQuery.SetVisible(_failureGroup, true);
+			_title.text = localization.Get(paymentPending ? PendingTitleKey : FailedTitleKey);
 			_subtitle.text = Subtitle(localization, spec);
 
 			string reason = localization.Get(reasonKey);
@@ -111,6 +203,27 @@ namespace NightCourier.UI
 			_failureFooter.text = UiStyle.Tint(footer, UiStyle.MutedColor);
 
 			Transcript = reason + LineBreak + footer;
+		}
+
+		private void OnDestroy()
+		{
+			if (_return != null)
+			{
+				_return.clicked -= OnReturnClicked;
+			}
+		}
+
+		private void FocusReturn()
+		{
+			if (IsOpen && _return.enabledSelf)
+			{
+				_return.Focus();
+			}
+		}
+
+		private void OnReturnClicked()
+		{
+			ReturnRequested?.Invoke();
 		}
 
 		private static string Subtitle(ILocalizationService localization, ContractSpec spec)

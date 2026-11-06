@@ -1,45 +1,41 @@
 using System;
-using System.Collections.Generic;
 using RD.Audio;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace NightCourier.Audio
 {
 	public sealed class UiSounds : MonoBehaviour
 	{
-		private static readonly string[] BackNames = { "BackButton", "CloseButton", "CancelButton", "ResumeButton" };
-		private static readonly string[] ConfirmNames = { "ConfirmButton", "ActionButton", "BuyButton", "NewGameButton", "ContinueButton" };
+		private static readonly string[] BackNames =
+		{
+			"settings-back", "controls-back", "confirm-cancel", "entry-resume",
+			"contract-close", "upgrade-close", "locker-close"
+		};
+
+		private static readonly string[] ConfirmNames =
+		{
+			"confirm-ok", "settings-apply", "entry-new-game", "entry-continue",
+			"contract-accept", "upgrade-buy"
+		};
 
 		[SerializeField] private AudioCue _click;
 		[SerializeField] private AudioCue _confirm;
 		[SerializeField] private AudioCue _back;
 		[SerializeField] private AudioCue _open;
 
-		private readonly List<(Button Button, UnityEngine.Events.UnityAction Action)> _bound = new();
-
 		private AudioService _audio;
+		private VisualElement _clickRoot;
 
 		public AudioService Audio => _audio;
 
-		public void Bind(AudioService audio)
+		public void Bind(AudioService audio, VisualElement root)
 		{
 			Unbind();
 
 			_audio = audio ?? throw new ArgumentNullException(nameof(audio));
-
-			foreach (Button button in GetComponentsInChildren<Button>(true))
-			{
-				AudioCue cue = CueFor(button.name);
-
-				void OnClick()
-				{
-					_audio.Play(cue);
-				}
-
-				button.onClick.AddListener(OnClick);
-				_bound.Add((button, OnClick));
-			}
+			_clickRoot = root ?? throw new ArgumentNullException(nameof(root));
+			_clickRoot.RegisterCallback<ClickEvent>(OnClick, TrickleDown.TrickleDown);
 		}
 
 		public void PlayOpen()
@@ -59,16 +55,28 @@ namespace NightCourier.Audio
 
 		private void Unbind()
 		{
-			foreach ((Button button, UnityEngine.Events.UnityAction action) in _bound)
+			if (_clickRoot != null)
 			{
-				if (button != null)
-				{
-					button.onClick.RemoveListener(action);
-				}
+				_clickRoot.UnregisterCallback<ClickEvent>(OnClick, TrickleDown.TrickleDown);
+				_clickRoot = null;
 			}
 
-			_bound.Clear();
 			_audio = null;
+		}
+
+		private void OnClick(ClickEvent evt)
+		{
+			VisualElement element = evt.target as VisualElement;
+
+			while (element != null && element is not Button)
+			{
+				element = element.parent;
+			}
+
+			if (element != null && element.enabledInHierarchy)
+			{
+				_audio.Play(CueFor(element.name));
+			}
 		}
 
 		private AudioCue CueFor(string buttonName)

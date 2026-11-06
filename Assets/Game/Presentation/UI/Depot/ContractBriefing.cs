@@ -9,7 +9,6 @@ namespace NightCourier.UI
 	public static class ContractBriefing
 	{
 		private const string ListSeparator = ", ";
-		private const string FieldGap = "     ";
 		private const string LabelGap = "  ";
 		private const char LineBreak = '\n';
 
@@ -53,7 +52,7 @@ namespace NightCourier.UI
 				localization,
 				"contract.field.risk",
 				UiStyle.Tint(localization.Get(ContractKeys.RiskKey(spec.Risk)), UiStyle.RiskColor(spec.Risk))));
-			text.Append(FieldGap).Append(Field(localization, "contract.field.pay", UiStyle.Money(spec.BaseReward)));
+			text.Append(LineBreak).Append(Field(localization, "contract.field.pay", UiStyle.Money(spec.BaseReward)));
 
 			text.Append(LineBreak).Append(Field(
 				localization,

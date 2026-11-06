@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="row" class="nc-card">
+        <ui:Label name="row-title" class="nc-card__title nc-card__title--fixed" />
+        <ui:Label name="row-status" class="nc-card__body nc-card__status" />
+        <ui:Button name="locker-action" class="nc-button nc-card__button" />
+    </ui:VisualElement>
+</ui:UXML>

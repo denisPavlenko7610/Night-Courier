@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="../Theme/NightCourier.uss" />
+    <Style src="../Theme/NightCourierHud.uss" />
+    <ui:Template name="NotificationStack" src="project://database/Packages/com.rd.presentation/Notifications/Runtime/UI/NotificationStack.uxml" />
+    <ui:VisualElement name="layer" class="nc-theme nc-hud nc-layer" picking-mode="Ignore">
+        <ui:VisualElement name="hud-group" class="nc-layer" picking-mode="Ignore">
+            <ui:VisualElement class="nc-hud__info" picking-mode="Ignore">
+                <ui:Label name="location-title" text="warehouse.title" class="nc-localized nc-hud__text nc-hud__title" picking-mode="Ignore" />
+                <ui:Label name="contract-title" class="nc-hud__text nc-hud__subtitle" picking-mode="Ignore" />
+                <ui:Label name="package-rules" class="nc-hud__text nc-hud__line" picking-mode="Ignore" />
+                <ui:Label name="package-integrity" class="nc-hud__text nc-hud__line" picking-mode="Ignore" />
+                <ui:Label name="dark-timer" class="nc-hud__text nc-hud__line nc-hud__dark-timer" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:Label name="timer-label" class="nc-hud__text nc-hud__timer" picking-mode="Ignore" />
+            <ui:Instance template="NotificationStack" class="nc-layer" picking-mode="Ignore" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
