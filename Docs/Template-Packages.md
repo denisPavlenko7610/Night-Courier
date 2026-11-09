@@ -19,11 +19,12 @@ In UnityTemplates, `python Publish/generate_upm.py` creates or updates the packa
 assembly references change. The library's UPM.md still describes the older per-unit packages; the kit layout above is the
 current one.
 
-The installed set contains 10 RD packages: Foundation, the seven kits, and two optional demo-support packages. The
+The installed set contains eight RD packages: Foundation and the seven kits. The
 Presentation kit also contains Haptics, which is Android/iOS only and stays unused in this Windows/Steam project (the
 code compiles but the game never references it). Kit packages are linked at their root, which also holds their `Demo/` and
-`Tests/` folders, so the demo assemblies compile in this project. That is why the project also links `com.rd.demosupport`
-and `com.rd.mechanics.demosupport` (shared demo code) and the Unity packages `com.unity.localization` and
+`Tests/` folders, so the demo assemblies compile in this project. Shared demo support is included in Foundation under
+`Demo/SharedSupport` and `Demo/MechanicsSupport`; do not install those nested packages separately. The project also links
+the Unity packages `com.unity.localization` and
 `com.unity.addressables` (referenced by the Localization and Addressables demos). Game code uses none of them. Gameplay
 integration remains separate from package installation.
 

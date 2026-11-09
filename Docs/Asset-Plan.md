@@ -600,7 +600,7 @@ Rules:
 3. Third-party packs go under `Assets/ThirdParty/<PackName>/`, untouched, with their license file. Game prefabs and
    variants are built under `Assets/Game/`; never edit a pack in place. Delete unused demo scenes and content to keep
    the repository small.
-4. The pack must work with Unity 6000.6 and URP 17; convert materials to the shared URP material set; check the shader
+4. The pack must work with Unity 7 and the installed URP version; convert materials to the shared URP material set; check the shader
    exposes `_BaseColor` (2.3).
 5. Scale is 1 unit = 1 meter. Check pivots and separate moving parts (2.3) before use.
 6. Binary files (models, textures, audio) are stored through Git LFS per `.gitattributes`.
@@ -711,8 +711,7 @@ and settlement behavior retain their existing owners. The Kenney Sci-Fi button a
 are superseded by flat surfaces in these screens. No new runtime UI framework is introduced. This replaces the earlier
 Barlow and parcel-diagram direction, which was rejected during review.
 
-`UiLayoutPlayModeTests` checks the UI geometry at seven resolutions. Player readability and taste remain human playtest
-questions.
+`UiLayoutPlayModeTests` checks the UI geometry at seven resolutions. Player comprehension and taste are not established by automated checks; human playtests are not required.
 
 ## Warehouse Landmark Accents - 2026-11-05
 

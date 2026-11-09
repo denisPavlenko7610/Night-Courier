@@ -1,13 +1,13 @@
 .nc-hud .nc-hud__text {
-    font-size: 30px;
+    font-size: 26px;
     color: rgb(235, 231, 219);
     -unity-text-outline-width: 0;
     -unity-text-outline-color: rgba(0, 0, 0, 0.9);
 }
 
 .nc-hud .nc-hud__icon {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     -unity-background-image-tint-color: rgb(235, 231, 219);
     -unity-background-scale-mode: scale-to-fit;
 }
@@ -41,8 +41,8 @@
 }
 
 .nc-hud .nc-hud__objective {
-    width: 760px;
-    padding: 18px 32px 22px 32px;
+    width: 700px;
+    padding: 14px 26px 16px 26px;
     background-color: rgba(10, 8, 6, 0.74);
 }
 
@@ -56,7 +56,7 @@
 }
 
 .nc-hud .nc-hud__objective-text {
-    font-size: 28px;
+    font-size: 26px;
     color: rgb(235, 231, 219);
     white-space: normal;
     -unity-text-align: upper-center;
@@ -87,7 +87,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-end;
-    min-height: 50px;
+    min-height: 40px;
 }
 
 .nc-hud .nc-hud__crosshair {
@@ -166,24 +166,25 @@
     position: absolute;
     left: 50px;
     top: 40px;
-    width: 500px;
-    padding: 12px 16px;
+    width: 450px;
+    padding: 10px 14px;
     background-color: rgba(10, 8, 6, 0.78);
 }
 
 .nc-hud .nc-hud__title {
     -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexSans-SemiBold.ttf");
-    font-size: 30px;
+    font-size: 25px;
 }
 
 .nc-hud .nc-hud__subtitle {
-    font-size: 26px;
-    margin-top: 4px;
+    font-size: 22px;
+    color: rgb(168, 170, 160);
+    margin-top: 2px;
 }
 
 .nc-hud .nc-hud__line {
-    font-size: 24px;
-    margin-top: 10px;
+    font-size: 23px;
+    margin-top: 8px;
     white-space: normal;
 }
 
@@ -233,8 +234,8 @@
 }
 
 .nc-hud .rd-notifications {
-    --rd-toast-width: 900px;
-    --rd-toast-font: 30px;
+    --rd-toast-width: 760px;
+    --rd-toast-font: 26px;
     --rd-toast-surface: rgba(10, 8, 6, 0.82);
     --rd-toast-text: rgb(235, 231, 219);
     --rd-toast-info: rgb(213, 161, 107);

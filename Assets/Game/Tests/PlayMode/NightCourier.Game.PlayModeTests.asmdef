@@ -11,6 +11,7 @@
         "RD.Health",
         "RD.Mechanics.Combat",
         "RD.Mechanics.Interactable",
+        "RD.Mechanics.PickupDrop",
         "RD.Mechanics.PressurePlate",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",

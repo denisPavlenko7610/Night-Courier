@@ -212,6 +212,22 @@ namespace NightCourier.Tests
 			Assert.That(restored.Credits, Is.EqualTo(100));
 		}
 
+		[TestCase(0)]
+		[TestCase(-1)]
+		public async Task PendingSettlement_NonPositiveTotal_DoesNotGrantCredits(long total)
+		{
+			CampaignState campaign = CampaignState.CreateNew(ContractFixtures.Chain());
+			DriveToDelivered(campaign.Contracts, "first");
+			campaign.PrepareSettlement();
+			campaign.Contracts.PendingSettlement.Total = total;
+
+			await campaign.CompleteSettlementAsync();
+
+			Assert.That(campaign.Credits, Is.Zero);
+			Assert.That(campaign.Rank.TotalExperience, Is.EqualTo(120));
+			Assert.That(campaign.Contracts.PendingSettlement, Is.Null);
+		}
+
 		[Test]
 		public void PendingSettlement_InvalidSaveIsRejected_AndCaptureIsDetached()
 		{

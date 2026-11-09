@@ -259,3 +259,25 @@
     color: var(--rd-muted);
     white-space: normal;
 }
+
+.nc-theme .nc-pause .rd-screen__title {
+    -unity-text-align: middle-left;
+}
+
+.nc-theme .nc-pause .rd-menu__entry {
+    padding-left: 24px;
+    -unity-text-align: middle-left;
+    background-color: rgba(235, 231, 219, 0.04);
+    border-width: 0;
+    border-left-width: 4px;
+    border-left-color: rgba(0, 0, 0, 0);
+}
+
+.nc-theme .nc-pause .rd-menu__entry:hover {
+    background-color: rgba(235, 231, 219, 0.09);
+}
+
+.nc-theme .nc-pause .rd-menu__entry:focus {
+    background-color: rgba(235, 231, 219, 0.09);
+    border-left-color: rgb(213, 161, 107);
+}

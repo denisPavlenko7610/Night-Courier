@@ -8,7 +8,7 @@
 | **Genre**                  | Night-courier job game: prepare and load cargo, drive an arcade van, deliver anomalous packages on foot. Light horror/action with immersive-sim elements |
 | **Platform**               | Windows, Steam. Keyboard + mouse and gamepad                                                                                                             |
 | **Players**                | Single-player                                                                                                                                            |
-| **Engine**                 | Unity 6000.6, URP                                                                                                                                        |
+| **Engine**                 | Unity 7, URP                                                                                                                                             |
 | **Session length**         | 15–30 minutes for an early shift (one contract); 30–60 minutes for later multi-delivery shifts                                                           |
 | **First complete version** | 2–4 hours                                                                                                                                                |
 | **Language**               | English (source and only language until the localization phase)                                                                                          |
@@ -62,7 +62,7 @@ settlement or save failure still shows a panel and leaves the Depot enterable, a
 contract abandons it with a warning instead of failing to start.
 
 Still only a stub or not built: the drivable van and every road-tier system (section 3.2), Demo-tier rules, states, and
-contract types, archive, rebinding screen, glyph prompts, a first-time-player playtest, and the ten newer mechanics
+contract types, archive, rebinding screen, glyph prompts, and the ten newer mechanics
 reserved in section 13.4.
 
 ### 0.3 Three contract archetypes on the existing Warehouse
@@ -73,23 +73,30 @@ No new contract is needed to cover the three archetypes. They already exist and 
 |----------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Introduction**: a careful parcel, normal power, first meeting with the scanner | Standard Delivery (₡150, Low)                                                                                              | Normal, no rules, no enemies                                                                                      | Learn the loop: pick up, breaker panel, scanner plate, terminal. Nothing can go wrong except wandering into the electric floor                                                                             |
 | **Blackout / keep in light**: power, battery, and light decide the route         | Lights Out (₡260, Medium) and, harder, Restricted Cargo (₡450, High: adds Do Not Drop, a Drone, and a no-violations bonus) | Blackout, Keep In Light, Crawlers                                                                                 | Park the package under the dock lamp, fetch the two-handed battery along the dock aisle, and restore power; every 10 s in darkness is a violation. The revised battery route awaits Play Mode verification |
-| **Urgent**: deadline, one short dangerous route against a long safe one          | Express (₡320, Medium)                                                                                                     | Normal, Deliver On Time (300 s, bonus under 180 s), Security Drone and Crawlers (both active in a Play Mode test) | Route choice under a timer: the maintenance door and freight lift against the barricade, the electric strip, and the drone                                                                                 |
+| **Urgent**: a tight clock, two routes of about the same time with different dangers | Express (₡320, Medium)                                                                                                     | Normal, Deliver On Time (45 s limit, bonus under 22 s), Security Drone and Crawlers | Route choice under a clock: the maintenance door, the central aisle and the lift (the drone) against the barricade and the south floor (crawlers, a fine)                                                                                 |
 
 Fragile (₡220, Do Not Drop, ladder) is the careful-handling variant between the introduction and the blackout.
 
-**Known weakness (measured on the NavMesh, not played).** The "short, dangerous" Express route is not shorter: from the
-dock spawn to the scanner area the maintenance route is about 57 m plus a lift ride and the barricade route is about 62
-m plus a few crowbar hits and a ₡20 fine. Express has both Crawlers and a Security Drone, but their effect on route risk
-has not been evaluated by a player. A scripted run of the safe route took about 24 s against a 300 s deadline and a 180
-s bonus window. No timer value creates a dilemma without a geometry or encounter change; see Docs/Next-Sprint.md, task 2
-and "Express blocker". Restricted Cargo is still not replayed end to end with live threats; Express settlement is
-covered by a teleporting Play Mode test.
+**Express clock (decided 2026-11-09, timed with real input).** The two routes cost the same time: a sprinting bot with
+the package in hand needs 10.5 s from the dock spawn to the scanner approach by the maintenance door, the central aisle
+and the lift, and 10.8 s by the barricade (three pistol shots), the south floor and the ramp, so the "short" route is
+not short and no local geometry change near the ramp can save more than 11% of the trip. The dilemma is therefore the
+clock and the danger, not distance: the limit is 45 s and the on-time bonus needs delivery under 22 s. A whole delivery
+by a sprinting bot takes 17.6 s on the safe route and 18.0 s on the short one (the bonus is paid), 22.6 s walking
+(inside the limit, at the edge of the bonus window) and 25.7 s after shooting both crawlers (no bonus). Danger differs by
+route: the short route costs a property fine and crawler hits (80 and 70 health at the end), the safe route has the
+drone. A screen wall west of the freight lift (`Collision_LiftScreen`) hides the lift and the delivery room from the
+drone's patrol, so a courier no longer takes fire at the scanner and the terminal (walking delivery: 90 health instead
+of 20); the drone still fires at a courier in the aisle or boarding the lift from the side. Restricted Cargo is still not
+replayed end to end with live threats; Express settlement is covered by a teleporting Play Mode test and by timed
+real-input runs (`RealInputPlayModeTests`).
 
 **Lights Out setup.** The dock holds an always-on work lamp over the dock crate, which is also a safe surface for Do Not
 Drop. In a blackout the package starts lit on the crate; the battery needs both hands, so the player can park the
 package under the lamp, fetch the battery along the dock aisle, and power the hall. Carrying the package out into the
 dark starts the ten-second timer with a notice. The lamp and safe surface were confirmed in the previous scene layout;
-the revised battery route and clean payout still need Play Mode verification.
+the revised battery route and clean payout were verified with real keyboard and mouse events on 2026-11-09 (section
+0.6): battery in both hands, generator, breaker panel, delivery, payout 260 with no property fine.
 
 ### 0.4 Win and fail criteria (current rules)
 
@@ -98,9 +105,9 @@ the revised battery route and clean payout still need Play Mode verification.
 battery along the dock aisle, insert it and use the breaker. The maintenance route can then open without destroying the
 barricade. The intended blackout payout is now 260 without a property fine; Restricted Cargo can retain its 100-credit
 clean-run bonus without a mandatory property deduction. The integration helper no longer breaks the barricade and checks
-capsule clearance along the dock approach. This is a scene/test change, NOT VERIFIED in Play Mode after the editor
-connection failed. Older barricade-trip descriptions below and in historical logs describe the previous layout. The
-Express timing dilemma is still unresolved; deadlines and rewards are unchanged. See [Next-Sprint.md](Next-Sprint.md).
+capsule clearance along the dock approach. The layout was verified in Play Mode on 2026-11-09 (section 0.6). Older
+barricade-trip descriptions below and in historical logs describe the previous layout. The Express timing dilemma is
+still unresolved; deadlines and rewards are unchanged. See [Next-Sprint.md](Next-Sprint.md).
 
 - **Success:** the scanned package is delivered at the terminal. The payout is base pay plus met bonuses minus ammo,
   property, and death deductions, never below ₡0; the rating feeds the courier rank.
@@ -119,8 +126,8 @@ Express timing dilemma is still unresolved; deadlines and rewards are unchanged.
 |------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Stage 1 ? Full-loop stability**              | Several deliveries, settlement and save recovery, cancellation, scene transition failure, cargo loss, repeated input, checkpoint recovery | Automated coverage includes malformed-prefab rejection, failed-save feedback, single payout, lost-Depot-cargo abort/retry and isolated test saves. Reward-grant recovery and scene-transition failure acceptance remain open |
 | **Stage 2 ? Existing Warehouse variety**       | Use Normal/Blackout, scanner, generator, battery, doors and threats to offer meaningful choices                                           | Implemented archetypes are listed in 0.3; full playthrough coverage of all five contracts remains incomplete                                                                                                                 |
-| **Stage 3 ? Visual and audio polish**          | Readable paths and interactions, blackout lighting, state feedback, cargo warnings and sound                                              | Partially implemented; real keyboard, mouse and gamepad verification remains required                                                                                                                                        |
-| **Stage 4 ? Contract and progression balance** | Timed human runs, reward and upgrade costs, risk versus route choice                                                                      | Planned; Express timing is a known tuning candidate, not a verified balance defect                                                                                                                                           |
+| **Stage 3 ? Visual and audio polish**          | Readable paths and interactions, blackout lighting, state feedback, cargo warnings and sound                                              | Partially implemented; input and visual verification remain incomplete                                                                                                                                        |
+| **Stage 4 ? Contract and progression balance** | Timed Play Mode runs, reward and upgrade costs, risk versus route choice                                                                  | Planned; Express timing is a known tuning candidate, not a verified balance defect                                                                                                                                           |
 | **Stage 5 ? One additional compact location**  | Add only if it improves the established loop                                                                                              | Planned, conditional on the existing Warehouse being stable and enjoyable                                                                                                                                                    |
 
 The road tier remains outside this work. The approved future scope in section 3.2 is not an instruction to implement
@@ -138,9 +145,26 @@ covers release, looking away and pause cancellation before a successful payout. 
 helper disables threats; it does not verify enemy balance. World-space scanner/delivery accents were inspected from
 close approaches in Play Mode with power off/on.
 
-Still unverified: a complete human keyboard/mouse or gamepad campaign run; route timings and meaningful route choice in
-Express; Restricted Cargo traversal with live threats; first-time-player comprehension; finding the delivery point
-without the objective line; landmark visibility with cargo in hand; standalone blackout appearance. Pending-payment
+**Real-input pass (2026-11-09, `RealInputPlayModeTests`, EditMode 267 of 267, the full PlayMode suites).** An `InputBot`
+adds a keyboard and a mouse to the Input System and walks the Warehouse with key and mouse-delta events (W, Shift, E, G,
+1, left click) along NavMesh paths. Standard Delivery and Lights Out, including the battery route with the package left
+on the dock crate, were played from the dock to the settled result: 16.8 s and 21.4 s of bot time, no stuck frames, no
+damage, no property fine, payouts 150 and 260. The Depot half (terminal, accepting the contract, carrying the parcel to
+the van) is still driven by direct calls and the transition. Express was timed on both routes (Next-Sprint, "Express:
+measured"), and crawlers and the drone were shot down with real clicks. Observed enemy animator states: Crawler Idle,
+Walk, Attack, Hit and TurnOff; Drone Idle, Hit and Attack (its controller has no Walk or TurnOff state). Captured views
+with the objective plate hidden (`Temp/CueShots`): the yellow scanner frame reads clearly from the approach, with the
+package in hand and on the plate; the green terminal strips appear through the hatch after the scan and read clearly at
+the terminal; the scan light itself is not in view and nothing on the plate changes between scanning and done.
+
+**Defect found and fixed by that pass.** A carried package drifted away from the player during real movement (up to 29 m,
+out of view) because its `Rigidbody` interpolation overwrote the transform of a kinematic child of `CargoPoint`. Stepped
+runs and teleporting tests never showed it. `CargoPackage` now turns interpolation off while the package is held and
+restores it on release; `RealInputPlayModeTests` asserts that the held package stays within 1.5 m of the camera.
+
+Still unverified: a complete human keyboard/mouse or gamepad campaign run; Restricted Cargo traversal with live threats;
+first-time-player comprehension; finding the delivery point without the objective line; standalone blackout appearance;
+real devices (the bot uses synthetic devices, not hardware, and does not cover gamepads). Pending-payment
 recovery is covered by the dated automated scenarios in the verification log. UI audit outcomes vary by recorded pass,
 including editor-package exceptions; consult the log rather than assuming every resolution currently passes. Native
 script-reload serialization errors remain unresolved.
@@ -157,14 +181,14 @@ the Warehouse scene by a Play Mode test or an editor render, not by a person), *
 | Blocked objects explain themselves (locked doors, dead lift, dead breaker panel, generator, intact barricade)                                                           | Yes (`Interactable.BlockedKey`, `BlockedReasons`)                                             | Yes: keys on every object in a blackout; the barricade text on the real prompt                                              |                                                                                                                            |
 | Package-on-plate without power asks for power; carrying the package with a battery needed asks to park it                                                               | Yes (`DepotObjectiveHints` / `WarehouseObjectiveHints`)                                       |                                                                                                                             |                                                                                                                            |
 | Dark and scan-interrupted notices                                                                                                                                       | Yes (`KeepInLightRule` events, `PackageWatch`, `WarehouseEntry`)                              | Yes: dark and light-restored notices in the hall                                                                            |                                                                                                                            |
-| Always-on work lamp and a safe crate in the dock                                                                                                                        | Yes (`WarehouseLighting._emergencyLights`, `PackageSafeSurface`)                              | Yes: lit at the crate, dark in the hall and at the breaker panel; the lamp reads in an editor render                        | Night sky or ceiling so the blackout reads dark from above (Next-Sprint 3)                                                 |
+| Always-on work lamp and a safe crate in the dock                                                                                                                        | Yes (`WarehouseLighting._emergencyLights`, `PackageSafeSurface`)                              | Yes: lit at the crate, dark in the hall and at the breaker panel; the lamp reads in an editor render                        | Check blackout appearance in a build                                                 |
 | Warehouse ambient light set to `Flat` (dark) instead of `Skybox`                                                                                                        | Yes (scene setting)                                                                           | Editor renders only: with `Skybox` the "blackout" hall was clearly lit                                                      | Check in a build                                                                                                           |
 | Result screen says XP comes from the shift rating                                                                                                                       | Yes (text)                                                                                    |                                                                                                                             |                                                                                                                            |
 | A failed save keeps the payout in memory and warns the player                                                                                                           | Yes (already)                                                                                 | Yes: blocked save folder, warning text, credits kept, no double payout                                                      |                                                                                                                            |
 | Readable UI at 16:9, 16:10, 5:4, 4:3, and 21:9: `Expand` scaling, HUD in three non-overlapping columns, notices at the bottom, covered HUD hidden, blocked prompt wraps | Yes (`UiLayoutPlayModeTests`, scene and prefab layouts)                                       | Yes: 18 screens at 7 resolutions, zero overlapping, clipped, or off-screen text; screenshots read by eye                    | A hand check on a real monitor and a gamepad                                                                               |
 | Contract 04 shown to the player as "Rush Delivery" (the font draws X like H; the id stays `contract.express`)                                                           | Yes (text only)                                                                               |                                                                                                                             | A font that draws X correctly                                                                                              |
-| Express with a real dilemma                                                                                                                                             | Crawlers added to the Express data; a Play Mode test settles Express with both threats active |                                                                                                                             | The route is still not faster: a wall gap saves only about 4 m; a real shortcut or a slower lift is needed (Next-Sprint 2) |
-| One honest hand-played trip                                                                                                                                             |                                                                                               |                                                                                                                             | Next-Sprint 1                                                                                                              |
+| Express with a real dilemma                                                                                                                                             | Crawlers added to the Express data; a Play Mode test settles Express with both threats active | Yes: timed with real input; sprint 17.7 s, walk 22.3 s, fight 25.1 s against a 45 s limit and a 22 s bonus                | The screen wall west of the lift hides the delivery room from the drone; re-tune the window from real play              |
+| Current full-loop verification                                                                                                                                          | Yes (`RealInputPlayModeTests`)                                                                | Yes: Standard Delivery and Lights Out played with synthetic keyboard and mouse events, dock to result (section 0.6)        | The Depot half and real devices                                                                                            |
 
 ---
 
@@ -184,7 +208,7 @@ Combat supports delivery. Module coverage is not a gameplay goal.
 |-------------------|---------------------------------------------------|--------------------------------------------------------|------------------------------------------------------------------------|
 | Standard Delivery | Learn pickup, scan and delivery without penalties | Understand the sequence                                | Clear changing objective, scanner placement cue, understandable result |
 | Lights Out        | Restore power while respecting light              | Where to park the parcel and when to fetch the battery | Readable safe light, darkness warning, visible restoration             |
-| Express           | Deliver under time pressure with threats          | Faster dangerous path versus slower safer bypass       | Remaining time and immediate explanation of expiry or bonus outcome    |
+| Express           | Deliver under time pressure with threats          | Equal-time routes: drone versus crawlers and a fine   | Remaining time and immediate explanation of expiry or bonus outcome    |
 
 Fragile and Restricted Cargo remain harder variations. Keep all five existing assets and their identities; do not add a
 sixth contract. Verify actual contract settings and alternative paths in Unity. Changing only names, time limits and
@@ -194,7 +218,8 @@ enemy counts does not demonstrate a new tactic.
 careful cargo manoeuvre; slower with less exposure and the possibility of avoiding combat and fines. Before changing the
 level, walk the existing route and draw its actual entrance, parcel, battery, generator, scanner, exit, hazards and safe
 light. Use existing assets first. Add compact geometry only when existing composition cannot provide a real choice. The
-current Express time gap and penalty-free blackout path are not verified; section 0.4 records the known blockers.
+penalty-free blackout path was verified with real input (section 0.6); the Express time gap was measured and does not
+exist yet (Next-Sprint, task 1).
 
 **Design checks.** The player knows the goal and sees it change after an action. Every violation or deduction follows an
 observable event. Mistakes allow recovery or a deliberate risk decision. At least one different tactic is needed across
@@ -203,23 +228,22 @@ Any penalty described as optional has a reachable penalty-free alternative.
 
 Verification order for Sprint 03:
 
-1. Play Standard Delivery, Lights Out and Express with keyboard/mouse; record time and each moment of confusion.
-   Preserve the real unlock chain and isolate test saves.
+1. Exercise Standard Delivery, Lights Out and Express in Play Mode, preserving the unlock chain and isolated test saves.
+   Record the input method, timings and any shortcuts used by the test driver.
 2. Fix blocking or prominent UX issues first: interaction prompts, scanner state, light safety, result explanation,
    pause and death recovery.
 3. Establish one meaningful route choice in the existing Warehouse if feasible without a new level. Test changed state
-   and repeat a short human playtest.
+   and repeat the relevant Play Mode runs.
 4. Only then proceed to visual/audio polish. A full second level and new mechanic categories are separate milestones.
 
 Outside this slice: open world, procedural locations, driving, twenty contracts, weapon expansion, a new NPC system,
 crafting, multiplayer, full narrative/dialogue, forced use of every RD module and a new UI framework. This does not
 remove approved later-tier design; it prevents it from expanding Sprint 03.
 
-**Completion gate.** A player starts without programmer coaching, completes three meaningfully different contracts,
-understands cargo rules, can avoid optional penalties, receives an honest result explanation and returns to the Depot
-with progress restored. Record PASS, FAIL or NOT VERIFIED separately for each item from real Unity execution. Automated
-state-driven integration and visual screenshots are separate evidence categories; neither establishes this human
-completion gate.
+**Completion gate.** Verify three meaningfully different contracts, cargo rules, avoidable optional penalties, result
+explanations and return to the Depot with progress restored. Record PASS, FAIL or NOT VERIFIED for each item from real
+Unity execution. Identify state-driven runs, simulated input and screenshots separately; do not infer player
+comprehension or enjoyment from them. Human playtests are not required.
 
 ---
 

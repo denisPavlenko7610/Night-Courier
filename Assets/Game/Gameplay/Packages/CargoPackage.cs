@@ -17,6 +17,8 @@ namespace NightCourier.Player
 		[SerializeField] private PackageHazardEffect _hazard;
 
 		private PlayerCarry _carry;
+		private Rigidbody _body;
+		private RigidbodyInterpolation _freeInterpolation;
 
 		public PackageUnstableEffect Unstable => _unstable;
 
@@ -38,6 +40,14 @@ namespace NightCourier.Player
 
 			_carry = carry ?? throw new ArgumentNullException(nameof(carry));
 			_interactable.Interacted += OnInteracted;
+			_item.PickedUp += OnItemPickedUp;
+			_item.Released += OnItemReleased;
+		}
+
+		private void Awake()
+		{
+			_body = _item.GetComponent<Rigidbody>();
+			_freeInterpolation = _body.interpolation;
 		}
 
 		private void OnDestroy()
@@ -51,6 +61,22 @@ namespace NightCourier.Player
 			{
 				_interactable.Interacted -= OnInteracted;
 			}
+
+			if (_item != null)
+			{
+				_item.PickedUp -= OnItemPickedUp;
+				_item.Released -= OnItemReleased;
+			}
+		}
+
+		private void OnItemPickedUp(PickupItem item)
+		{
+			_body.interpolation = RigidbodyInterpolation.None;
+		}
+
+		private void OnItemReleased(PickupItem item)
+		{
+			_body.interpolation = _freeInterpolation;
 		}
 
 		private void OnInteracted()

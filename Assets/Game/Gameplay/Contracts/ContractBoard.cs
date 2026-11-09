@@ -108,7 +108,12 @@ namespace NightCourier.Contracts
 			ContractSettlement settlement = SettlementCalculator.Calculate(run.Spec, run.CaptureOutcome());
 
 			_quests.TryGet(run.Spec.Id, out QuestState state);
-			await GrantSettlementAsync(settlement, state.CompletionCount, cancellationToken);
+			await GrantSettlementAsync(
+				settlement.ContractId,
+				settlement.Total,
+				state.CompletionCount,
+				cancellationToken
+			);
 
 			run.MarkCompleted();
 			ActiveRun = null;
@@ -135,7 +140,8 @@ namespace NightCourier.Contracts
 				ContractId = run.Spec.Id,
 				CompletionCount = state.CompletionCount,
 				Total = settlement.Total,
-				DeliveryGrade = settlement.Rating.DeliveryTime.HasValue ? (int)settlement.Rating.DeliveryTime.Value : -1,
+				DeliveryGrade =
+					settlement.Rating.DeliveryTime.HasValue ? (int)settlement.Rating.DeliveryTime.Value : -1,
 				CargoGrade = settlement.Rating.CargoCondition,
 				ProtocolGrade = settlement.Rating.ProtocolCompliance,
 				PropertyGrade = settlement.Rating.PropertyDamage,
@@ -151,20 +157,22 @@ namespace NightCourier.Contracts
 				return;
 			}
 			pending.Validate();
-			if (!_quests.TryGet(pending.ContractId, out QuestState state) || state.Status != QuestStatus.Completed
-				|| state.CompletionCount != pending.CompletionCount)
+			if (!_quests.TryGet(pending.ContractId, out QuestState state) ||
+				state.Status != QuestStatus.Completed ||
+				state.CompletionCount != pending.CompletionCount)
 			{
-				throw new RD.Save.InvalidSaveDataException("The pending settlement does not match the completed contract.");
+				throw new RD.Save.InvalidSaveDataException(
+					"The pending settlement does not match the completed contract."
+				);
 			}
 			PendingSettlement = pending.Copy();
 		}
 
 		internal async Awaitable PayPendingSettlementAsync(CancellationToken cancellationToken)
 		{
-			PendingSettlement pending = PendingSettlement ?? throw new InvalidOperationException("There is no pending settlement.");
-			ContractSettlement settlement = new(pending.ContractId,
-				new[] { new SettlementLine(SettlementLineKind.BasePay, SettlementCalculator.BasePayLabelKey, pending.Total) }, pending.Rating);
-			await GrantSettlementAsync(settlement, pending.CompletionCount, cancellationToken);
+			PendingSettlement pending = PendingSettlement ??
+				throw new InvalidOperationException("There is no pending settlement.");
+			await GrantSettlementAsync(pending.ContractId, pending.Total, pending.CompletionCount, cancellationToken);
 			if (ActiveRun != null)
 			{
 				ActiveRun.MarkCompleted();
@@ -177,31 +185,38 @@ namespace NightCourier.Contracts
 			PendingSettlement = null;
 		}
 
-		private async Awaitable GrantSettlementAsync(ContractSettlement settlement, int completionCount, CancellationToken cancellationToken)
+		private async Awaitable GrantSettlementAsync(
+			string contractId,
+			long total,
+			int completionCount,
+			CancellationToken cancellationToken
+		)
 		{
-			if (settlement.Total > 0)
+			if (total > 0)
 			{
 				RewardBundle bundle = new(
-					new RewardBundleId($"payout.{settlement.ContractId}"),
+					new RewardBundleId($"payout.{contractId}"),
 					new IRewardEntry[]
 					{
 						new RewardEntry<long>(
 							new RewardEntryId(CreditsEntryId),
 							WalletCreditRewardHandler.RewardType,
-							settlement.Total)
-					});
+							total
+						)
+					}
+				);
 
 				RewardGrantResult result = await _rewards.GrantAsync(
-					new RewardGrantId($"payout.{settlement.ContractId}.{completionCount}"),
+					new RewardGrantId($"payout.{contractId}.{completionCount}"),
 					bundle,
-					cancellationToken);
+					cancellationToken
+				);
 
 				if (!result.IsSuccess)
 				{
 					throw new InvalidOperationException($"The reward was not granted: {result.Status}. {result.Error}");
 				}
 			}
-
 		}
 
 		public int AbandonUnfinished()
@@ -227,8 +242,8 @@ namespace NightCourier.Contracts
 				return false;
 			}
 
-			return state.Status == QuestStatus.Available
-				|| (state.Status == QuestStatus.Completed && spec.IsRepeatable);
+			return state.Status == QuestStatus.Available ||
+				(state.Status == QuestStatus.Completed && spec.IsRepeatable);
 		}
 	}
 }

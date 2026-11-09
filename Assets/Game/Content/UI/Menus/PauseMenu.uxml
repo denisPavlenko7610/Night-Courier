@@ -5,7 +5,7 @@
     <ui:Template name="ControlsScreen" src="ControlsScreen.uxml" />
     <ui:Template name="ConfirmDialog" src="ConfirmDialog.uxml" />
     <ui:VisualElement name="layer" class="nc-theme nc-layer" picking-mode="Ignore">
-        <ui:VisualElement name="menu" class="rd-screen">
+        <ui:VisualElement name="menu" class="rd-screen nc-pause">
             <ui:VisualElement class="rd-screen__content nc-panel nc-panel--narrow">
                 <ui:Label name="menu-title" class="rd-screen__title" />
                 <ui:VisualElement name="menu-entries" class="rd-menu__entries" />

@@ -4,7 +4,7 @@ This file is the source of truth for AI agents and contributors working in this 
 
 ## Project
 
-**Night Courier: Rule 13** — a first-person, single-player night-courier job game for Windows/Steam on Unity 6000.6
+**Night Courier: Rule 13** — a first-person, single-player night-courier job game for Windows/Steam on Unity 7
 (URP, Input System). The player prepares and loads anomalous cargo, drives an arcade van on short road segments (road
 tier, after the MVP), and delivers on foot. Packages carry handling rules; breaking them has consequences.
 
@@ -209,6 +209,8 @@ Match the surrounding code and the template library's style:
 
 ## Unity Workflow and Verification
 
+- External playtesters and human playtests are not required or acceptance gates. Verify behavior in Unity with automated
+  or editor-driven runs, and state the method and any limitations without claiming human validation.
 - Inspect `git status` first and preserve unrelated or pre-existing changes.
 - Use the Unity MCP tooling to compile, read the Console, open scenes, enter Play Mode, and run tests. Check the Console
   for compile errors after every script change.

@@ -33,19 +33,14 @@
         "com.rd.foundation": "1.0.0"
       }
     },
-    "com.rd.demosupport": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Examples/Shared/Support",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
     "com.rd.foundation": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Foundation",
       "depth": 0,
       "source": "local",
-      "dependencies": {}
+      "dependencies": {
+        "com.unity.modules.physics": "1.0.0",
+        "com.unity.modules.uielements": "1.0.0"
+      }
     },
     "com.rd.framework": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Framework",
@@ -73,14 +68,6 @@
         "com.rd.foundation": "1.0.0"
       }
     },
-    "com.rd.mechanics.demosupport": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Mechanics/Demo/Common",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
     "com.rd.platformer": {
       "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Platformer",
       "depth": 0,
@@ -95,6 +82,7 @@
       "source": "local",
       "dependencies": {
         "com.rd.foundation": "1.0.0",
+        "com.unity.modules.audio": "1.0.0",
         "com.unity.ugui": "2.6.0"
       }
     },

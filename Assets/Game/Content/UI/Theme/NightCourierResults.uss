@@ -10,7 +10,7 @@
 }
 
 .nc-result .nc-result__frame {
-    width: 1400px;
+    width: 1320px;
     max-width: 100%;
     padding: 44px 60px 40px 60px;
     background-color: rgb(20, 21, 20);
@@ -41,7 +41,7 @@
 }
 
 .nc-result .nc-receipt {
-    width: 650px;
+    width: 590px;
     flex-shrink: 0;
     padding: 20px 26px;
     background-color: rgb(216, 216, 198);
@@ -55,7 +55,7 @@
 .nc-result .nc-receipt__lines {
     flex-direction: row;
     flex-grow: 1;
-    min-height: 190px;
+    min-height: 110px;
     margin-top: 8px;
 }
 
@@ -110,7 +110,7 @@
 
 .nc-result .nc-rating__grade {
     -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexSans-SemiBold.ttf");
-    font-size: 150px;
+    font-size: 112px;
     color: rgb(235, 231, 219);
     -unity-text-align: middle-center;
 }
@@ -135,7 +135,7 @@
     color: rgb(235, 231, 219);
     -unity-text-align: middle-center;
     white-space: pre-wrap;
-    margin-top: 28px;
+    margin-top: 20px;
 }
 
 .nc-result .nc-result__advice {

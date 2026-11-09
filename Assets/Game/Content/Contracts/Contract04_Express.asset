@@ -20,7 +20,7 @@ MonoBehaviour:
   _locationState: 0
   _risk: 1
   _baseReward: 320
-  _timeLimitSeconds: 300
+  _timeLimitSeconds: 45
   _isRepeatable: 0
   _prerequisites:
   - contract.fragile
@@ -29,7 +29,7 @@ MonoBehaviour:
   - _id: on-time
     _labelKey: objective.on_time
     _kind: 1
-    _thresholdSeconds: 180
+    _thresholdSeconds: 22
     _bonusCredits: 75
   _packageRules: 02000000i
   _escalation: []

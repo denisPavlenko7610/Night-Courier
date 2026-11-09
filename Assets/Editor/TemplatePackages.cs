@@ -10,6 +10,8 @@ public static class TemplatePackages
 {
 	private const double TimeoutSeconds = 600;
 	private const string ExcludedPackageName = "com.rd.haptics";
+	private const string DemoSupportPackageName = "com.rd.demosupport";
+	private const string MechanicsDemoSupportPackageName = "com.rd.mechanics.demosupport";
 	private static AddAndRemoveRequest _request;
 	private static double _deadline;
 
@@ -29,6 +31,10 @@ public static class TemplatePackages
 		var manifests = Directory.GetFiles(templateRoot, "package.json", SearchOption.AllDirectories)
 			.Where(path => Path.GetDirectoryName(path) != templateRoot)
 			.Where(path => JsonUtility.FromJson<PackageManifest>(File.ReadAllText(path)).name != ExcludedPackageName)
+			.Where(path => JsonUtility.FromJson<PackageManifest>(File.ReadAllText(path)).name != DemoSupportPackageName)
+			.Where(path => JsonUtility.FromJson<PackageManifest>(File.ReadAllText(path)).name !=
+				MechanicsDemoSupportPackageName
+			)
 			.OrderBy(path => path, StringComparer.Ordinal)
 			.ToArray();
 		if (manifests.Length == 0)

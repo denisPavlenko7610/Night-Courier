@@ -21,16 +21,16 @@ status and M0–M4 roadmap are in [GDD.md](GDD.md) section 0. The last pass adde
 light field (`LightReach`), the contract briefing, the scan and delivery hints, cause-naming damage notices, and the
 improvement lines on the result screen.
 
-All modules and mechanics are installed (10 RD packages: Foundation, seven kits, and two demo-support packages, see
+All modules and mechanics are installed (eight RD packages: Foundation and seven kits, see
 [Template-Packages.md](Template-Packages.md); Haptics sits inside the Presentation kit and stays unused); integration
 still goes one feature at a time.
 The Warehouse map, the package rules and ladder, the Lights Out battery, player health with respawn and checkpoints,
 the two enemies, and the player's Stun Pistol and Crowbar all work in stepped Play Mode.
 
-1. **Phase 13 has five configured MVP contracts.** Earlier scripted runs exercised the loop, but full playthrough
-   coverage
-   of the current layouts remains incomplete. Restricted Cargo still needs a run with live threats, and the revised
-   Blackout battery route needs Play Mode verification. The enemies react to being shot.
+1. **Phase 13 has five configured MVP contracts.** Standard Delivery and Lights Out (the revised battery route) were
+   played dock to result with synthetic keyboard and mouse events on 2026-11-09 (`RealInputPlayModeTests`). Restricted
+   Cargo still needs a run with live threats. Express runs on a 45 s limit with a 22 s bonus window; both routes take
+   about the same time ([Next-Sprint.md](Next-Sprint.md)). The enemies react to being shot.
 2. **Phase 10–11 remaining.** The upgrades that need new hooks (carry move speed needs a carry slowdown; weapon damage
    and
    reload speed need runtime modifiers on `HitscanWeapon` and `AmmoReload`) and anything the rank should unlock. The
@@ -210,9 +210,9 @@ ramp. In the delivery room the package is set on the cargo scanner, which opens 
 doors are `Conditions` rules over `WarehouseFacts`. Verified in stepped Play Mode only (no real keyboard input).
 
 Blackout adds a battery puzzle: the breaker lever is dead until a battery (a `CarryObject` at the far end of the dock)
-is carried into the generator in the dock bay. The battery was moved from behind the barricade; the revised route has
-not
-yet been verified in Play Mode.
+is carried into the generator in the dock bay. The battery was moved from behind the barricade; the revised route was
+played with real keyboard and mouse events on 2026-11-09 (battery in both hands, generator, lever, delivery, payout 260,
+no property fine).
 Carrying the battery takes both hands (`PlayerHeavyCarry` and `PlayerCarry` refuse each other, with a notice), and a
 carried battery moves to a `Carried` layer that the interaction ray ignores. Verified in stepped Play Mode on Lights Out
 (refused grab with the package in hands, carry through the barricade gap, generator, lever, lights on).
@@ -393,7 +393,7 @@ single Warehouse map:
 | 01 | Standard Delivery | Physical pickup and delivery                                                                 | —           |
 | 02 | Fragile           | `DoNotDrop`, ladder 1 / 2 / 3 / 4                                                            | —           |
 | 03 | Lights Out        | `KeepInLight`, Blackout, battery and generator, ladder 1 / 2 / 3 / 4, Crawlers               | —           |
-| 04 | Express           | `DeliveryDeadline` (300 s), Security Drone, played end to end                                | —           |
+| 04 | Express           | `DeliveryDeadline` (45 s, on-time bonus under 22 s), Security Drone and Crawlers, played end to end with real input                                | —           |
 | 05 | Restricted Cargo  | `DoNotDrop` + `KeepInLight` in Blackout (battery puzzle), ladder 1 / 2 / 3 / 4, both enemies | —           |
 
 All five use the same Warehouse location with different configuration or state. Do not create five maps.
@@ -433,7 +433,7 @@ hazardous package after 30 s, and the contract fails at 40 s (the same ladder as
 battery lags more than 2.5 m behind the carry point,
 so a very fast 180-degree turn while holding it drops it; the generator must be used from about 1.5 m. The battery is
 now
-in the dock, and this historical run does not verify the revised route or its clean payout.
+in the dock; the revised route and its clean payout were verified later with real input (see Phase 7).
 
 ### Phase 15 — Presentation
 
@@ -561,11 +561,11 @@ code.
 
 | Criterion                                                                                                    | Evidence so far                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Every contract has its own goal, risk, and at least one differing player action, not only a different payout | Data and Play Mode runs per contract (Phase 13). A fresh playtester explaining in their own words how the five contracts differ is not yet done                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Every contract has its own goal, risk, and at least one differing player action, not only a different payout | Verify contract data and the differing actions in Play Mode runs per contract (Phase 13); document unverified route and encounter behavior.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | Cargo damage and rule violations are reproducible, explained, and shown honestly                             | Reproducibility was checked per rule in stepped Play Mode (Phase 4). Damage notices now name the cause (impact or electric floor) and size, and the result screen shows the deduction lines, the rating and axes, the violation count, final integrity, property damage, and deaths                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | At least one contract can be finished without firing                                                         | Stowing the pistol in the Equipment Locker gives a no-shots run (Phase 10)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | Failure, death, abort, replay, and quitting never cause a double payout, a lost profile, or a blocked UI     | EditMode (`ContractBoardTests`, `CampaignFlowTests`): a failed contract returns to Available with no reward and pays once on retry, a second delivery callback and concurrent settlements pay once, an abort during settlement is refused, and a save taken mid-run restores to a clean Depot. PlayMode (`Assets/Game/Tests/PlayMode`, four tests, state-driven input): double Accept, double delivery press, double Return, payout once, Continue restoring credits, rank, and contracts, a destroyed package failing without payout and the retry paying once, abort from the pause menu, death respawn with the recovery fee. Played through editor scripts: abort ignored while delivered, the Depot recovering from a stuck run. Not exercised: real keyboard, mouse, or gamepad input (manual script in Playtest-Checklist.md), a failed disk write |
-| The result screen tells the player what to change next time, not only the numbers                            | Done: up to three improvement lines from `SettlementAdvice` (per broken rule, overdue, cargo, property damage, death, or "clean run"). Whether players act on them is part of the first-time-player playtest (Next-Sprint.md task 1)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| The result screen tells the player what to change next time, not only the numbers                            | Up to three improvement lines from `SettlementAdvice` cover broken rules, overdue delivery, cargo, property damage, death, or a clean run. Verify the relevant result screens and advice in Play Mode.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ---
 

@@ -1,51 +1,63 @@
 # Night Courier: Next Sprint
 
-Open work only, in order. Finished work is not repeated here. Each task ends in a run, not a code reading; scripted
-scenarios do not close human acceptance.
+Open work only, in order. Finished work is not repeated here (the last verification pass is recorded in
+[GDD.md](GDD.md) section 0.6). Verify each task in Unity and record the method and limitations. External playtesters and
+human acceptance are not required.
 
 Sizes: S under half a day, M about a day.
 
-| # | Task | Size | Acceptance |
-|---|---|---|---|
-| 1 | First honest playtest of Runs A and B | M | Three people who have not seen the game complete [Playtest-Checklist.md](Playtest-Checklist.md) Runs A and B with the keyboard and mouse, no teleports, no console. The session log is filled in. Record the time to the first delivery, every stall over 20 s, and the false violations. Fix the worst blocker found or file it here. Until this is done nothing in the game is "playtested" |
-| 2 | Give Express a real dilemma | M | Use the selected shortcut (see "Express blocker" below). After the change, timed runs of both routes by a bot or a person give a short-route time `R` and a safe-route time `S` with `R` at least 25% below `S` at the same carry state, and the deadline plus the on-time bonus sit between them (`Contract04_Express.asset`). The EditMode content tests still pass. A Play Mode test reaches a settled Express result by each route |
-| 3 | Highlight the scanner plate and the delivery terminal | Implemented; human acceptance open | Yellow scanner frame and green terminal strips under Visual use self-lit materials with no colliders or lights. Verify that a tester finds the destination without the objective line and that carried cargo does not hide the cues |
-| 4 | Drive the enemies by hand | S | A person fights a crawler and the drone in the Express Warehouse: the Walk, Attack, Hit and TurnOff animations (`EnemyAnimation`) read correctly during real play. `EnemyAnimationPlayModeTests` only proves Idle and Hit |
+| # | Task                         | Size | Acceptance                                                                                                                                                                                                                                                                                                                                                   |
+|---|------------------------------|------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1 | Show the scan result in view | S    | The scan light (`CargoScanner` indicator, high on the north wall) is not in view while the player stands at the plate, and the yellow frame looks the same while scanning and after. Make the scanning and done states readable from the approach, then capture the same views again (`RealInputPlayModeTests.StandardDelivery_ScannerAndDeliveryCues_AreCapturedFromTheApproach`, output in `Temp/CueShots`) |
+| 2 | Play the drone's death       | S    | `Drone.controller` has Idle, Hit and Attack only, so the `Die` trigger plays nothing before `EnemyDeath` shrinks the model. Add a state or leave it and say so in the mapping. Optional                                                                                                                                                                         |
 
-## Express blocker (task 2)
+## Express: decided and measured, 2026-11-09
 
-Measured on the baked NavMesh of the Warehouse (a static measurement, not a playthrough). The start is the dock spawn.
+The user chose the tight clock (data only, `Contract04_Express.asset`): a 45 s limit (was 300 s) and an on-time bonus
+window of 22 s (was 180 s). The route hint and the overdue advice no longer claim the short route is faster
+(`rule.delivery_deadline.hint`, `rule.delivery_deadline.advice`, `advice.overdue`).
 
-| Route | Walking distance to the scanner area | What stands in the way |
-|---|---|---|
-| Safe: breaker, maintenance door, west aisle, north aisle, freight lift | about 57 m plus the lift ride | The security drone patrols this route (Express uses the drone only) |
-| Short: breaker, barricade, south floor, ramp | about 62 m plus a few crowbar hits (the barricade has 40 health, the crowbar deals 18 by the prefab data) and a ₡20 fine | Two crawlers on the south floor (`Contract04_Express.asset` lists the Crawlers and the Security Drone) |
+Why not geometry: timed with synthetic keyboard and mouse events (`InputBot`), sprinting, with the package in hand, from
+the dock spawn to the scanner approach point, the safe route (breaker panel, maintenance door, central aisle, freight
+lift) took 10.5 s and the short route (barricade, south floor, ramp) 10.8 s, identical across runs. The NavMesh legs are
+6.6 m spawn to panel, 2.9 m panel to door, 36.9 m door to lift (through the central aisle), 6.3 m panel to barricade and
+42.7 m barricade to scanner approach, and a perfectly straight line from the barricade to the foot of the ramp saves only
+about 5 m, under 11% of the trip.
 
-The "short, dangerous" route is neither shorter nor more dangerous, so no value of `_timeLimitSeconds` creates a dilemma.
-A gap in the wing wall alone does not help: it saves about 4 m of the 62 (about 9 m with a perfect straight line through
-every wall), and the first 13 m to the breaker panel are shared by both routes.
+Whole deliveries from the dock spawn to the opened result panel (`RealInputPlayModeTests`, the Security Drone and both
+crawlers active, the lift screen below in place), bot time plus 0.5 s before the clock starts:
 
-**Sequencing rule.** The third contract is worked on only after a person has shown that the first two differ in play
-(task 1: Run A against Run B). The teleporting test driver does not walk the route, so the danger itself is not yet felt
-by a player.
+| Run                                       | Time   | Bonus (window 22 s)       | Health at the end |
+|-------------------------------------------|--------|---------------------------|-------------------|
+| Safe route, sprinting                     | 17.6 s | paid (asserted)           | 100               |
+| Short route, sprinting                    | 18.0 s | paid (asserted)           | 80                |
+| Short route, after shooting both crawlers | 25.7 s | lost (asserted)           | 70                |
+| Safe route, walking                       | 22.6 s | at the edge, not asserted | 90                |
 
-The user selected option 2, a genuine dangerous shortcut. After human Runs A and B, measure `R` and `S` with a bot or a
-person after the change. The considered options were:
+The walking run stays inside the 45 s limit (asserted). The bot is a faster and cleaner runner than a person, so the
+bonus window leaves a person about a quarter of slack on a clean sprint; re-tune from real play if it proves too tight.
+The routes still cost the same time; the choice is danger: the safe route has the drone, the short route costs a ₡20
+fine, a lost no-violations bonus and crawler hits.
 
-1. Lengthen the safe route in Express only: the lift is the single bottleneck, so a slower ride or a second stop is the
-   smallest lever, but it must not slow Standard Delivery (the same lift), so it needs a per-contract value or a second
-   lift console. Open question: the elevator speed and ride time have not been read yet.
-2. Shorten the short route with a real shortcut piece (a second ramp or a jump over the strip into the wing) near the
-   barricade exit. This is a small geometry addition and the only change that really shortens the walk.
-3. Accept a risk-for-time dilemma without a time gap: both routes take about the same time, the deadline is tight (for
-   example 40 s), and the crawlers plus the drone decide how many seconds each route costs. This needs timed runs first.
+## Cover from the drone: the lift screen, 2026-11-09
 
-Do not rely on moving the drone alone: it changes only the danger, not the time.
+Before it, the drone patrolled the north aisle to its east end (10, 11.5), stood off 6 m from a courier and fired
+through the opening beside the lift, which looks straight down the delivery room (z about 11): the plate, the hatch and
+the terminal. Sprinting bots arrived at the scanner with 20 to 30 health, and one died there. A line-of-sight probe from
+54 sampled drone positions saw the lift platform, the plate and the hatch from every one of them.
+
+The fix is geometry: `Collision_LiftScreen` and four `Wall_LiftScreen` pieces (copies of the existing partition
+pieces, no new assets) form a 3.4 m by 3 m wall at x 10.4, z 9.3 to 12.7, west of the lift. The lift is entered from its
+south or north side; the drone's last patrol point moved from x 10 to 8.4. The same probe now sees the lift, the plate
+and the terminal stand from 1 to 6 of the 54 positions (the corners beside the screen). The NavMesh was rebaked
+(`NavMesh-Warehouse.asset`). With the drone active, a walking delivery ends with 90 health (it was 20) and a sprinting
+one with 100. The drone still shoots a courier who walks the aisle or boards the lift from the side, and it chases to the
+delivery floor by the ramp if it loses the courier, which takes it well over 20 s.
 
 ## Decisions waiting for the user
 
 - Whether finished contracts become repeatable or new contracts come from combining states, rules, and encounters (the
   combination test, GDD 22). The finished campaign still ends at "No contracts are available right now."
 - Vehicle ownership for the road tier ([Production-Plan.md](Production-Plan.md), Open Decisions). The road tier stays
-  blocked until the MVP loop is fun, which tasks 1 and 2 measure.
+  blocked until the MVP loop is fun; the tasks above verify behavior and route timing, not enjoyment.
 - Where music plays: there is no music playback system yet, only ambience cues.

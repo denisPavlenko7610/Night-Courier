@@ -1,5 +1,7 @@
 # Night Courier: Manual Playtest Checklist
 
+Historical reference only. Human playtests are not required and this checklist is not an acceptance gate.
+
 Status: **no human has completed this checklist yet.** Every result below the "Record" headings is blank on purpose. Nothing in
 this file may be reported as a confirmed playtest until a person fills it in with the keyboard and mouse (or a gamepad)
 and no teleports, console, or debug calls.
@@ -11,9 +13,9 @@ and no teleports, console, or debug calls.
 | Loop, payout once, Continue, abort, death, destroyed cargo, save failure | Yes: `GameLoopPlayModeTests`, `WarehouseRulesPlayModeTests` | No |
 | The scanner ignores a stray object, ignores a held package, aborts when the package leaves | Yes: a real `Cargo`-layer cube and the real package on the real plate | No |
 | A parked package stays lit in a blackout, the dark is announced once, blocked objects carry a reason, the barricade prompt appears when looked at | Yes (state and prompt text; the camera is turned by setting the player rotation) | Whether the text is read in time |
-| The route is walkable, doors and the lift behave, interaction rays reach their targets | **No.** `GameDriver` teleports the player next to each target, calls `Interactable.Press` directly, and reads private fields by reflection | Yes |
+| The route is walkable, doors and the lift behave, interaction rays reach their targets | **Partly.** `RealInputPlayModeTests` walks the Warehouse from the dock to the result with synthetic keyboard and mouse events (NavMesh steering, aimed interactions, a held E at the terminal); `GameDriver` still teleports and calls `Interactable.Press` in the other suites and for the Depot half | Real devices and a human's route choice |
 | Whether the hints are understood, how long a run takes, where a player stalls | **No** | Yes |
-| Input from a real keyboard, mouse, or gamepad, and a pause menu opened mid-action | **No.** A synthetic keyboard regression covers forward motion, terminal focus/E, movement blocking while the terminal is open, and Escape restoring gameplay; it does not cover real devices or a complete route | Yes |
+| Input from a real keyboard, mouse, or gamepad, and a pause menu opened mid-action | **No.** Synthetic keyboard and mouse devices (`InputBot`) cover movement, looking, interaction, firing and a complete Warehouse route; they are not hardware and there is no gamepad coverage | Yes |
 
 Static measurements only (not a playthrough): the NavMesh walking distance from the start to the scanner area is about 57 m
 by the maintenance route and about 62 m by the barricade route (see "Express" in [Next-Sprint.md](Next-Sprint.md)).
