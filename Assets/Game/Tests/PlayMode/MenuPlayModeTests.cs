@@ -11,6 +11,7 @@ using Toolkit = UnityEngine.UIElements;
 
 namespace NightCourier.PlayModeTests
 {
+	[Category("Integration")]
 	public sealed class MenuPlayModeTests
 	{
 		private const int TestTimeoutMilliseconds = 120000;
@@ -54,6 +55,29 @@ namespace NightCourier.PlayModeTests
 			menu = Object.FindFirstObjectByType<MainMenuEntry>();
 
 			Assert.That(IsEntryEnabled(menu.Root, MainMenuEntry.ContinueEntryId), Is.True);
+		}
+
+		[UnityTest, Timeout(TestTimeoutMilliseconds)]
+		public IEnumerator SavingAgain_ContinueRestoresTheLatestProgress()
+		{
+			yield return _driver.BootToMainMenu();
+			yield return _driver.NewGameToDepot();
+			yield return _driver.CompleteInState(GameDriver.StandardDelivery);
+			yield return _driver.SaveCampaign();
+
+			long earlierCredits = _driver.Campaign.Credits;
+
+			yield return _driver.CompleteInState(GameDriver.Fragile);
+			yield return _driver.SaveCampaign();
+
+			long latestCredits = _driver.Campaign.Credits;
+
+			Assert.That(latestCredits, Is.GreaterThan(earlierCredits));
+
+			yield return _driver.ReturnToMainMenu();
+			yield return _driver.ContinueToDepot();
+
+			Assert.That(_driver.Campaign.Credits, Is.EqualTo(latestCredits));
 		}
 
 		[UnityTest, Timeout(TestTimeoutMilliseconds)]

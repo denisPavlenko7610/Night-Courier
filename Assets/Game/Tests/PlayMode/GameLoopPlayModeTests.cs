@@ -19,6 +19,7 @@ using Object = UnityEngine.Object;
 
 namespace NightCourier.PlayModeTests
 {
+	[Category("Integration")]
 	public sealed class GameLoopPlayModeTests
 	{
 		private const int TestTimeoutMilliseconds = 180000;

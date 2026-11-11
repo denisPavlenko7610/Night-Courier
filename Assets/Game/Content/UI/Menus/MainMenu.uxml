@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="project://database/Packages/com.rd.presentation/Menus/Runtime/UI/Menus.uss" />
+    <Style src="project://database/Assets/TemplateSources/Modules/Presentation/Menus/Runtime/UI/Menus.uss" />
     <Style src="../Theme/NightCourier.uss" />
     <ui:Template name="SettingsScreen" src="SettingsScreen.uxml" />
     <ui:Template name="ConfirmDialog" src="ConfirmDialog.uxml" />

@@ -591,3 +591,27 @@ code.
 - The relevant scene was opened, entered in Play Mode, and exercised end to end.
 - Save/load and scene transitions still work when touched.
 - Docs are updated in the same change if behavior, mapping, or scope changed.
+
+## Automated test selection
+
+Run `NightCourier.Game.Tests` in EditMode for domain and content checks. PlayMode categories are
+`Integration` (menus, scene flow, rules and enemy animation), `Routes` (keyboard/mouse bot routes),
+and `Visual` (UI geometry at seven resolutions and warehouse lighting). Category selection is optional;
+an unfiltered game-assembly run still includes all checks. Run the full UI audit after UI changes.
+
+The UI audit checks 19 screens at seven resolutions and always writes geometry reports to `Temp/UiAudit`.
+By default it writes PNGs only for screens with geometry problems and removes stale PNGs for successful screens.
+For visual review of every screen, launch the Editor with `NIGHT_COURIER_UI_CAPTURE_ALL=1` in its environment.
+This produces 133 PNGs; geometry success alone does not establish visual quality.
+Express route timing is recorded at the scanner approach within the complete sprinting delivery tests,
+so separate partial route runs are unnecessary. `GameDriver.SaveCampaign` waits for the actual write and
+propagates write failures, including when an earlier save already exists.
+
+
+### Route bot delivery recovery
+
+The real-input bot tracks the delivery terminal every frame and presses E when the actual interaction focus
+reaches it. It keeps the key down while the template reports an active hold, then releases before retrying
+a cancelled or missed press. Knockback can interrupt focus without forcing a separate precision-aim wait
+or a fixed hold-duration guess. The existing delivery timeout and on-time payout assertions remain in place;
+this changes test input behavior only, with live enemies, normal hold duration and contract timing retained.

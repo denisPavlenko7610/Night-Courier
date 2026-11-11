@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NightCourier.Contracts;
+using NightCourier.Controls;
 using NightCourier.Packages;
 using RD.Localization;
 using RD.Notifications;
@@ -18,6 +19,12 @@ namespace NightCourier.UI
 		private const string RulesKey = "hud.package_rules";
 		private const string IntegrityKey = "hud.package_integrity";
 		private const string DarkTimerKey = "hud.dark_timer";
+		private const string CarryKey = "hud.carry_hint";
+		private const int CriticalDarkSeconds = 3;
+		private const float CriticalPulseSpeed = 9f;
+		private const float CriticalPulseMin = 0.55f;
+		private const string CriticalClass = "nc-hud__dark-timer--critical";
+		private const string CarryName = "carry-hint";
 		private const string RuleSeparator = ", ";
 		private const string RulesName = "package-rules";
 		private const string IntegrityName = "package-integrity";
@@ -34,6 +41,9 @@ namespace NightCourier.UI
 		private Label _rules;
 		private Label _integrity;
 		private Label _darkTimer;
+		private Label _carry;
+		private GameInput _input;
+		private bool _carrying;
 		private KeepInLightRule _darkRule;
 		private bool _inDarkness;
 		private int _darkSecondsShown = -1;
@@ -47,9 +57,17 @@ namespace NightCourier.UI
 
 		public bool NoticeVisible => _notifications != null && _notifications.Visible.Count > 0;
 
-		public void Bind(ILocalizationService localization, IReadOnlyList<PackageRuleKind> rules)
+		public void Bind(ILocalizationService localization, IReadOnlyList<PackageRuleKind> rules, GameInput input)
 		{
 			_localization = localization ?? throw new ArgumentNullException(nameof(localization));
+
+			if (_input != null)
+			{
+				_input.SchemeChanged -= RefreshCarry;
+			}
+
+			_input = input ?? throw new ArgumentNullException(nameof(input));
+			_input.SchemeChanged += RefreshCarry;
 
 			VisualElement root = _document.rootVisualElement;
 
@@ -62,6 +80,8 @@ namespace NightCourier.UI
 				_notifications, UiQuery.Require<VisualElement>(root, NoticeName), _notificationAssets,
 				NotificationAnchor.BottomCenter, NotificationProfile.Desktop);
 			_darkTimer = UiQuery.Require<Label>(root, DarkTimerName);
+			_carry = UiQuery.Require<Label>(root, CarryName);
+			_carrying = false;
 			_darkRule = null;
 			_inDarkness = false;
 			_darkSecondsShown = -1;
@@ -78,6 +98,30 @@ namespace NightCourier.UI
 			_rules.text = localization.Get(RulesKey, UiStyle.Tint(string.Join(RuleSeparator, names), UiStyle.AccentColor));
 
 			ShowIntegrity(1f);
+			RefreshCarry();
+		}
+
+		public void SetCarrying(bool carrying)
+		{
+			_carrying = carrying;
+			RefreshCarry();
+		}
+
+		private void RefreshCarry()
+		{
+			if (_carry == null || _input == null)
+			{
+				return;
+			}
+
+			UiQuery.SetVisible(_carry, _carrying);
+
+			if (_carrying)
+			{
+				string key = ControlLabels.PromptLabel(_input.Actions.Drop, _input.Scheme, _input.GamepadStyle);
+
+				_carry.text = _localization.Get(CarryKey, key);
+			}
 		}
 
 		public void SetDarkness(KeepInLightRule rule, bool active)
@@ -102,7 +146,12 @@ namespace NightCourier.UI
 			{
 				_darkSecondsShown = seconds;
 				_darkTimer.text = _localization.Get(DarkTimerKey, seconds);
+				_darkTimer.EnableInClassList(CriticalClass, seconds <= CriticalDarkSeconds);
 			}
+
+			_darkTimer.style.opacity = seconds <= CriticalDarkSeconds
+				? Mathf.Lerp(CriticalPulseMin, 1f, 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * CriticalPulseSpeed))
+				: 1f;
 		}
 
 		public void ShowIntegrity(float fraction)
@@ -141,6 +190,11 @@ namespace NightCourier.UI
 
 		private void OnDestroy()
 		{
+			if (_input != null)
+			{
+				_input.SchemeChanged -= RefreshCarry;
+			}
+
 			_notificationView?.Dispose();
 			_notifications?.Dispose();
 		}

@@ -17,75 +17,6 @@
       },
       "hash": "aa5fc638d623f56178d50329d9ad8c541a57fe66"
     },
-    "com.rd.ai": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/AI",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.combat": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Combat",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.foundation": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Foundation",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.unity.modules.physics": "1.0.0",
-        "com.unity.modules.uielements": "1.0.0"
-      }
-    },
-    "com.rd.framework": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Framework",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0",
-        "com.unity.addressables": "4.0.1",
-        "com.unity.inputsystem": "1.20.1"
-      }
-    },
-    "com.rd.gameplay": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Gameplay",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.interaction": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Interaction",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.platformer": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Platformer",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0"
-      }
-    },
-    "com.rd.presentation": {
-      "version": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Presentation",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.rd.foundation": "1.0.0",
-        "com.unity.modules.audio": "1.0.0",
-        "com.unity.ugui": "2.6.0"
-      }
-    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 1,
@@ -232,7 +163,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.pipeline": {
-      "version": "0.9.1-exp.1",
+      "version": "1.0.0-pre.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {

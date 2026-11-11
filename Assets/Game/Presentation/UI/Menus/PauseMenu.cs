@@ -40,6 +40,7 @@ namespace NightCourier.UI
 		private const string ControlsSlotName = "controls-instance";
 		private const string ControlsName = "controls";
 		private const string ConfirmSlotName = "confirm-instance";
+		private const string RecapName = "pause-recap";
 
 		[SerializeField] private UiSounds _uiSounds;
 		[SerializeField] private UIDocument _document;
@@ -47,6 +48,8 @@ namespace NightCourier.UI
 
 		private GameServices _services;
 		private Action _leaveAction;
+		private Func<string> _recap;
+		private Label _recapLabel;
 		private bool _leaveAvailable = true;
 		private VisualElement _layer;
 		private Menu _menu;
@@ -57,6 +60,7 @@ namespace NightCourier.UI
 		private IDisposable _openSubscription;
 		private IDisposable _pauseHandle;
 		private IDisposable _menuScope;
+		private VisualElement _controls;
 		private Button _controlsBack;
 		private int _backFrame = -1;
 
@@ -88,6 +92,7 @@ namespace NightCourier.UI
 			IMenuTextProvider text = GameMenuText.Create(services.Localization);
 
 			_layer = root.Q<VisualElement>(LayerName);
+			_recapLabel = root.Q<Label>(RecapName);
 
 			LocalizedText.Apply(root, services.Localization);
 			_uiSounds.Bind(services.Audio, root);
@@ -114,7 +119,9 @@ namespace NightCourier.UI
 
 			VisualElement controls = root.Q<VisualElement>(ControlsSlotName).Q<VisualElement>(ControlsName);
 
+			_controls = controls;
 			_controlsBack = controls.Q<Button>("controls-back");
+			ControlsTable.Populate(_controls, services.Input.Actions, services.Localization);
 			_dialog = new ConfirmDialog(root.Q<VisualElement>(ConfirmSlotName).Q<VisualElement>(ConfirmDialog.RootName), services.Localization);
 
 			_navigator = new ScreenNavigator(new ScreenRegistry(new IScreen[]
@@ -131,6 +138,11 @@ namespace NightCourier.UI
 			_layer.style.display = DisplayStyle.None;
 		}
 
+		public void SetRecap(Func<string> recap)
+		{
+			_recap = recap;
+		}
+
 		public void SetLeaveAvailable(bool available)
 		{
 			_leaveAvailable = available;
@@ -145,6 +157,9 @@ namespace NightCourier.UI
 			}
 
 			IsOpen = true;
+
+			ControlsTable.Populate(_controls, _services.Input.Actions, _services.Localization);
+			RefreshRecap();
 
 			_pauseHandle = _services.Pause.RequestPause(PauseReason);
 			_menuScope = _services.Input.PushMenu(OnCancel);
@@ -194,6 +209,14 @@ namespace NightCourier.UI
 			_navigator?.Dispose();
 			_settingsView?.Dispose();
 			_mainView?.Dispose();
+		}
+
+		private void RefreshRecap()
+		{
+			string text = _recap?.Invoke();
+
+			_recapLabel.text = text ?? string.Empty;
+			UiQuery.SetVisible(_recapLabel, !string.IsNullOrEmpty(text));
 		}
 
 		private async Awaitable CloseScreensAsync()

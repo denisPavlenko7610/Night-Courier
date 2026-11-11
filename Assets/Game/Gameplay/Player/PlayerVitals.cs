@@ -32,6 +32,8 @@ namespace NightCourier.Player
 
 		public event Action Respawned;
 
+		public event Action<float> Damaged;
+
 		public bool Heal(double amount)
 		{
 			HealthResult result = _health.Pool.Heal(amount);
@@ -62,6 +64,7 @@ namespace NightCourier.Player
 			_protection.Completed += EndProtection;
 
 			_health.Pool.Changed += OnChanged;
+			_health.DamageResolved += OnDamageResolved;
 			_health.Died += OnDied;
 			_respawn.Respawned += OnRespawned;
 		}
@@ -79,6 +82,7 @@ namespace NightCourier.Player
 			if (_health != null)
 			{
 				_health.Pool.Changed -= OnChanged;
+				_health.DamageResolved -= OnDamageResolved;
 				_health.Died -= OnDied;
 			}
 
@@ -94,6 +98,14 @@ namespace NightCourier.Player
 		private void OnChanged(HealthResult result)
 		{
 			Changed?.Invoke();
+		}
+
+		private void OnDamageResolved(DamageRequest request, HealthResult result)
+		{
+			if (result.DamageApplied > 0d)
+			{
+				Damaged?.Invoke((float)result.DamageApplied);
+			}
 		}
 
 		private void OnDied(HealthCarrier carrier)

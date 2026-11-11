@@ -61,7 +61,7 @@ namespace NightCourier.UI
 			_carry = _player.Carry;
 
 			_hudView.Bind(services.Localization);
-			_promptView.Bind(_player.Interactor, services.Localization, services.Input.Actions);
+			_promptView.Bind(_player.Interactor, services.Localization, services.Input);
 			_objective.Bind(services.Localization);
 
 			if (_campaign.Contracts.CompletedCount == 0)
@@ -72,6 +72,7 @@ namespace NightCourier.UI
 			_vitalsView.Bind(services.Localization, _player.Vitals);
 			_weaponHud.Bind(services.Localization, _player.Weapons);
 			_pauseMenu.Bind(services, "pause.abort_contract", OnAbort);
+			_pauseMenu.SetRecap(() => _objective.Text);
 			_upgradeTerminal.Bind(services, _campaign, _player);
 			_equipmentLocker.Bind(services, _campaign);
 			_medkitHud.Bind(services.Localization, _player.Medkits);

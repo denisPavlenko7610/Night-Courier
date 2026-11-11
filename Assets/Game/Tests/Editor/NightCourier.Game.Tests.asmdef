@@ -22,6 +22,7 @@
         "RD.Save",
         "RD.Stats",
         "RD.Wallet",
+        "Unity.InputSystem",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

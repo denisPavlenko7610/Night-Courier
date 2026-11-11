@@ -94,6 +94,14 @@
     color: rgb(235, 231, 219);
 }
 
+.nc-terminal .nc-terminal__heading {
+    -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexSans-SemiBold.ttf");
+    font-size: 44px;
+    color: rgb(235, 231, 219);
+    margin-bottom: 12px;
+    padding-left: 12px;
+}
+
 .nc-terminal .nc-terminal__row {
     flex-direction: row;
     flex-grow: 1;

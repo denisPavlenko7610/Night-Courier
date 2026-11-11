@@ -7,6 +7,7 @@
     <ui:VisualElement name="layer" class="nc-theme nc-layer" picking-mode="Ignore">
         <ui:VisualElement name="contract-terminal" class="nc-terminal" style="display: none;">
             <ui:VisualElement class="nc-terminal__frame">
+                <ui:Label text="contracts.terminal_title" class="nc-localized nc-terminal__heading" />
                 <ui:VisualElement class="nc-terminal__body">
                     <ui:VisualElement class="nc-terminal__list">
                         <ui:Label text="depot.contracts_header" class="nc-localized nc-terminal__list-header" />

@@ -13,6 +13,7 @@ namespace NightCourier.PlayModeTests
 {
 	internal sealed class UiAudit
 	{
+		private const string CaptureAllVariable = "NIGHT_COURIER_UI_CAPTURE_ALL";
 		private const float OverlapTolerancePixels = 3f;
 		private const float EdgeTolerancePixels = 1f;
 		private const float ClippedTolerancePixels = 3f;
@@ -40,16 +41,35 @@ namespace NightCourier.PlayModeTests
 		{
 			yield return new WaitForEndOfFrame();
 
-			Texture2D shot = ScreenCapture.CaptureScreenshotAsTexture();
-
-			File.WriteAllBytes(Path.Combine(_folder, name + ".png"), shot.EncodeToPNG());
-			UnityEngine.Object.Destroy(shot);
-
 			_report.AppendLine($"== {name} ({Screen.width}x{Screen.height})");
+			int previousProblems = Problems;
 
 			if (Analyse() == 0)
 			{
 				_report.AppendLine("  (no visible text)");
+			}
+
+			string path = Path.Combine(_folder, name + ".png");
+
+			if (Problems == previousProblems && Environment.GetEnvironmentVariable(CaptureAllVariable) != "1")
+			{
+				if (File.Exists(path))
+				{
+					File.Delete(path);
+				}
+
+				yield break;
+			}
+
+			Texture2D shot = ScreenCapture.CaptureScreenshotAsTexture();
+
+			try
+			{
+				File.WriteAllBytes(path, shot.EncodeToPNG());
+			}
+			finally
+			{
+				UnityEngine.Object.Destroy(shot);
 			}
 		}
 

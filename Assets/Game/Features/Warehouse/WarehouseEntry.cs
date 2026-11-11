@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NightCourier.AI;
 using NightCourier.App;
@@ -12,6 +13,7 @@ using NightCourier.World;
 using RD.Conditions;
 using RD.DependencyInjection;
 using RD.Foundation;
+using RD.Localization;
 using RD.Mechanics.Checkpoint;
 using RD.Mechanics.Interactable;
 using RD.Mechanics.Spawner;
@@ -86,7 +88,7 @@ namespace NightCourier.UI
 			_player.Begin(services);
 			_carry = _player.Carry;
 
-			_promptView.Bind(_player.Interactor, services.Localization, services.Input.Actions);
+			_promptView.Bind(_player.Interactor, services.Localization, services.Input);
 			_objective.Bind(services.Localization);
 
 			if (_run.Spec.Id == FirstDeliveryTraining.ContractId)
@@ -95,6 +97,7 @@ namespace NightCourier.UI
 				_objective.SetTraining(_training);
 			}
 			_pauseMenu.Bind(services, "pause.abort_contract", OnAbort);
+			_pauseMenu.SetRecap(BuildPauseRecap);
 			_vitalsView.Bind(services.Localization, _player.Vitals);
 			_weaponHud.Bind(services.Localization, _player.Weapons);
 			_medkitHud.Bind(services.Localization, _player.Medkits);
@@ -312,7 +315,7 @@ namespace NightCourier.UI
 			_package.Impact.Arm();
 			_package.Rules.Configure(_run.Spec.PackageRules, new PackageRuleContext(_run, _lighting));
 
-			_packageHud.Bind(_services.Localization, _run.Spec.PackageRules);
+			_packageHud.Bind(_services.Localization, _run.Spec.PackageRules, _services.Input);
 
 			_packageWatch = new PackageWatch(_run, _package, _packageHud, _sounds, _services.Localization, FailContract);
 			_escalation = new EscalationResponder(
@@ -373,11 +376,37 @@ namespace NightCourier.UI
 			OpenResultPanel();
 		}
 
+		private string BuildPauseRecap()
+		{
+			ILocalizationService text = _services.Localization;
+			List<string> lines = new() { UiStyle.Heading(text.Get(_run.Spec.TitleKey)) };
+
+			if (_run.Spec.PackageRules.Count > 0)
+			{
+				List<string> names = new(_run.Spec.PackageRules.Count);
+
+				foreach (PackageRuleKind rule in _run.Spec.PackageRules)
+				{
+					names.Add(text.Get(PackageRuleKeys.NameKey(rule)));
+				}
+
+				lines.Add(text.Get("hud.package_rules", UiStyle.Tint(string.Join(", ", names), UiStyle.AccentColor)));
+			}
+
+			if (!string.IsNullOrEmpty(_objective.Text))
+			{
+				lines.Add(_objective.Text);
+			}
+
+			return string.Join('\n', lines);
+		}
+
 		private void RefreshWorld()
 		{
 			bool carrying = _carry.IsCarrying;
 			bool inTransit = _run.Phase == ContractPhase.InTransit;
 
+			_packageHud.SetCarrying(carrying && inTransit);
 			_deliveryPoint.SetAvailable(carrying && inTransit);
 			_training?.ObserveLocation(new WarehouseProgress(carrying, _facts.PowerOn, _facts.CargoScanned), _run.Phase == ContractPhase.Delivered);
 			_objective.Show(WarehouseObjectiveHints.ForLocation(

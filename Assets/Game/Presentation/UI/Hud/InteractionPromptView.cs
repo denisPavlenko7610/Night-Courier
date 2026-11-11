@@ -18,24 +18,27 @@ namespace NightCourier.UI
 		private const string GlyphName = "prompt-glyph";
 		private const string HoldBarName = "hold-bar";
 		private const string HoldFillName = "hold-fill";
+		private const string CrosshairName = "crosshair";
+		private const string TargetClass = "nc-hud__crosshair--target";
 
 		[SerializeField] private UIDocument _document;
 		[SerializeField] private PromptGlyphs _glyphs;
 
 		private InteractionFocus _interactor;
 		private ILocalizationService _localization;
-		private PlayerInputActions _actions;
+		private GameInput _input;
 		private Label _prompt;
 		private VisualElement _glyph;
 		private VisualElement _holdBar;
 		private VisualElement _holdFill;
+		private VisualElement _crosshair;
 		private bool _holdVisible;
 
 		public string PromptText => _prompt?.text;
 
 		public bool HoldBarVisible => _holdVisible;
 
-		public void Bind(InteractionFocus interactor, ILocalizationService localization, PlayerInputActions actions)
+		public void Bind(InteractionFocus interactor, ILocalizationService localization, GameInput input)
 		{
 			Unbind();
 
@@ -43,14 +46,16 @@ namespace NightCourier.UI
 
 			_interactor = interactor ?? throw new ArgumentNullException(nameof(interactor));
 			_localization = localization ?? throw new ArgumentNullException(nameof(localization));
-			_actions = actions ?? throw new ArgumentNullException(nameof(actions));
+			_input = input ?? throw new ArgumentNullException(nameof(input));
 			_prompt = UiQuery.Require<Label>(root, PromptName);
 			_glyph = UiQuery.Require<VisualElement>(root, GlyphName);
 			_holdBar = UiQuery.Require<VisualElement>(root, HoldBarName);
 			_holdFill = UiQuery.Require<VisualElement>(root, HoldFillName);
+			_crosshair = root.Q<VisualElement>(CrosshairName);
 
 			_interactor.TargetChanged += Refresh;
 			_localization.LocaleChanged += OnLocaleChanged;
+			_input.SchemeChanged += Refresh;
 
 			Refresh();
 		}
@@ -83,6 +88,12 @@ namespace NightCourier.UI
 				_localization.LocaleChanged -= OnLocaleChanged;
 				_localization = null;
 			}
+
+			if (_input != null)
+			{
+				_input.SchemeChanged -= Refresh;
+				_input = null;
+			}
 		}
 
 		private void OnLocaleChanged(LocaleChanged change)
@@ -93,6 +104,8 @@ namespace NightCourier.UI
 		private void Refresh()
 		{
 			Interactable target = _interactor.Target;
+
+			_crosshair?.EnableInClassList(TargetClass, target != null);
 
 			if (target == null)
 			{
@@ -107,7 +120,11 @@ namespace NightCourier.UI
 
 			UiQuery.SetVisible(_prompt, true);
 			string action = _localization.Get(target.PromptKey);
-			Sprite keyGlyph = _glyphs != null ? _glyphs.FindKey(_actions.Interact.bindings[0].effectivePath) : null;
+			InputAction interact = _input.Actions.Interact;
+			ControlScheme scheme = _input.Scheme;
+			Sprite keyGlyph = _glyphs != null && scheme == ControlScheme.KeyboardMouse
+				? _glyphs.FindKey(ControlLabels.FindPath(interact, scheme))
+				: null;
 
 			if (keyGlyph != null)
 			{
@@ -115,7 +132,7 @@ namespace NightCourier.UI
 			}
 			else
 			{
-				string key = _actions.Interact.GetBindingDisplayString(0);
+				string key = ControlLabels.PromptLabel(interact, scheme, _input.GamepadStyle);
 
 				_prompt.text = _localization.Get(target.RequiresHold ? HoldKey : PressKey, key, action);
 			}

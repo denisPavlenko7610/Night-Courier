@@ -3,6 +3,7 @@
     <Style src="../Theme/NightCourierHud.uss" />
     <ui:VisualElement name="layer" class="nc-theme nc-hud nc-layer" picking-mode="Ignore">
         <ui:VisualElement name="hud-group" class="nc-layer" picking-mode="Ignore">
+            <ui:VisualElement name="damage-vignette" class="nc-hud__vignette" picking-mode="Ignore" />
             <ui:VisualElement name="objective" class="nc-hud__top" picking-mode="Ignore">
                 <ui:VisualElement name="objective-plate" class="nc-hud__objective" picking-mode="Ignore">
                     <ui:VisualElement class="nc-hud__objective-accent" picking-mode="Ignore" />
@@ -11,7 +12,12 @@
             </ui:VisualElement>
             <ui:VisualElement name="vitals" class="nc-hud__vitals" picking-mode="Ignore">
                 <ui:VisualElement class="nc-hud__icon nc-hud__icon--health" picking-mode="Ignore" />
-                <ui:Label name="health-label" class="nc-hud__text" picking-mode="Ignore" />
+                <ui:VisualElement class="nc-hud__health" picking-mode="Ignore">
+                    <ui:Label name="health-label" class="nc-hud__text" picking-mode="Ignore" />
+                    <ui:VisualElement class="nc-hud__health-bar" picking-mode="Ignore">
+                        <ui:VisualElement name="health-fill" class="nc-hud__health-fill" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="gear" class="nc-hud__gear" picking-mode="Ignore">
                 <ui:VisualElement name="medkit-row" class="nc-hud__gear-row" picking-mode="Ignore">

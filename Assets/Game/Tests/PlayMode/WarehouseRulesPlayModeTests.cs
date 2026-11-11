@@ -17,6 +17,7 @@ using Object = UnityEngine.Object;
 
 namespace NightCourier.PlayModeTests
 {
+	[Category("Integration")]
 	public sealed class WarehouseRulesPlayModeTests
 	{
 		private const int TestTimeoutMilliseconds = 180000;

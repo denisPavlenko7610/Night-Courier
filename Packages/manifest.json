@@ -1,14 +1,6 @@
 {
   "dependencies": {
     "com.coplaydev.unity-mcp": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main",
-    "com.rd.ai": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/AI",
-    "com.rd.combat": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Combat",
-    "com.rd.foundation": "file:../../UnityTemplates/Assets/UnityTemplates/Foundation",
-    "com.rd.framework": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Framework",
-    "com.rd.gameplay": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Gameplay",
-    "com.rd.interaction": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Interaction",
-    "com.rd.platformer": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Platformer",
-    "com.rd.presentation": "file:../../UnityTemplates/Assets/UnityTemplates/Kits/Presentation",
     "com.unity.addressables": "4.1.2",
     "com.unity.ai.assistant": "2.21.0-pre.2",
     "com.unity.ai.inference": "2.6.1",
@@ -17,7 +9,7 @@
     "com.unity.ide.rider": "3.1.0",
     "com.unity.inputsystem": "7.0.0",
     "com.unity.localization": "2.0.0",
-    "com.unity.pipeline": "0.9.1-exp.1",
+    "com.unity.pipeline": "1.0.0-pre.1",
     "com.unity.render-pipelines.universal": "17.7.0",
     "com.unity.test-framework": "1.9.0",
     "com.unity.timeline": "6.7.0",

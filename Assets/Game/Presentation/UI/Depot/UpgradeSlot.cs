@@ -12,6 +12,8 @@ namespace NightCourier.UI
 		private const string LevelKey = "upgrades.level";
 		private const string BuyKey = "upgrades.buy";
 		private const string MaxedKey = "upgrades.maxed";
+		private const string ShortfallKey = "upgrades.shortfall";
+		private const string PipSize = "140%";
 		private const string TitleName = "row-title";
 		private const string DescriptionName = "row-description";
 		private const string LevelName = "row-level";
@@ -55,7 +57,7 @@ namespace NightCourier.UI
 				LevelKey,
 				level,
 				spec.MaxLevel,
-				UiStyle.Tint(UiStyle.Pips(level, spec.MaxLevel), UiStyle.AccentColor));
+				UiStyle.Tint("<size=" + PipSize + ">" + UiStyle.Pips(level, spec.MaxLevel) + "</size>", UiStyle.AccentColor));
 
 			if (level >= spec.MaxLevel)
 			{
@@ -68,6 +70,11 @@ namespace NightCourier.UI
 
 			_button.text = _localization.Get(BuyKey, price);
 			_button.SetEnabled(credits >= price);
+
+			if (credits < price)
+			{
+				_level.text += '\n' + UiStyle.Tint(_localization.Get(ShortfallKey, price - credits), UiStyle.WarningColor);
+			}
 		}
 
 		public void Hide()

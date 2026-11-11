@@ -116,3 +116,7 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ss]ceneDependencyCache*
 Assets/Plugins/Roslyn
 Assets/Plugins/Roslyn.meta
+
+# Local live links to UnityTemplates
+/Assets/TemplateSources/Foundation/
+/Assets/TemplateSources/Modules/

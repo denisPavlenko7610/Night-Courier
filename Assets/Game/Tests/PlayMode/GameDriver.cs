@@ -180,9 +180,11 @@ namespace NightCourier.PlayModeTests
 
 		public IEnumerator SaveCampaign()
 		{
-			_ = Services.Campaign.SaveAsync();
+			var completion = Services.Campaign.SaveAsync().GetAwaiter();
 
-			yield return WaitUntil(() => Services.Campaign.HasSave, "the campaign save");
+			yield return WaitUntil(() => completion.IsCompleted, "the campaign save");
+
+			completion.GetResult();
 		}
 
 		public IEnumerator NewGameToDepot()

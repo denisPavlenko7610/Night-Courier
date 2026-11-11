@@ -7,6 +7,7 @@ using NightCourier.Player;
 using NightCourier.UI;
 using NightCourier.World;
 using NUnit.Framework;
+using RD.ScreenNavigation;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
@@ -14,6 +15,7 @@ using Toolkit = UnityEngine.UIElements;
 
 namespace NightCourier.PlayModeTests
 {
+	[Category("Visual")]
 	public sealed class UiLayoutPlayModeTests
 	{
 		private const int TestTimeoutMilliseconds = 300000;
@@ -21,7 +23,6 @@ namespace NightCourier.PlayModeTests
 		private const string Express = "contract.express";
 		private const string AuditFolder = "Temp/UiAudit";
 		private const bool FailOnProblems = true;
-		private const float PauseFadeSeconds = 0.8f;
 
 		private static readonly Vector2Int[] Resolutions =
 		{
@@ -59,17 +60,17 @@ namespace NightCourier.PlayModeTests
 			UiAudit audit = new(Path.Combine(AuditFolder, width + "x" + height));
 
 			yield return _driver.BootToMainMenu();
-			yield return new WaitForSeconds(1.2f);
+			yield return WaitForScreen(Object.FindFirstObjectByType<MainMenuEntry>().Navigator, MainMenuEntry.MainScreenId);
 			yield return audit.Capture("01_main_menu");
 
 			GameDriver.Click(Object.FindFirstObjectByType<MainMenuEntry>().Root, "entry-" + MainMenuEntry.SettingsEntryId);
 
-			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
+			yield return WaitForScreen(Object.FindFirstObjectByType<MainMenuEntry>().Navigator, MainMenuEntry.SettingsScreenId);
 			yield return audit.Capture("02_main_settings");
 
 			GameDriver.Click(Object.FindFirstObjectByType<MainMenuEntry>().Root, "settings-back");
 
-			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
+			yield return WaitForScreen(Object.FindFirstObjectByType<MainMenuEntry>().Navigator, MainMenuEntry.MainScreenId);
 			yield return _driver.NewGameToDepot();
 			yield return audit.Capture("03_depot_hud");
 
@@ -143,29 +144,29 @@ namespace NightCourier.PlayModeTests
 
 			pause.Open();
 
-			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
+			yield return WaitForScreen(pause.Navigator, PauseMenu.MainScreenId);
 
 			Assert.That(Object.FindAnyObjectByType<PlayerVitalsView>().IsHudHidden, Is.True);
 			yield return audit.Capture("12_pause_menu");
 
 			GameDriver.Click(pause.Root, "entry-" + PauseMenu.SettingsEntryId);
 
-			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
+			yield return WaitForScreen(pause.Navigator, PauseMenu.SettingsScreenId);
 			AssertVisible(Toolkit.UQueryExtensions.Q<Toolkit.Label>(pause.SettingsView.Root, "settings-title"));
 			yield return audit.Capture("13_pause_settings");
 
 			GameDriver.Click(pause.Root, "settings-back");
 
-			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
+			yield return WaitForScreen(pause.Navigator, PauseMenu.MainScreenId);
 
 			GameDriver.Click(pause.Root, "entry-" + PauseMenu.ControlsEntryId);
 
-			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
+			yield return WaitForScreen(pause.Navigator, PauseMenu.ControlsScreenId);
 			yield return audit.Capture("14_pause_controls");
 
 			GameDriver.Click(pause.Root, "controls-back");
 
-			yield return new WaitForSecondsRealtime(PauseFadeSeconds);
+			yield return WaitForScreen(pause.Navigator, PauseMenu.MainScreenId);
 
 			pause.Close();
 
@@ -211,6 +212,15 @@ namespace NightCourier.PlayModeTests
 			{
 				Assert.That(audit.Problems, Is.Zero, audit.Report);
 			}
+		}
+
+		private static IEnumerator WaitForScreen(IScreenNavigator navigator, string screenId)
+		{
+			yield return GameDriver.WaitUntil(
+				() => !navigator.IsTransitioning && navigator.CurrentScreenId == screenId,
+				"the completed transition to " + screenId);
+
+			yield return null;
 		}
 
 		private static void AssertVisible(Toolkit.VisualElement element)

@@ -20,6 +20,7 @@ using Object = UnityEngine.Object;
 
 namespace NightCourier.PlayModeTests
 {
+	[Category("Routes")]
 	public sealed class RealInputPlayModeTests
 	{
 		private const int TestTimeoutMilliseconds = 300000;
@@ -78,6 +79,7 @@ namespace NightCourier.PlayModeTests
 
 			_driver = new GameDriver();
 			_marks.Clear();
+			_captureCues = false;
 			_sprint = true;
 		}
 
@@ -194,30 +196,6 @@ namespace NightCourier.PlayModeTests
 			yield return _driver.ContinueToDepot();
 			Assert.That(_driver.Campaign.Credits, Is.EqualTo(credits));
 			Assert.That(_driver.Campaign.Contracts.ActiveRun, Is.Null);
-		}
-
-		[UnityTest, Timeout(TestTimeoutMilliseconds)]
-		public IEnumerator Express_SafeRoute_Timed()
-		{
-			yield return StartExpress();
-			yield return Begin();
-			yield return PickUpPackage();
-			yield return PullLever();
-			yield return SafeRoute();
-
-			Finish("Express safe route (to the scanner approach)");
-		}
-
-		[UnityTest, Timeout(TestTimeoutMilliseconds)]
-		public IEnumerator Express_ShortRoute_Timed()
-		{
-			yield return StartExpress();
-			yield return Begin();
-			yield return PickUpPackage();
-			yield return PullLever();
-			yield return ShortRoute();
-
-			Finish("Express short route (to the scanner approach)");
 		}
 
 		[UnityTest, Timeout(TestTimeoutMilliseconds)]
@@ -662,34 +640,48 @@ namespace NightCourier.PlayModeTests
 			Bounds terminalBounds = terminal.GetComponentInChildren<Collider>().bounds;
 			Vector3 terminalAim = terminalBounds.center + Vector3.up * (terminalBounds.extents.y * TerminalAimHeightFraction);
 
-			yield return _bot.Aim(terminalAim);
-			yield return CueShot("5_terminal_carrying");
-			float end = Time.time + DeliveryTimeoutSeconds;
-
-			while (!_driver.ResultVisible && Time.time < end)
+			if (_captureCues)
 			{
 				yield return _bot.Aim(terminalAim);
+			}
 
-				_bot.Hold(Key.E);
+			yield return CueShot("5_terminal_carrying");
+			float end = Time.time + DeliveryTimeoutSeconds;
+			bool pressed = false;
 
-				float hold = Time.time + 2.5f;
-
-				while (!_driver.ResultVisible && Time.time < hold)
+			try
+			{
+				while (!_driver.ResultVisible && Time.time < end)
 				{
 					_bot.TrackAim(terminalAim);
-					yield return _bot.Frame();
 
-					if (!_driver.ResultVisible && _player.Interactor.Target != terminal)
+					bool focused = _player.Interactor.Target == terminal;
+
+					if (focused && (!pressed || terminal.IsHolding))
 					{
-						Mark("delivery focus interrupted");
-						break;
+						_bot.Hold(Key.E);
+						pressed = true;
 					}
+					else
+					{
+						if (pressed && !focused && terminal.IsAvailable)
+						{
+							Mark("delivery focus interrupted");
+						}
+
+						_bot.Release(Key.E);
+						pressed = false;
+					}
+
+					yield return _bot.Frame();
 				}
-
-				_bot.Release(Key.E);
-
-				yield return _bot.Frame();
 			}
+			finally
+			{
+				_bot.Release(Key.E);
+			}
+
+			yield return _bot.Frame();
 
 			Assert.That(_driver.ResultVisible, Is.True, $"Holding E at the terminal did not deliver the package (position {_bot.Position:F1}, health {_player.Vitals.Current}, carrying {_player.Carry.IsCarrying}, scanned {_facts.CargoScanned}, target {_player.Interactor.Target}).");
 

@@ -9,6 +9,7 @@ using UnityEngine.TestTools;
 
 namespace NightCourier.PlayModeTests
 {
+	[Category("Visual")]
 	public sealed class WarehouseNightCapturePlayModeTests
 	{
 		private const int TestTimeoutMilliseconds = 180000;

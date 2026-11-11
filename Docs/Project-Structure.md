@@ -66,7 +66,7 @@ The reusable framework is supplied by the linked UnityTemplates packages. Do not
 
 This organization preserves existing namespaces (`NightCourier.App`, `NightCourier.UI`, and the domain namespaces), assembly names, script GUIDs, and asset GUIDs. Folder names describe ownership; they are not an assembly or namespace migration. NightCourier.Game remains the runtime assembly, and the two test assemblies keep their existing references. Introducing additional assemblies should follow a demonstrated need and an explicit dependency review.
 
-The package installer remains in `Assets/Editor`: it is an editor-only package maintenance tool outside the game runtime assembly. Third-party assets, plugins, and Unity rendering settings retain their dedicated top-level folders.
+UnityTemplates source links are maintained by `Tools/Link-UnityTemplates.ps1` as described in [Template-Packages.md](Template-Packages.md). Third-party assets, plugins, and Unity rendering settings retain their dedicated top-level folders.
 
 Move Unity assets together with their `.meta` files. Preserve scene paths, update any literal asset paths and documentation in the same change, then compile and run the relevant Unity tests.
 

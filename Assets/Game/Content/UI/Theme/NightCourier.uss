@@ -241,12 +241,17 @@
 }
 
 .nc-theme .rd-screen .nc-controls__table {
+    flex-direction: column;
+}
+
+.nc-theme .rd-screen .nc-controls__row {
     flex-direction: row;
+    margin-bottom: 2px;
 }
 
 .nc-theme .rd-screen .nc-controls__keys {
     -unity-font: url("../../../../ThirdParty/IBMPlex/IBMPlexMono-Regular.ttf");
-    width: 270px;
+    width: 330px;
     flex-shrink: 0;
     font-size: 22px;
     color: var(--rd-text);
@@ -280,4 +285,47 @@
 .nc-theme .nc-pause .rd-menu__entry:focus {
     background-color: rgba(235, 231, 219, 0.09);
     border-left-color: rgb(213, 161, 107);
+}
+
+.nc-theme .nc-pause__recap {
+    font-size: 24px;
+    color: var(--rd-muted);
+    white-space: normal;
+    margin: -12px 0 28px 0;
+    padding: 14px 18px;
+    background-color: rgba(235, 231, 219, 0.05);
+    border-left-width: 4px;
+    border-left-color: rgb(213, 161, 107);
+}
+
+.nc-theme .nc-pause #entry-leave,
+.nc-theme .nc-pause #entry-main-menu {
+    color: rgb(239, 107, 91);
+}
+
+.nc-theme .nc-pause #entry-leave:focus,
+.nc-theme .nc-pause #entry-main-menu:focus {
+    border-left-color: rgb(239, 107, 91);
+}
+
+.nc-theme .rd-screen .unity-toggle__input {
+    flex-grow: 0;
+    width: 52px;
+    height: 52px;
+    background-color: var(--rd-surface);
+    border-width: 2px;
+    border-color: rgba(235, 231, 219, 0.4);
+}
+
+.nc-theme .rd-screen .unity-toggle__input:checked,
+.nc-theme .rd-screen .unity-toggle:checked .unity-toggle__input {
+    background-color: var(--rd-accent);
+    border-color: var(--rd-accent);
+}
+
+.nc-theme .rd-screen .unity-toggle__checkmark {
+    width: 30px;
+    height: 30px;
+    margin: 7px;
+    -unity-background-image-tint-color: var(--rd-accent-text);
 }

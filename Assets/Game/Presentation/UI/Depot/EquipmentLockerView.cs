@@ -31,6 +31,7 @@ namespace NightCourier.UI
 		private const string FullKey = "loadout.full";
 		private const string MedkitKey = "loadout.medkit";
 		private const string EmptyKey = "loadout.empty";
+		private const string NeedMedkitKey = "loadout.need_medkit";
 		private const string EquipMedkitKey = "loadout.equip_medkit";
 		private const string UnequipKey = "loadout.unequip";
 		private const string FirstUtilityKey = "loadout.utility_1";
@@ -207,7 +208,7 @@ namespace NightCourier.UI
 
 			_rows[row].Show(
 				titleKey,
-				hasMedkit ? MedkitKey : EmptyKey,
+				hasMedkit ? MedkitKey : loadout.MedkitsInStock > 0 ? EmptyKey : NeedMedkitKey,
 				Array.Empty<object>(),
 				hasMedkit ? UnequipKey : EquipMedkitKey,
 				Array.Empty<object>(),
