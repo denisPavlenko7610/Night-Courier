@@ -26,6 +26,9 @@ namespace NightCourier.PlayModeTests
 		private const string LightsOut = "contract.lights-out";
 		private const string Express = "contract.express";
 		private const string Fragile = "contract.fragile";
+		private const string RestrictedCargo = "contract.restricted-cargo";
+		private const long RestrictedCargoPay = 450;
+		private const long CleanDeliveryBonus = 100;
 		private const long ExpressPay = 320;
 		private const long OnTimeBonus = 75;
 		private const string ReportFile = "Temp/RealInputRoutes.txt";
@@ -41,6 +44,7 @@ namespace NightCourier.PlayModeTests
 		private const float LiftTimeoutSeconds = 8f;
 		private const float ScanTimeoutSeconds = 18f;
 		private const float DeliveryTimeoutSeconds = 12f;
+		private const float TerminalAimHeightFraction = 0.6f;
 
 		private static readonly Vector3 LeverStand = new(-18.6f, 0f, -7.2f);
 		private static readonly Vector3 DoorApproach = new(-18f, 0f, -5.4f);
@@ -150,6 +154,45 @@ namespace NightCourier.PlayModeTests
 
 			Assert.That(_driver.ResultText, Does.Contain("Base pay: 260"));
 			Assert.That(_driver.ResultText, Does.Not.Contain("Property damage: -"));
+			Assert.That(_driver.Campaign.Contracts.ActiveRun, Is.Null);
+		}
+
+		[UnityTest, Timeout(TestTimeoutMilliseconds)]
+		public IEnumerator RestrictedCargo_LiveThreats_BatteryRouteAndCleanSettlement()
+		{
+			yield return _driver.BootToMainMenu();
+			yield return _driver.NewGameToDepot();
+
+			foreach (string prerequisite in new[] { GameDriver.StandardDelivery, Fragile, LightsOut, Express })
+			{
+				yield return _driver.CompleteInState(prerequisite);
+			}
+
+			yield return _driver.AcceptInTerminal(RestrictedCargo);
+			yield return _driver.CarryPackageToTheVanAndDepart();
+			yield return Begin();
+
+			Assert.That(_enemies.Exists(log => log.Enemy.GetComponent<CrawlerBrain>() != null), Is.True);
+			Assert.That(_enemies.Exists(log => log.Enemy.GetComponent<SecurityDroneBrain>() != null), Is.True);
+
+			yield return FetchBatteryAndPower();
+			yield return PickUpPackage();
+			yield return SafeRoute();
+			yield return DeliverAtScanner();
+
+			Finish("Restricted Cargo with live threats");
+
+			Assert.That(_driver.ResultText, Does.Contain("Base pay: " + RestrictedCargoPay));
+			Assert.That(_driver.ResultText, Does.Contain("No violations: " + CleanDeliveryBonus));
+			Assert.That(_driver.ResultText, Does.Contain("Rule violations: 0"));
+			Assert.That(_driver.ResultText, Does.Not.Contain("Property damage: -"));
+			Assert.That(_driver.Campaign.Contracts.ActiveRun, Is.Null);
+
+			long credits = _driver.Campaign.Credits;
+			yield return _driver.ReturnToDepotFromResult();
+			yield return _driver.ReturnToMainMenu();
+			yield return _driver.ContinueToDepot();
+			Assert.That(_driver.Campaign.Credits, Is.EqualTo(credits));
 			Assert.That(_driver.Campaign.Contracts.ActiveRun, Is.Null);
 		}
 
@@ -616,14 +659,16 @@ namespace NightCourier.PlayModeTests
 			yield return _bot.Through(TerminalStand, sprint: false, arrive: 0.3f);
 
 			Interactable terminal = GameDriver.Get<Interactable>(_driver.Warehouse, "_deliveryPoint");
+			Bounds terminalBounds = terminal.GetComponentInChildren<Collider>().bounds;
+			Vector3 terminalAim = terminalBounds.center + Vector3.up * (terminalBounds.extents.y * TerminalAimHeightFraction);
 
-			yield return _bot.Aim(terminal.GetComponentInChildren<Collider>().bounds.center);
+			yield return _bot.Aim(terminalAim);
 			yield return CueShot("5_terminal_carrying");
 			float end = Time.time + DeliveryTimeoutSeconds;
 
 			while (!_driver.ResultVisible && Time.time < end)
 			{
-				yield return _bot.Aim(terminal.GetComponentInChildren<Collider>().bounds.center);
+				yield return _bot.Aim(terminalAim);
 
 				_bot.Hold(Key.E);
 
@@ -631,7 +676,14 @@ namespace NightCourier.PlayModeTests
 
 				while (!_driver.ResultVisible && Time.time < hold)
 				{
+					_bot.TrackAim(terminalAim);
 					yield return _bot.Frame();
+
+					if (!_driver.ResultVisible && _player.Interactor.Target != terminal)
+					{
+						Mark("delivery focus interrupted");
+						break;
+					}
 				}
 
 				_bot.Release(Key.E);

@@ -82,6 +82,8 @@ namespace NightCourier.App
 			}
 		}
 
+		public bool IsNavigating => _isNavigating;
+
 		public async Awaitable GoToAsync(string sceneId, CancellationToken cancellationToken = default)
 		{
 			if (_sceneFlow == null || _services == null)
@@ -99,25 +101,137 @@ namespace NightCourier.App
 
 			try
 			{
-				if (!string.IsNullOrEmpty(_currentSceneId))
+				await SwitchAsync(sceneId, cancellationToken);
+			}
+			catch
+			{
+				if (string.IsNullOrEmpty(_currentSceneId) && !destroyCancellationToken.IsCancellationRequested)
 				{
-					string previous = _currentSceneId;
-					_currentSceneId = null;
-					await _sceneFlow.UnloadAsync(previous, SceneIds.Boot, cancellationToken);
+					await RestoreMainMenuAsync(sceneId);
 				}
 
-				_sceneScope?.Dispose();
-				_sceneScope = null;
-
-				await _sceneFlow.LoadAdditiveAsync(sceneId, setActive: true, cancellationToken: cancellationToken);
-				_currentSceneId = sceneId;
-				_sceneScope = _root.CreateScope();
-
-				EnterActiveScene();
+				throw;
 			}
 			finally
 			{
 				_isNavigating = false;
+			}
+		}
+
+		private async Awaitable SwitchAsync(string sceneId, CancellationToken cancellationToken)
+		{
+			string previous = _currentSceneId;
+			bool isReload = sceneId == previous;
+
+			_sceneCatalog.GetPath(sceneId);
+
+			if (!isReload)
+			{
+				await LoadDestinationAsync(sceneId, previous ?? SceneIds.Boot, cancellationToken);
+			}
+
+			if (!string.IsNullOrEmpty(previous))
+			{
+				await UnloadPreviousAsync(previous, isReload ? null : sceneId, cancellationToken);
+			}
+
+			_sceneScope?.Dispose();
+			_sceneScope = null;
+			_currentSceneId = null;
+
+			if (isReload)
+			{
+				await LoadDestinationAsync(sceneId, SceneIds.Boot, cancellationToken);
+			}
+
+			_currentSceneId = sceneId;
+			_sceneScope = _root.CreateScope();
+
+			try
+			{
+				EnterActiveScene();
+			}
+			catch
+			{
+				_sceneScope.Dispose();
+				_sceneScope = null;
+				_currentSceneId = null;
+				await TryUnloadAsync(sceneId, SceneIds.Boot);
+				throw;
+			}
+		}
+
+		private async Awaitable LoadDestinationAsync(string sceneId, string fallbackSceneId, CancellationToken cancellationToken)
+		{
+			try
+			{
+				await _sceneFlow.LoadAdditiveAsync(sceneId, setActive: true, cancellationToken: cancellationToken);
+			}
+			catch
+			{
+				await TryUnloadAsync(sceneId, fallbackSceneId);
+				throw;
+			}
+		}
+
+		private async Awaitable UnloadPreviousAsync(string previous, string destinationSceneId, CancellationToken cancellationToken)
+		{
+			try
+			{
+				await _sceneFlow.UnloadAsync(previous, SceneIds.Boot, cancellationToken);
+			}
+			catch (Exception exception)
+			{
+				if (!_sceneFlow.IsLoaded(previous))
+				{
+					UnityLogger.LogException(exception, this);
+					return;
+				}
+
+				if (!string.IsNullOrEmpty(destinationSceneId))
+				{
+					await TryUnloadAsync(destinationSceneId, previous);
+				}
+
+				try
+				{
+					_sceneFlow.SetActive(previous);
+				}
+				catch (Exception restoreException)
+				{
+					UnityLogger.LogException(restoreException, this);
+				}
+
+				throw;
+			}
+		}
+
+		private async Awaitable TryUnloadAsync(string sceneId, string fallbackSceneId)
+		{
+			try
+			{
+				await _sceneFlow.UnloadAsync(sceneId, fallbackSceneId, CancellationToken.None);
+			}
+			catch (Exception exception)
+			{
+				UnityLogger.LogException(exception, this);
+			}
+		}
+
+		private async Awaitable RestoreMainMenuAsync(string failedSceneId)
+		{
+			if (failedSceneId == SceneIds.MainMenu)
+			{
+				return;
+			}
+
+			try
+			{
+				await SwitchAsync(SceneIds.MainMenu, CancellationToken.None);
+			}
+			catch (Exception exception)
+			{
+				UnityLogger.LogException(exception, this);
 			}
 		}
 

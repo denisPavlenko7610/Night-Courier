@@ -69,11 +69,11 @@ reserved in section 13.4.
 
 No new contract is needed to cover the three archetypes. They already exist and differ in what the player must do.
 
-| Archetype                                                                        | Contract                                                                                                                   | State, rules, threats                                                                                             | What changes in play                                                                                                                                                                                       |
-|----------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Introduction**: a careful parcel, normal power, first meeting with the scanner | Standard Delivery (₡150, Low)                                                                                              | Normal, no rules, no enemies                                                                                      | Learn the loop: pick up, breaker panel, scanner plate, terminal. Nothing can go wrong except wandering into the electric floor                                                                             |
-| **Blackout / keep in light**: power, battery, and light decide the route         | Lights Out (₡260, Medium) and, harder, Restricted Cargo (₡450, High: adds Do Not Drop, a Drone, and a no-violations bonus) | Blackout, Keep In Light, Crawlers                                                                                 | Park the package under the dock lamp, fetch the two-handed battery along the dock aisle, and restore power; every 10 s in darkness is a violation. The revised battery route awaits Play Mode verification |
-| **Urgent**: a tight clock, two routes of about the same time with different dangers | Express (₡320, Medium)                                                                                                     | Normal, Deliver On Time (45 s limit, bonus under 22 s), Security Drone and Crawlers | Route choice under a clock: the maintenance door, the central aisle and the lift (the drone) against the barricade and the south floor (crawlers, a fine)                                                                                 |
+| Archetype                                                                           | Contract                                                                                                                   | State, rules, threats                                                               | What changes in play                                                                                                                                                                                                 |
+|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Introduction**: a careful parcel, normal power, first meeting with the scanner    | Standard Delivery (₡150, Low)                                                                                              | Normal, no rules, no enemies                                                        | Learn the loop: pick up, breaker panel, scanner plate, terminal. Nothing can go wrong except wandering into the electric floor                                                                                       |
+| **Blackout / keep in light**: power, battery, and light decide the route            | Lights Out (₡260, Medium) and, harder, Restricted Cargo (₡450, High: adds Do Not Drop, a Drone, and a no-violations bonus) | Blackout, Keep In Light, Crawlers                                                   | Park the package under the dock lamp, fetch the two-handed battery along the dock aisle, and restore power; every 10 s in darkness is a violation. The revised battery route was verified in Play Mode (section 0.6) |
+| **Urgent**: a tight clock, two routes of about the same time with different dangers | Express (₡320, Medium)                                                                                                     | Normal, Deliver On Time (45 s limit, bonus under 22 s), Security Drone and Crawlers | Route choice under a clock: the maintenance door, the central aisle and the lift (the drone) against the barricade and the south floor (crawlers, a fine)                                                            |
 
 Fragile (₡220, Do Not Drop, ladder) is the careful-handling variant between the introduction and the blackout.
 
@@ -83,12 +83,14 @@ and the lift, and 10.8 s by the barricade (three pistol shots), the south floor 
 not short and no local geometry change near the ramp can save more than 11% of the trip. The dilemma is therefore the
 clock and the danger, not distance: the limit is 45 s and the on-time bonus needs delivery under 22 s. A whole delivery
 by a sprinting bot takes 17.6 s on the safe route and 18.0 s on the short one (the bonus is paid), 22.6 s walking
-(inside the limit, at the edge of the bonus window) and 25.7 s after shooting both crawlers (no bonus). Danger differs by
+(inside the limit, at the edge of the bonus window) and 25.7 s after shooting both crawlers (no bonus). Danger differs
+by
 route: the short route costs a property fine and crawler hits (80 and 70 health at the end), the safe route has the
 drone. A screen wall west of the freight lift (`Collision_LiftScreen`) hides the lift and the delivery room from the
 drone's patrol, so a courier no longer takes fire at the scanner and the terminal (walking delivery: 90 health instead
-of 20); the drone still fires at a courier in the aisle or boarding the lift from the side. Restricted Cargo is still not
-replayed end to end with live threats; Express settlement is covered by a teleporting Play Mode test and by timed
+of 20); the drone still fires at a courier in the aisle or boarding the lift from the side. Restricted Cargo was tested
+with live threats using synthetic input and direct Depot setup (section 0.6); Express settlement is covered by a
+teleporting Play Mode test and by timed
 real-input runs (`RealInputPlayModeTests`).
 
 **Lights Out setup.** The dock holds an always-on work lamp over the dock crate, which is also a safe surface for Do Not
@@ -106,8 +108,8 @@ battery along the dock aisle, insert it and use the breaker. The maintenance rou
 barricade. The intended blackout payout is now 260 without a property fine; Restricted Cargo can retain its 100-credit
 clean-run bonus without a mandatory property deduction. The integration helper no longer breaks the barricade and checks
 capsule clearance along the dock approach. The layout was verified in Play Mode on 2026-11-09 (section 0.6). Older
-barricade-trip descriptions below and in historical logs describe the previous layout. The Express timing dilemma is
-still unresolved; deadlines and rewards are unchanged. See [Next-Sprint.md](Next-Sprint.md).
+barricade-trip descriptions below and in historical logs describe the previous layout. The later Express timing decision
+is recorded in section 0.3 and [Next-Sprint.md](Next-Sprint.md).
 
 - **Success:** the scanned package is delivered at the terminal. The payout is base pay plus met bonuses minus ammo,
   property, and death deductions, never below ₡0; the rating feeds the courier rank.
@@ -118,22 +120,79 @@ still unresolved; deadlines and rewards are unchanged. See [Next-Sprint.md](Next
   grade).
 - **Campaign progress:** a contract unlocks when its prerequisites are completed; all five contracts are single-use
   today, so a finished campaign shows "No contracts are available right now." Whether contracts become repeatable is an
-  open design decision (task 6).
+  open design decision (see [Next-Sprint.md](Next-Sprint.md)).
 
 ### 0.5 Roadmap
 
-| Milestone                                      | Goal                                                                                                                                      | State                                                                                                                                                                                                                        |
-|------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Stage 1 ? Full-loop stability**              | Several deliveries, settlement and save recovery, cancellation, scene transition failure, cargo loss, repeated input, checkpoint recovery | Automated coverage includes malformed-prefab rejection, failed-save feedback, single payout, lost-Depot-cargo abort/retry and isolated test saves. Reward-grant recovery and scene-transition failure acceptance remain open |
-| **Stage 2 ? Existing Warehouse variety**       | Use Normal/Blackout, scanner, generator, battery, doors and threats to offer meaningful choices                                           | Implemented archetypes are listed in 0.3; full playthrough coverage of all five contracts remains incomplete                                                                                                                 |
-| **Stage 3 ? Visual and audio polish**          | Readable paths and interactions, blackout lighting, state feedback, cargo warnings and sound                                              | Partially implemented; input and visual verification remain incomplete                                                                                                                                        |
-| **Stage 4 ? Contract and progression balance** | Timed Play Mode runs, reward and upgrade costs, risk versus route choice                                                                  | Planned; Express timing is a known tuning candidate, not a verified balance defect                                                                                                                                           |
-| **Stage 5 ? One additional compact location**  | Add only if it improves the established loop                                                                                              | Planned, conditional on the existing Warehouse being stable and enjoyable                                                                                                                                                    |
+| Milestone                                      | Goal                                                                                                                                      | State                                                                                                                                                                                                                                                           |
+|------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Stage 1 ? Full-loop stability**              | Several deliveries, settlement and save recovery, cancellation, scene transition failure, cargo loss, repeated input, checkpoint recovery | Automated coverage includes malformed-prefab rejection, failed-save feedback, single payout, lost-Depot-cargo abort/retry, isolated test saves, reward recovery, and injected load, unload and scene-entry failures. Same-scene reload failure remains untested |
+| **Stage 2 ? Existing Warehouse variety**       | Use Normal/Blackout, scanner, generator, battery, doors and threats to offer meaningful choices                                           | Implemented archetypes are listed in 0.3; full playthrough coverage of all five contracts remains incomplete                                                                                                                                                    |
+| **Stage 3 ? Visual and audio polish**          | Readable paths and interactions, blackout lighting, state feedback, cargo warnings and sound                                              | Partially implemented; input and visual verification remain incomplete                                                                                                                                                                                          |
+| **Stage 4 ? Contract and progression balance** | Timed Play Mode runs, reward and upgrade costs, risk versus route choice                                                                  | Planned; Express timing is a known tuning candidate, not a verified balance defect                                                                                                                                                                              |
+| **Stage 5 ? One additional compact location**  | Add only if it improves the established loop                                                                                              | Planned, conditional on the existing Warehouse being stable and enjoyable                                                                                                                                                                                       |
 
 The road tier remains outside this work. The approved future scope in section 3.2 is not an instruction to implement
 driving now.
 
 ### 0.6 Verified and not verified
+
+**Final regression pass (2026-11-10).** The complete game PlayMode assembly passed in one run, including
+Restricted Cargo with live threats, destination-load recovery in both directions, route-input scenarios, all seven
+UI layout resolutions and Warehouse rule checks. The complete game EditMode assembly passed afterwards, including
+wallet/rank recovery before and after a failed reward application. Restricted Cargo's Warehouse traversal took
+22.1 s of bot time and ended at 90 health; payout assertions confirmed the base pay and clean bonus, then Continue
+restored the same credits. Synthetic input and direct Depot/prerequisite setup limitations described below still apply.
+Editor code-reload SerializeReference assertions remain in the Console; the passing suites do not resolve their cause.
+This dated pass supersedes earlier statements that no final complete suite pass had been recorded.
+
+**Restricted Cargo and transition-load recovery (2026-11-09).** A new real-input test walks the battery and
+maintenance/lift route with both crawlers and the drone active, delivers Restricted Cargo without rule violations or
+property fines, checks the 450-credit base pay and 100-credit clean bonus, then returns to the Depot and restores the
+same credits through Continue. Prerequisites and the Depot half use GameDriver direct calls; Warehouse traversal and
+interactions use synthetic keyboard and mouse events. Threats are present and active, not disabled by the test.
+
+GameHost now loads a different destination additively before unloading the current content scene. If destination
+loading reports failure after creating the scene, that scene is unloaded while the original scene and scope remain.
+A failed van departure returns the contract to Available without payout and refreshes the existing Depot. A failed
+return keeps the Warehouse result panel and re-enables its return button. The injected-failure PlayMode test exercises
+both directions, retries them, completes delivery, checks gameplay/UI map availability and verifies a single payout
+through Continue. Temporary coexistence of two content scenes increases peak memory during transitions. Three more
+injected-failure tests cover the unload of the old scene failing before it starts (the Depot and its scope stay, the
+new scene is unloaded, retry works), failing after it started (navigation continues to the destination), and a second
+scene entry making `ISceneEntry.Enter` throw (the new scene is unloaded, the main menu is restored, Continue returns to
+a clean Depot). All eleven GameLoopPlayModeTests passed. `GameHost.IsNavigating` lets the Depot refuse the van and
+abort while a transition runs, so the package is no longer consumed by an ignored request. Same-scene reload failures
+have no test. Reward failure before/after wallet mutation and rank replay safety are already covered
+by CampaignFlowTests; the old roadmap label was stale.
+
+**Scanner and input-driver correction (2026-11-09).** The scanner frame now uses explicitly assigned renderers
+for orange scan progress and green completion feedback, visible in fresh Play Mode captures with the objective hidden.
+The delivery test driver now follows the terminal with mouse events while holding E; previously it held a stale aim
+for 2.5 s after crawler knockback interrupted focus. A corrected short-route sprint settled in 17.8 s with the on-time
+bonus, without changing the 22 s window, enemies, knockback or payout rules. The failures recorded below preceded this
+input-driver correction. Tracking alone still failed in a grouped run. The final driver also releases and retries
+when focus is lost and aims at the upper part of the terminal panel to avoid low crawler bodies crossing the ray.
+That version passed the sprint bonus and delayed-fight bonus-loss checks together: 17.2 s and 25.1 s respectively.
+The player remains vulnerable, and this is a verified bot tactic rather than a guarantee of a bonus under every attack.
+Final targeted checks passed the sprint bonus, delayed-fight bonus loss and delivery-hold cancellation.
+The scanner capture test passed separately after a grouped attempt was interrupted by an assembly-unloading error
+from Unity.AI.Toolkit.Async. Earlier broader coverage passed the other warehouse scenarios; a single final all-suite
+pass was not recorded.
+
+**Follow-up verification (2026-11-09, commit `dcd5b09`).** The UI layout suite passed at all seven
+resolutions; contact sheets covering all 19 captured screens per resolution were inspected without obvious clipping
+or overlap. The real-input suite subsequently passed ten scenarios and failed
+`Express_ShortRoute_Sprinting_MakesTheOnTimeBonus`. An isolated retry failed the same assertion: short-route
+sprinting deliveries took 25.4 s and 23.0 s, beyond the 22 s bonus window, with no stuck frames and final health 30
+and 50. The retry reached the scanner approach at 10.9 s, finished scanning at 14.3 s and opened the result at
+23.0 s while crawlers attacked. These observations supersede the earlier short-route clean-sprint timing for this
+verification environment; they do not establish whether the cause is enemy interference, the input driver or tuning.
+The safe sprint bonus, delayed-fight bonus loss, walking deadline, Standard Delivery, Lights Out battery route,
+scanner captures and enemy animator-state checks passed. Captures confirm the scan plate has identical scanning and
+done accents; the terminal strips are visible. The final Console error query was empty. Editor code-reload
+serialization assertions recurred before the run; their cause remains unresolved. Depot setup still uses direct calls,
+and enemy animation checks assert observed animator states rather than independently validating animation quality.
 
 Exact test totals are not kept in the docs; run the suites for current results. Earlier status tables describe their
 recorded passes; they are not evidence of a new run after later changes.
@@ -157,13 +216,14 @@ with the objective plate hidden (`Temp/CueShots`): the yellow scanner frame read
 package in hand and on the plate; the green terminal strips appear through the hatch after the scan and read clearly at
 the terminal; the scan light itself is not in view and nothing on the plate changes between scanning and done.
 
-**Defect found and fixed by that pass.** A carried package drifted away from the player during real movement (up to 29 m,
+**Defect found and fixed by that pass.** A carried package drifted away from the player during real movement (up to 29
+m,
 out of view) because its `Rigidbody` interpolation overwrote the transform of a kinematic child of `CargoPoint`. Stepped
 runs and teleporting tests never showed it. `CargoPackage` now turns interpolation off while the package is held and
 restores it on release; `RealInputPlayModeTests` asserts that the held package stays within 1.5 m of the camera.
 
-Still unverified: a complete human keyboard/mouse or gamepad campaign run; Restricted Cargo traversal with live threats;
-first-time-player comprehension; finding the delivery point without the objective line; standalone blackout appearance;
+Still unverified: a complete human keyboard/mouse or gamepad campaign run; first-time-player comprehension; finding the
+delivery point without the objective line; standalone blackout appearance;
 real devices (the bot uses synthetic devices, not hardware, and does not cover gamepads). Pending-payment
 recovery is covered by the dated automated scenarios in the verification log. UI audit outcomes vary by recorded pass,
 including editor-package exceptions; consult the log rather than assuming every resolution currently passes. Native
@@ -174,21 +234,21 @@ script-reload serialization errors remain unresolved.
 Labels: **Implemented in code** (compiles, covered by an EditMode or PlayMode test), **Confirmed in scene** (observed in
 the Warehouse scene by a Play Mode test or an editor render, not by a person), **Planned** (not built).
 
-| Item                                                                                                                                                                    | Implemented in code                                                                           | Confirmed in scene                                                                                                          | Planned                                                                                                                    |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| PlayMode saves isolated from the real profile (`GameHost._saveFolder`, folder `Saves.PlayModeTests`)                                                                    | Yes                                                                                           | Yes: the full-loop test finds its save file in the test folder                                                              |                                                                                                                            |
-| Scanner accepts only the bound package, ignores a held package, aborts and says so when it leaves                                                                       | Yes (`CargoScanner`, `CargoPackage.IsHeld`)                                                   | Yes: a stray `Cargo`-layer cube, the pickup mid-scan, and the final scan; the test fails when the identity check is removed |                                                                                                                            |
-| Blocked objects explain themselves (locked doors, dead lift, dead breaker panel, generator, intact barricade)                                                           | Yes (`Interactable.BlockedKey`, `BlockedReasons`)                                             | Yes: keys on every object in a blackout; the barricade text on the real prompt                                              |                                                                                                                            |
-| Package-on-plate without power asks for power; carrying the package with a battery needed asks to park it                                                               | Yes (`DepotObjectiveHints` / `WarehouseObjectiveHints`)                                       |                                                                                                                             |                                                                                                                            |
-| Dark and scan-interrupted notices                                                                                                                                       | Yes (`KeepInLightRule` events, `PackageWatch`, `WarehouseEntry`)                              | Yes: dark and light-restored notices in the hall                                                                            |                                                                                                                            |
-| Always-on work lamp and a safe crate in the dock                                                                                                                        | Yes (`WarehouseLighting._emergencyLights`, `PackageSafeSurface`)                              | Yes: lit at the crate, dark in the hall and at the breaker panel; the lamp reads in an editor render                        | Check blackout appearance in a build                                                 |
-| Warehouse ambient light set to `Flat` (dark) instead of `Skybox`                                                                                                        | Yes (scene setting)                                                                           | Editor renders only: with `Skybox` the "blackout" hall was clearly lit                                                      | Check in a build                                                                                                           |
-| Result screen says XP comes from the shift rating                                                                                                                       | Yes (text)                                                                                    |                                                                                                                             |                                                                                                                            |
-| A failed save keeps the payout in memory and warns the player                                                                                                           | Yes (already)                                                                                 | Yes: blocked save folder, warning text, credits kept, no double payout                                                      |                                                                                                                            |
-| Readable UI at 16:9, 16:10, 5:4, 4:3, and 21:9: `Expand` scaling, HUD in three non-overlapping columns, notices at the bottom, covered HUD hidden, blocked prompt wraps | Yes (`UiLayoutPlayModeTests`, scene and prefab layouts)                                       | Yes: 18 screens at 7 resolutions, zero overlapping, clipped, or off-screen text; screenshots read by eye                    | A hand check on a real monitor and a gamepad                                                                               |
-| Contract 04 shown to the player as "Rush Delivery" (the font draws X like H; the id stays `contract.express`)                                                           | Yes (text only)                                                                               |                                                                                                                             | A font that draws X correctly                                                                                              |
-| Express with a real dilemma                                                                                                                                             | Crawlers added to the Express data; a Play Mode test settles Express with both threats active | Yes: timed with real input; sprint 17.7 s, walk 22.3 s, fight 25.1 s against a 45 s limit and a 22 s bonus                | The screen wall west of the lift hides the delivery room from the drone; re-tune the window from real play              |
-| Current full-loop verification                                                                                                                                          | Yes (`RealInputPlayModeTests`)                                                                | Yes: Standard Delivery and Lights Out played with synthetic keyboard and mouse events, dock to result (section 0.6)        | The Depot half and real devices                                                                                            |
+| Item                                                                                                                                                                    | Implemented in code                                                                           | Confirmed in scene                                                                                                          | Planned                                                                                                    |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| PlayMode saves isolated from the real profile (`GameHost._saveFolder`, folder `Saves.PlayModeTests`)                                                                    | Yes                                                                                           | Yes: the full-loop test finds its save file in the test folder                                                              |                                                                                                            |
+| Scanner accepts only the bound package, ignores a held package, aborts and says so when it leaves                                                                       | Yes (`CargoScanner`, `CargoPackage.IsHeld`)                                                   | Yes: a stray `Cargo`-layer cube, the pickup mid-scan, and the final scan; the test fails when the identity check is removed |                                                                                                            |
+| Blocked objects explain themselves (locked doors, dead lift, dead breaker panel, generator, intact barricade)                                                           | Yes (`Interactable.BlockedKey`, `BlockedReasons`)                                             | Yes: keys on every object in a blackout; the barricade text on the real prompt                                              |                                                                                                            |
+| Package-on-plate without power asks for power; carrying the package with a battery needed asks to park it                                                               | Yes (`DepotObjectiveHints` / `WarehouseObjectiveHints`)                                       |                                                                                                                             |                                                                                                            |
+| Dark and scan-interrupted notices                                                                                                                                       | Yes (`KeepInLightRule` events, `PackageWatch`, `WarehouseEntry`)                              | Yes: dark and light-restored notices in the hall                                                                            |                                                                                                            |
+| Always-on work lamp and a safe crate in the dock                                                                                                                        | Yes (`WarehouseLighting._emergencyLights`, `PackageSafeSurface`)                              | Yes: lit at the crate, dark in the hall and at the breaker panel; the lamp reads in an editor render                        | Check blackout appearance in a build                                                                       |
+| Warehouse ambient light set to `Flat` (dark) instead of `Skybox`                                                                                                        | Yes (scene setting)                                                                           | Editor renders only: with `Skybox` the "blackout" hall was clearly lit                                                      | Check in a build                                                                                           |
+| Result screen says XP comes from the shift rating                                                                                                                       | Yes (text)                                                                                    |                                                                                                                             |                                                                                                            |
+| A failed save keeps the payout in memory and warns the player                                                                                                           | Yes (already)                                                                                 | Yes: blocked save folder, warning text, credits kept, no double payout                                                      |                                                                                                            |
+| Readable UI at 16:9, 16:10, 5:4, 4:3, and 21:9: `Expand` scaling, HUD in three non-overlapping columns, notices at the bottom, covered HUD hidden, blocked prompt wraps | Yes (`UiLayoutPlayModeTests`, scene and prefab layouts)                                       | Yes: 18 screens at 7 resolutions, zero overlapping, clipped, or off-screen text; screenshots read by eye                    | A hand check on a real monitor and a gamepad                                                               |
+| Contract 04 shown to the player as "Rush Delivery" (the font draws X like H; the id stays `contract.express`)                                                           | Yes (text only)                                                                               |                                                                                                                             | A font that draws X correctly                                                                              |
+| Express with a real dilemma                                                                                                                                             | Crawlers added to the Express data; a Play Mode test settles Express with both threats active | Yes: timed with real input; sprint 17.7 s, walk 22.3 s, fight 25.1 s against a 45 s limit and a 22 s bonus                  | The screen wall west of the lift hides the delivery room from the drone; re-tune the window from real play |
+| Current full-loop verification                                                                                                                                          | Yes (`RealInputPlayModeTests`)                                                                | Yes: Standard Delivery and Lights Out played with synthetic keyboard and mouse events, dock to result (section 0.6)         | The Depot half and real devices                                                                            |
 
 ---
 
@@ -208,7 +268,7 @@ Combat supports delivery. Module coverage is not a gameplay goal.
 |-------------------|---------------------------------------------------|--------------------------------------------------------|------------------------------------------------------------------------|
 | Standard Delivery | Learn pickup, scan and delivery without penalties | Understand the sequence                                | Clear changing objective, scanner placement cue, understandable result |
 | Lights Out        | Restore power while respecting light              | Where to park the parcel and when to fetch the battery | Readable safe light, darkness warning, visible restoration             |
-| Express           | Deliver under time pressure with threats          | Equal-time routes: drone versus crawlers and a fine   | Remaining time and immediate explanation of expiry or bonus outcome    |
+| Express           | Deliver under time pressure with threats          | Equal-time routes: drone versus crawlers and a fine    | Remaining time and immediate explanation of expiry or bonus outcome    |
 
 Fragile and Restricted Cargo remain harder variations. Keep all five existing assets and their identities; do not add a
 sixth contract. Verify actual contract settings and alternative paths in Unity. Changing only names, time limits and
@@ -252,7 +312,8 @@ comprehension or enjoyment from them. Human playtests are not required.
 **The main goal of this project is to validate and exercise the existing `UnityTemplates` library in a real game.**
 
 Night Courier is built by composing the `Modules` and `Mechanics` from the sibling `UnityTemplates` repository (linked
-as local UPM packages, see [Template-Packages.md](Template-Packages.md)). The game must not grow a second framework on
+as linked source modules, see [Template-Packages.md](Template-Packages.md)). The game must not grow a second framework
+on
 top of them.
 
 Principles:

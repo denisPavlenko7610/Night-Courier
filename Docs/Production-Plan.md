@@ -14,6 +14,19 @@ change is genuinely required, first identify the minimal reason, then change the
 
 ---
 
+## Verified Follow-up (2026-11-10)
+
+The complete game PlayMode and EditMode assemblies passed. Restricted Cargo now has a synthetic-input Warehouse run
+with active crawlers and drone, clean payout checks and credit restoration through Continue; prerequisite and Depot
+setup still use direct calls. Different-destination transitions preload the new scene before unloading current content.
+Tests inject load-progress failures in both directions and verify cleanup, preserved source scenes, available input
+maps, retry and one payout. Failed departure returns the contract to Available without payout. An unload that fails
+before it starts keeps the source scene and retries cleanly; one that fails after it started continues to the
+destination; a scene entry that throws unloads the new scene and restores the main menu, from which Continue returns to
+a clean Depot. A navigation request made while another runs is refused through `IGameNavigator.IsNavigating`, which
+the Depot checks before it takes the package. Same-scene reload failures have no test.
+Temporary overlap of content scenes increases peak memory. Editor reload SerializeReference errors remain unresolved.
+
 ## Next Up (Recommended Order)
 
 The current ordered task list, with acceptance checks, is [Next-Sprint.md](Next-Sprint.md); the

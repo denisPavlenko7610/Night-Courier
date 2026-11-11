@@ -433,7 +433,7 @@ namespace NightCourier.PlayModeTests
 			yield return WaitUntil(() => IsEntered(Depot), "the depot after the result");
 		}
 
-		private static bool IsEntered(Component entry)
+		public static bool IsEntered(Component entry)
 		{
 			return entry != null && Get<object>(entry, "_services") != null;
 		}

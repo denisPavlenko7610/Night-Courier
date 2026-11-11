@@ -195,6 +195,11 @@ namespace NightCourier.PlayModeTests
 			yield return Frame();
 		}
 
+		public void TrackAim(Vector3 world)
+		{
+			Turn(LookError(world));
+		}
+
 		public IEnumerator Aim(Vector3 world, float timeoutSeconds = 3f)
 		{
 			float end = Time.time + timeoutSeconds;

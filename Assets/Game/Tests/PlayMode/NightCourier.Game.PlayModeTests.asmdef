@@ -4,6 +4,8 @@
     "references": [
         "NightCourier.Game",
         "RD.Foundation",
+        "RD.SceneFlow",
+        "RD.DependencyInjection",
         "RD.Localization",
         "RD.Menus",
         "RD.Settings",

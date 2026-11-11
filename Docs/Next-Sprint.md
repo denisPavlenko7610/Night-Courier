@@ -8,8 +8,52 @@ Sizes: S under half a day, M about a day.
 
 | # | Task                         | Size | Acceptance                                                                                                                                                                                                                                                                                                                                                   |
 |---|------------------------------|------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1 | Show the scan result in view | S    | The scan light (`CargoScanner` indicator, high on the north wall) is not in view while the player stands at the plate, and the yellow frame looks the same while scanning and after. Make the scanning and done states readable from the approach, then capture the same views again (`RealInputPlayModeTests.StandardDelivery_ScannerAndDeliveryCues_AreCapturedFromTheApproach`, output in `Temp/CueShots`) |
 | 2 | Play the drone's death       | S    | `Drone.controller` has Idle, Hit and Attack only, so the `Die` trigger plays nothing before `EnemyDeath` shrinks the model. Add a state or leave it and say so in the mapping. Optional                                                                                                                                                                         |
+
+## Final regression pass, 2026-11-10
+
+The full game PlayMode assembly passed as one run, followed by the full game EditMode assembly. This includes live-threat
+Restricted Cargo and credit restoration through Continue, failed destination loads and retries in both directions,
+Express bonuses, scanner feedback captures, all UI layout resolutions and Warehouse rules. Restricted Cargo traversal
+was 22.1 s of bot time with 90 health at settlement. Editor code-reload SerializeReference errors remain unresolved.
+The scope limits of load recovery below still apply.
+
+## Restricted Cargo and destination-load recovery, 2026-11-09
+
+Restricted Cargo now has a synthetic-input Warehouse traversal with both threat types active, clean-bonus and payout
+checks, return to Depot and Continue credit restoration. Depot setup and prerequisite completion use direct test calls.
+GameHost preserves the current scene until a different destination has loaded. A failed destination load is cleaned
+up; failed departure makes the contract available again, and failed return preserves the result and retry button.
+The PlayMode test injects a SceneFlow progress callback failure after a Unity load starts in each direction, then
+retries both paths and checks one payout through Continue. All eight game-loop tests passed.
+
+Unload failures and scene-entry initialization failures now have injected-failure tests too (GDD section 0.6).
+Remaining recovery coverage: same-scene reload failures, and the Warehouse return button staying disabled when a
+navigation request is refused because another is running. Reward recovery before/after wallet mutation already has
+EditMode coverage in CampaignFlowTests.
+
+## Scanner feedback and route-driver correction, 2026-11-09
+
+The scanner's four explicitly assigned frame renderers now show scan progress in orange and turn green when the
+scan completes. Idle remains amber. Play Mode captures from the plate confirm the change without the objective HUD.
+The existing PressurePlate and CountdownTimer remain responsible for occupancy and scan timing.
+
+The route driver previously aimed once before each 2.5 s delivery-hold attempt. Crawler knockback could move the
+courier off that aim, interrupting the hold while the driver kept waiting. It now tracks the terminal with synthetic
+mouse input during the hold. The first corrected short-route sprint settled in 17.8 s and earned the unchanged 22 s
+bonus, but tracking alone still failed in a grouped run. The final driver also releases and retries after focus loss
+and aims at the upper part of the terminal panel, away from low crawler bodies. The paired sprint and delayed-fight
+checks then passed at 17.2 s and 25.1 s. Enemies, knockback, rewards and deadline data are unchanged. This establishes
+a working bot tactic rather than guaranteed timing under every attack. The failures below describe the earlier driver.
+
+## Verification follow-up, 2026-11-09
+
+The full UI layout audit passed at all seven resolutions and its 19 screenshots per resolution were inspected.
+The real-input suite passed ten scenarios but the short-route sprint bonus assertion failed twice (full suite and
+isolated retry): deliveries took 25.4 s and 23.0 s against the 22 s bonus window, with final health 30 and 50.
+Reproduce and diagnose the delay between scanning and delivery before changing the timer or weakening the test.
+The isolated retry scanned at 14.3 s and settled at 23.0 s with crawlers attacking. Earlier 18.0 s timing below is
+historical and was not reproduced in this pass. See GDD section 0.6 for method and limitations.
 
 ## Express: decided and measured, 2026-11-09
 

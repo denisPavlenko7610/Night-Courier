@@ -9,9 +9,11 @@ namespace NightCourier.World
 	public sealed class CargoScanner : MonoBehaviour
 	{
 		private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+		private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
 
 		[SerializeField] private PressurePlate _plate;
 		[SerializeField] private Renderer _indicator;
+		[SerializeField] private Renderer[] _accents = Array.Empty<Renderer>();
 		[SerializeField, Min(0.5f)] private float _scanSeconds = 3f;
 		[SerializeField] private Color _idleColor = new(0.25f, 0.25f, 0.25f);
 		[SerializeField] private Color _scanningColor = new(1f, 0.65f, 0.1f);
@@ -155,8 +157,22 @@ namespace NightCourier.World
 					? Color.Lerp(_idleColor, _scanningColor, 0.4f + 0.6f * Progress)
 					: _idleColor;
 
+			_block.Clear();
 			_block.SetColor(BaseColorId, color);
 			_indicator.SetPropertyBlock(_block);
+
+			Color accentColor = _facts.CargoScanned ? _scannedColor : IsScanning ? color : _scanningColor;
+
+			_block.SetColor(BaseColorId, accentColor);
+			_block.SetColor(EmissionColorId, accentColor);
+
+			foreach (Renderer accent in _accents)
+			{
+				if (accent != null)
+				{
+					accent.SetPropertyBlock(_block);
+				}
+			}
 		}
 	}
 }

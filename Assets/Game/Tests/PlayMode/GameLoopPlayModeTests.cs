@@ -1,15 +1,20 @@
 #if UNITY_INCLUDE_TESTS
+using System;
 using System.Collections;
+using System.Text.RegularExpressions;
+using RD.SceneFlow;
 using System.IO;
 using NightCourier.App;
 using NightCourier.Contracts;
 using NightCourier.UI;
+using RD.DependencyInjection;
 using RD.Mechanics.Interactable;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace NightCourier.PlayModeTests
@@ -17,6 +22,8 @@ namespace NightCourier.PlayModeTests
 	public sealed class GameLoopPlayModeTests
 	{
 		private const int TestTimeoutMilliseconds = 180000;
+		private const string InjectedUnloadFailure = "Injected unload failure.";
+		private const string WarehouseSceneName = "Warehouse";
 		private const long StandardDeliveryPay = 150;
 		private const long FragilePayWithBonus = 320;
 		private const long DeathFee = 25;
@@ -47,6 +54,264 @@ namespace NightCourier.PlayModeTests
 			yield return _driver.NewGameToDepot();
 			yield return _driver.AcceptInTerminal(contractId);
 			yield return _driver.CarryPackageToTheVanAndDepart();
+		}
+
+		[UnityTest, Timeout(TestTimeoutMilliseconds)]
+		public IEnumerator FailedContentLoads_KeepTheCurrentScene_AndAllowRetry()
+		{
+			yield return _driver.BootToMainMenu();
+			yield return _driver.NewGameToDepot();
+			yield return _driver.AcceptInTerminal(GameDriver.StandardDelivery);
+			yield return _driver.PickUpPackage();
+
+			DepotEntry depot = _driver.Depot;
+			ISceneFlow flow = GameDriver.Get<ISceneFlow>(_driver.Host, "_sceneFlow");
+			bool injected = false;
+
+			void FailOnce(float progress)
+			{
+				if (!injected)
+				{
+					injected = true;
+					throw new InvalidOperationException("Injected content load failure.");
+				}
+			}
+
+			flow.ProgressChanged += FailOnce;
+
+			try
+			{
+				LogAssert.Expect(LogType.Exception, new Regex("Injected content load failure"));
+				GameDriver.Get<Interactable>(depot, "_van").Press();
+
+				yield return GameDriver.WaitUntil(
+					() => injected && !GameDriver.Get<bool>(_driver.Host, "_isNavigating") && _driver.Run == null,
+					"the failed departure to recover");
+
+				Assert.That(_driver.Depot, Is.SameAs(depot));
+				Assert.That(_driver.Services.Input.Actions.Gameplay.enabled, Is.True);
+				Assert.That(_driver.Services.Input.Actions.Ui.enabled, Is.False);
+				Assert.That(flow.IsLoaded(SceneIds.Depot), Is.True);
+				Assert.That(flow.IsLoaded(SceneIds.Warehouse), Is.False);
+				Assert.That(_driver.Campaign.Credits, Is.Zero);
+				Assert.That(_driver.Campaign.Contracts.GetAvailable()[0].Id, Is.EqualTo(GameDriver.StandardDelivery));
+			}
+			finally
+			{
+				flow.ProgressChanged -= FailOnce;
+			}
+
+			yield return _driver.AcceptInTerminal(GameDriver.StandardDelivery);
+			yield return _driver.CarryPackageToTheVanAndDepart();
+			yield return _driver.ScanAndDeliver();
+
+			Assert.That(_driver.ResultText, Does.Contain("Base pay: " + StandardDeliveryPay));
+
+			ResultPanelView result = GameDriver.Get<ResultPanelView>(_driver.Warehouse, "_resultView");
+			long credits = _driver.Campaign.Credits;
+			injected = false;
+			flow.ProgressChanged += FailOnce;
+
+			try
+			{
+				LogAssert.Expect(LogType.Exception, new Regex("Injected content load failure"));
+				GameDriver.Click(result.Panel, ResultPanelView.ReturnButtonName);
+
+				yield return GameDriver.WaitUntil(
+					() => injected && !GameDriver.Get<bool>(_driver.Host, "_isNavigating") && result.ReturnEnabled,
+					"the failed return to recover");
+
+				Assert.That(_driver.ResultVisible, Is.True);
+				Assert.That(flow.IsLoaded(SceneIds.Warehouse), Is.True);
+				Assert.That(flow.IsLoaded(SceneIds.Depot), Is.False);
+				Assert.That(_driver.Services.Input.Actions.Ui.enabled, Is.True);
+				Assert.That(_driver.Campaign.Credits, Is.EqualTo(credits));
+			}
+			finally
+			{
+				flow.ProgressChanged -= FailOnce;
+			}
+
+			yield return _driver.ReturnToDepotFromResult();
+			yield return _driver.ReturnToMainMenu();
+			yield return _driver.ContinueToDepot();
+
+			Assert.That(_driver.Campaign.Credits, Is.EqualTo(credits));
+			Assert.That(_driver.Campaign.Contracts.CompletedCount, Is.EqualTo(1));
+		}
+
+		[UnityTest, Timeout(TestTimeoutMilliseconds)]
+		public IEnumerator UnloadFailingBeforeItStarts_KeepsTheDepot_AndAllowsRetry()
+		{
+			yield return _driver.BootToMainMenu();
+			yield return _driver.NewGameToDepot();
+			yield return _driver.AcceptInTerminal(GameDriver.StandardDelivery);
+			yield return _driver.PickUpPackage();
+
+			DepotEntry depot = _driver.Depot;
+			ISceneFlow flow = GameDriver.Get<ISceneFlow>(_driver.Host, "_sceneFlow");
+			bool injected = false;
+			Action<float> failure = FailAfterWarehouseLoads(flow, 1, () => injected = true);
+
+			flow.ProgressChanged += failure;
+
+			try
+			{
+				LogAssert.Expect(LogType.Exception, new Regex(InjectedUnloadFailure));
+				GameDriver.Get<Interactable>(depot, "_van").Press();
+
+				yield return GameDriver.WaitUntil(
+					() => injected && !_driver.Host.IsNavigating && _driver.Run == null,
+					"the failed unload to recover");
+			}
+			finally
+			{
+				flow.ProgressChanged -= failure;
+			}
+
+			Assert.That(_driver.Depot, Is.SameAs(depot));
+			Assert.That(GameDriver.Get<string>(_driver.Host, "_currentSceneId"), Is.EqualTo(SceneIds.Depot));
+			Assert.That(flow.IsLoaded(SceneIds.Depot), Is.True);
+			Assert.That(flow.IsLoaded(SceneIds.Warehouse), Is.False);
+			Assert.That(SceneManager.GetActiveScene().path, Does.EndWith("Depot.unity"));
+			Assert.That(_driver.Services.Input.Actions.Gameplay.enabled, Is.True);
+			Assert.That(_driver.Campaign.Credits, Is.Zero);
+
+			yield return _driver.AcceptInTerminal(GameDriver.StandardDelivery);
+			yield return _driver.CarryPackageToTheVanAndDepart();
+
+			Assert.That(flow.IsLoaded(SceneIds.Depot), Is.False);
+			Assert.That(GameDriver.Get<string>(_driver.Host, "_currentSceneId"), Is.EqualTo(SceneIds.Warehouse));
+		}
+
+		[UnityTest, Timeout(TestTimeoutMilliseconds)]
+		public IEnumerator UnloadFailingAfterItStarted_ContinuesToTheDestination()
+		{
+			yield return _driver.BootToMainMenu();
+			yield return _driver.NewGameToDepot();
+			yield return _driver.AcceptInTerminal(GameDriver.StandardDelivery);
+			yield return _driver.PickUpPackage();
+
+			ISceneFlow flow = GameDriver.Get<ISceneFlow>(_driver.Host, "_sceneFlow");
+			bool injected = false;
+			Action<float> failure = FailAfterWarehouseLoads(flow, 2, () => injected = true);
+
+			flow.ProgressChanged += failure;
+
+			try
+			{
+				LogAssert.Expect(LogType.Exception, new Regex(InjectedUnloadFailure));
+				GameDriver.Get<Interactable>(_driver.Depot, "_van").Press();
+
+				yield return GameDriver.WaitUntil(
+					() => injected && !_driver.Host.IsNavigating && GameDriver.IsEntered(_driver.Warehouse),
+					"the warehouse after the unload error");
+			}
+			finally
+			{
+				flow.ProgressChanged -= failure;
+			}
+
+			Assert.That(flow.IsLoaded(SceneIds.Depot), Is.False);
+			Assert.That(GameDriver.Get<string>(_driver.Host, "_currentSceneId"), Is.EqualTo(SceneIds.Warehouse));
+			Assert.That(SceneManager.GetActiveScene().path, Does.EndWith("Warehouse.unity"));
+			Assert.That(_driver.Run, Is.Not.Null);
+			Assert.That(_driver.Run.Phase, Is.EqualTo(ContractPhase.InTransit));
+		}
+
+		[UnityTest, Timeout(TestTimeoutMilliseconds)]
+		public IEnumerator SceneEntryFailing_RestoresTheMainMenu_AndContinueReturnsToTheDepot()
+		{
+			yield return _driver.BootToMainMenu();
+			yield return _driver.NewGameToDepot();
+			yield return _driver.AcceptInTerminal(GameDriver.StandardDelivery);
+			yield return _driver.PickUpPackage();
+			yield return _driver.SaveCampaign();
+
+			ISceneFlow flow = GameDriver.Get<ISceneFlow>(_driver.Host, "_sceneFlow");
+			bool injected = false;
+
+			void AddSecondEntry(float progress)
+			{
+				if (injected || !flow.IsLoaded(SceneIds.Warehouse))
+				{
+					return;
+				}
+
+				injected = true;
+
+				GameObject second = new("PH_SecondSceneEntry");
+
+				SceneManager.MoveGameObjectToScene(second, SceneManager.GetSceneByName(WarehouseSceneName));
+				second.AddComponent<SecondSceneEntry>();
+			}
+
+			flow.ProgressChanged += AddSecondEntry;
+
+			try
+			{
+				LogAssert.Expect(LogType.Exception, new Regex("exactly one scene entry"));
+				GameDriver.Get<Interactable>(_driver.Depot, "_van").Press();
+
+				yield return GameDriver.WaitUntil(
+					() => injected
+						&& !_driver.Host.IsNavigating
+						&& GameDriver.IsEntered(Object.FindFirstObjectByType<MainMenuEntry>()),
+					"the main menu after the failed scene entry");
+			}
+			finally
+			{
+				flow.ProgressChanged -= AddSecondEntry;
+			}
+
+			Assert.That(GameDriver.Get<string>(_driver.Host, "_currentSceneId"), Is.EqualTo(SceneIds.MainMenu));
+			Assert.That(flow.IsLoaded(SceneIds.Warehouse), Is.False);
+			Assert.That(flow.IsLoaded(SceneIds.Depot), Is.False);
+			Assert.That(Object.FindObjectsByType<SecondSceneEntry>(FindObjectsInactive.Include), Is.Empty);
+
+			yield return _driver.ContinueToDepot();
+
+			Assert.That(_driver.Run, Is.Null);
+			Assert.That(_driver.Campaign.Contracts.GetAvailable()[0].Id, Is.EqualTo(GameDriver.StandardDelivery));
+		}
+
+		private static Action<float> FailAfterWarehouseLoads(ISceneFlow flow, int callbackNumber, Action onFailure)
+		{
+			bool warehouseLoaded = false;
+			bool failed = false;
+			int callbacks = 0;
+
+			return _ =>
+			{
+				if (failed)
+				{
+					return;
+				}
+
+				if (!warehouseLoaded)
+				{
+					warehouseLoaded = flow.IsLoaded(SceneIds.Warehouse);
+
+					return;
+				}
+
+				callbacks++;
+
+				if (callbacks == callbackNumber)
+				{
+					failed = true;
+					onFailure();
+
+					throw new InvalidOperationException(InjectedUnloadFailure);
+				}
+			};
+		}
+
+		public sealed class SecondSceneEntry : MonoBehaviour, ISceneEntry
+		{
+			public void Enter(GameServices services, IObjectResolver scene)
+			{
+			}
 		}
 
 		[UnityTest, Timeout(TestTimeoutMilliseconds)]

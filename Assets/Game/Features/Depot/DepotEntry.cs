@@ -283,7 +283,7 @@ namespace NightCourier.UI
 		{
 			ContractRun run = _campaign.Contracts.ActiveRun;
 
-			if (run == null || run.Phase != ContractPhase.PackageCollected || !_carry.IsCarrying)
+			if (run == null || run.Phase != ContractPhase.PackageCollected || !_carry.IsCarrying || _services.Navigator.IsNavigating)
 			{
 				return;
 			}
@@ -301,12 +301,18 @@ namespace NightCourier.UI
 			catch (Exception exception)
 			{
 				UnityLogger.LogException(exception, this);
+
+				if (this != null)
+				{
+					_campaign.Contracts.Fail();
+					RefreshWorld();
+				}
 			}
 		}
 
 		private async void OnAbort()
 		{
-			if (!_campaign.Contracts.Fail())
+			if (_services.Navigator.IsNavigating || !_campaign.Contracts.Fail())
 			{
 				return;
 			}

@@ -2347,6 +2347,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: NightCourier.Game::NightCourier.World.CargoScanner
   _plate: {fileID: 1047594387}
   _indicator: {fileID: 1636113169}
+  _accents:
+  - {fileID: 377384965}
+  - {fileID: 1185721046}
+  - {fileID: 1554665326}
+  - {fileID: 1793584521}
   _scanSeconds: 3
   _idleColor: {r: 0.25, g: 0.25, b: 0.25, a: 1}
   _scanningColor: {r: 1, g: 0.65, b: 0.1, a: 1}
